@@ -18,12 +18,15 @@ heading:before {
   width: 40px;
   margin-left: -64px; /*aligned with scene mark vertical bottom border*/
 
-  /* scene numbering: */
-  counter-increment: scene;
-  content: counter(scene) " ";
   /*make the number below the act/seq icon*/
   position: relative;
   z-index: 0;
+}
+/* [perf] do not build scene number while on paste */
+#innerdocbody:not(.pasting) heading:before {
+  /* scene numbering: */
+  counter-increment: scene;
+  content: counter(scene) " ";
 }
 
 action{
@@ -42,11 +45,12 @@ parenthetical br{
 parenthetical{
   display:block;
 }
-parenthetical:before {
+/* [perf] do not build parenthesis while on paste */
+#innerdocbody:not(.pasting) parenthetical:before {
   content: '(';
   margin-left: -6px;
 }
-parenthetical:after {
+#innerdocbody:not(.pasting) parenthetical:after {
   content: ')';
   margin-right: -6px;
 }
@@ -72,15 +76,19 @@ heading, action, character, parenthetical, dialogue, transition, shot{
 }
 
 /* Removes top margin for first element on script: */
-#innerdocbody > div:first-of-type > act_name,
-/* handle 'div:first-of-type > heading' on fixSmallZooms.js */
-#innerdocbody > div:first-of-type > action,
-#innerdocbody > div:first-of-type > character,
-#innerdocbody > div:first-of-type > transition,
-#innerdocbody > div:first-of-type > shot {
+/* handle 'div:first-of-type heading' on fixSmallZooms.js */
+/* FIXME move these styles to somewhere else, using a different strategy. Here they are
+   impacting the paste of large files. */
+/*#innerdocbody div:first-of-type episode_name,
+#innerdocbody div:first-of-type act_name,
+#innerdocbody div:first-of-type sequence_name,
+#innerdocbody div:first-of-type action,
+#innerdocbody div:first-of-type character,
+#innerdocbody div:first-of-type transition,
+#innerdocbody div:first-of-type shot {
   margin-top: 0px;
 }
-
+*/
 /* If available width is not even enough to have the regular 61
    chars/line, we make the margins proportional to available width: */
 @media (max-width : 463px) { /* based on value form ep_script_page_view */
