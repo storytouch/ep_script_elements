@@ -75,20 +75,6 @@ heading, action, character, parenthetical, dialogue, transition, shot{
   font-family: monospace;
 }
 
-/* Removes top margin for first element on script: */
-/* handle 'div:first-of-type heading' on fixSmallZooms.js */
-/* FIXME move these styles to somewhere else, using a different strategy. Here they are
-   impacting the paste of large files. */
-/*#innerdocbody div:first-of-type episode_name,
-#innerdocbody div:first-of-type act_name,
-#innerdocbody div:first-of-type sequence_name,
-#innerdocbody div:first-of-type action,
-#innerdocbody div:first-of-type character,
-#innerdocbody div:first-of-type transition,
-#innerdocbody div:first-of-type shot {
-  margin-top: 0px;
-}
-*/
 /* If available width is not even enough to have the regular 61
    chars/line, we make the margins proportional to available width: */
 @media (max-width : 463px) { /* based on value form ep_script_page_view */

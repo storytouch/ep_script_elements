@@ -17,6 +17,7 @@ var preventMultilineDeletion      = require('./doNotAllowEnterAndKeysOnMultiline
 var api                           = require('./api');
 var changeElementOnDropdownChange = require('./changeElementOnDropdownChange');
 var placeCaretOnFirstSEOnLoad     = require('./placeCaretOnFirstSEOnLoad');
+var cssOptimization               = require('./cssOptimization');
 
 // 'undo' & 'redo' are triggered by toolbar buttons; other events are triggered by key shortcuts
 var UNDO_REDO_EVENTS = ['handleKeyEvent', 'undo', 'redo']
@@ -53,6 +54,7 @@ exports.postAceInit = function(hook, context) {
   fixSmallZooms.init();
   api.init(ace);
   placeCaretOnFirstSEOnLoad.init(ace);
+  cssOptimization.init();
 };
 
 // On caret position change show the current script element
