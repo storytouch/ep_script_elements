@@ -12,12 +12,12 @@ var shortcuts                     = require('./shortcuts');
 var mergeLines                    = require('./mergeLines');
 var undoPagination                = require('./undoPagination');
 var fixSmallZooms                 = require('./fixSmallZooms');
+var fixSmallZoomsForPlugins       = require('./fixSmallZoomsForPlugins');
 var caretElementChange            = require('./caretElementChange');
 var preventMultilineDeletion      = require('./doNotAllowEnterAndKeysOnMultilineSelection');
 var api                           = require('./api');
 var changeElementOnDropdownChange = require('./changeElementOnDropdownChange');
 var placeCaretOnFirstSEOnLoad     = require('./placeCaretOnFirstSEOnLoad');
-var cssOptimization               = require('./cssOptimization');
 
 // 'undo' & 'redo' are triggered by toolbar buttons; other events are triggered by key shortcuts
 var UNDO_REDO_EVENTS = ['handleKeyEvent', 'undo', 'redo']
@@ -51,10 +51,10 @@ exports.postAceInit = function(hook, context) {
   var ace = context.ace;
 
   preventMultilineDeletion.init();
+  fixSmallZoomsForPlugins.init();
   fixSmallZooms.init();
   api.init(ace);
   placeCaretOnFirstSEOnLoad.init(ace);
-  cssOptimization.init();
 };
 
 // On caret position change show the current script element
