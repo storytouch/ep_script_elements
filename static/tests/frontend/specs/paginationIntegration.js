@@ -1,4 +1,5 @@
-describe("ep_script_elements - integration with ep_script_page_view", function() {
+// TODO re-enable these tests when pagination plugin is enabled again
+describe.skip("ep_script_elements - integration with ep_script_page_view", function() {
   var utils, padId, paginationWasEnabledBeforeThisTestSuite;
 
   var clickOnPaginationSettingIfNeeded = function(shouldEnable) {
