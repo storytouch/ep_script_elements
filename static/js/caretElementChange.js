@@ -8,7 +8,8 @@ exports.sendMessageCaretElementChanged = function (context) {
   var sameElementOnSelection = isSameElementOnSelection(rep, attributeManager);
   var elementOfCurrentLine;
   var currentLine = rep.selStart[0];
-  var isLineScriptElement = utils.lineIsScriptElement(currentLine);
+  var $currentLine = $(rep.lines.atIndex(currentLine).lineNode);
+  var isLineScriptElement = utils.domLineIsAScriptElement($currentLine);
   if (sameElementOnSelection && isLineScriptElement) {
     elementOfCurrentLine = utils.getLineType(currentLine, attributeManager) || 'general';
   }
