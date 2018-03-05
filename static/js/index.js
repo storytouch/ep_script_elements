@@ -18,6 +18,10 @@ var preventMultilineDeletion      = require('./doNotAllowEnterAndKeysOnMultiline
 var api                           = require('./api');
 var changeElementOnDropdownChange = require('./changeElementOnDropdownChange');
 var placeCaretOnFirstSEOnLoad     = require('./placeCaretOnFirstSEOnLoad');
+var scheduler                     = require('./scheduler');
+
+var updateCaretElement;
+var TIME_TO_UPDATE_CARET_ELEMENT = 900;
 
 // 'undo' & 'redo' are triggered by toolbar buttons; other events are triggered by key shortcuts
 var UNDO_REDO_EVENTS = ['handleKeyEvent', 'undo', 'redo']
@@ -54,6 +58,9 @@ exports.postAceInit = function(hook, context) {
   fixSmallZoomsForPlugins.init();
   fixSmallZooms.init();
   api.init(ace);
+  // need to load before the placeCaretOnFirstSEOnLoad, otherwise aceSelectionChanged is called
+  // and updateCaretElement is not defined yet
+  updateCaretElement = scheduler.init();
   placeCaretOnFirstSEOnLoad.init(ace);
 };
 
@@ -63,7 +70,10 @@ exports.aceSelectionChanged = function(hook, context, cb) {
 
   // If it's an initial setup event then do nothing
   if(cs.type == "setBaseText" || cs.type == "setup" || cs.type == "importText") return false;
-  caretElementChange.sendMessageCaretElementChanged(context);
+
+  updateCaretElement.schedule(function() {
+    caretElementChange.sendMessageCaretElementChanged(context);
+  }, TIME_TO_UPDATE_CARET_ELEMENT);
 }
 
 exports.aceKeyEvent = function(hook, context) {
