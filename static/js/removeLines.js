@@ -30,12 +30,16 @@ var removeAndProcessSelection = function(context, beginningOfSelection, endOfSel
 exports.removeAndProcessSelection = removeAndProcessSelection;
 
 var getAttributesOfLine = function(line, attributeManager){
-  var allLineAttribsOfLine = attributeManager.getAttributesOnLine(line);
-  var lineAttribsOfLine = _.reject(allLineAttribsOfLine, function(attrib) {
-    var attribName = attrib[0];
-    var isDefaultAttrib = utils.DEFAULT_LINE_ATTRIBS.indexOf(attribName) !== -1;
-    return isDefaultAttrib;
-  });
+  var lineAttribsOfLine = [];
+  var lineHasLineAttribs = attributeManager.lineHasMarker(line);
+  if (lineHasLineAttribs) {
+    var allLineAttribsOfLine = attributeManager.getAttributesOnLine(line);
+    lineAttribsOfLine = _.reject(allLineAttribsOfLine, function(attrib) {
+      var attribName = attrib[0];
+      var isDefaultAttrib = utils.DEFAULT_LINE_ATTRIBS.indexOf(attribName) !== -1;
+      return isDefaultAttrib;
+    });
+  }
 
   return lineAttribsOfLine;
 }
