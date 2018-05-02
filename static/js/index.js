@@ -11,8 +11,6 @@ var SM_AND_HEADING                = _.union(utils.SCENE_MARK_SELECTOR, ['heading
 var shortcuts                     = require('./shortcuts');
 var mergeLines                    = require('./mergeLines');
 var undoPagination                = require('./undoPagination');
-var fixSmallZooms                 = require('./fixSmallZooms');
-var fixSmallZoomsForPlugins       = require('./fixSmallZoomsForPlugins');
 var caretElementChange            = require('./caretElementChange');
 var preventMultilineDeletion      = require('./doNotAllowEnterAndKeysOnMultilineSelection');
 var api                           = require('./api');
@@ -55,8 +53,6 @@ exports.postAceInit = function(hook, context) {
   var ace = context.ace;
 
   preventMultilineDeletion.init();
-  fixSmallZoomsForPlugins.init();
-  fixSmallZooms.init();
   api.init(ace);
   // need to load before the placeCaretOnFirstSEOnLoad, otherwise aceSelectionChanged is called
   // and updateCaretElement is not defined yet

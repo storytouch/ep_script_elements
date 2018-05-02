@@ -98,3 +98,50 @@ heading, action, character, parenthetical, dialogue, transition, shot{
     margin-right: 9%;
   }
 }
+
+/*this CSS was taken from fixSmallZoom.js*/
+
+/* Dimensions of script elements*/
+@media (min-width : 464px) {
+  #innerdocbody:not(.pasting) action {
+    margin-top: 16px;
+  }
+
+  #innerdocbody:not(.pasting) character {
+    margin-left: 152px;
+    margin-right: 16px;
+    margin-top: 16px;
+  }
+
+  #innerdocbody:not(.pasting) parenthetical {
+    margin-left: 105px;
+    margin-right: 154px;
+  }
+
+  #innerdocbody:not(.pasting) dialogue {
+    margin-left: 77px;
+    margin-right: 111px;
+  }
+
+  #innerdocbody:not(.pasting) transition {
+    margin-left: 290px;
+    margin-right: 36px;
+    margin-top: 16px;
+  }
+
+  #innerdocbody:not(.pasting) shot {
+    margin-top: 32px;
+  }
+}
+
+/* When these elements are the first ones of script they have no margin-top */
+#innerdocbody:not(.pasting) > div:first-of-type episode_name,
+#innerdocbody:not(.pasting) > div:first-of-type act_name,
+#innerdocbody:not(.pasting) > div:first-of-type sequence_name,
+#innerdocbody:not(.pasting) > div:first-of-type action,
+#innerdocbody:not(.pasting) > div:first-of-type character,
+#innerdocbody:not(.pasting) > div:first-of-type transition,
+#innerdocbody:not(.pasting) > div:first-of-type shot {
+  margin-top: 0px;
+}
+
