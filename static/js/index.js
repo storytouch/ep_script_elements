@@ -2,6 +2,7 @@ var $ = require('ep_etherpad-lite/static/js/rjquery').$;
 var _ = require('ep_etherpad-lite/static/js/underscore');
 
 var scriptElementTransitionUtils = require("ep_script_element_transitions/static/js/utils");
+var pasteUtils = require('ep_script_copy_cut_paste/static/js/utils');
 
 var tags     = require('ep_script_elements/static/js/shared').tags;
 var sceneTag = require('ep_script_elements/static/js/shared').sceneTag;
@@ -24,7 +25,11 @@ var TIME_TO_UPDATE_CARET_ELEMENT = 900;
 // 'undo' & 'redo' are triggered by toolbar buttons; other events are triggered by key shortcuts
 var UNDO_REDO_EVENTS = ['handleKeyEvent', 'undo', 'redo']
 
-var cssFiles = ['ep_script_elements/static/css/editor.css'];
+var CSS_TO_BE_DISABLED_ON_PASTE = 'ep_script_elements/static/css/disable_on_paste.css';
+var cssFiles = [
+  'ep_script_elements/static/css/editor.css',
+  CSS_TO_BE_DISABLED_ON_PASTE,
+];
 
 // All our tags are block elements, so we just return them.
 exports.aceRegisterBlockElements = function() {
@@ -184,6 +189,8 @@ exports.aceInitialized = function(hook, context) {
 
   editorInfo.ace_removeSceneTagFromSelection = _(removeSceneTagFromSelection).bind(context);
   editorInfo.ace_doInsertScriptElement = _(changeElementOnDropdownChange.doInsertScriptElement).bind(context);
+
+  pasteUtils.markStylesToBeDisabledOnPaste(CSS_TO_BE_DISABLED_ON_PASTE);
 }
 
 exports.aceEditorCSS = function() {

@@ -1,0 +1,10 @@
+/* When these elements are the first ones of script they have no margin-top */
+#innerdocbody > div:first-of-type episode_name,
+#innerdocbody > div:first-of-type act_name,
+#innerdocbody > div:first-of-type sequence_name,
+#innerdocbody > div:first-of-type action,
+#innerdocbody > div:first-of-type character,
+#innerdocbody > div:first-of-type transition,
+#innerdocbody > div:first-of-type shot {
+  margin-top: 0px;
+}
