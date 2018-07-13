@@ -72,9 +72,15 @@ exports.aceSelectionChanged = function(hook, context, cb) {
   // If it's an initial setup event then do nothing
   if(cs.type == "setBaseText" || cs.type == "setup" || cs.type == "importText") return false;
 
-  updateCaretElement.schedule(function() {
-    caretElementChange.sendMessageCaretElementChanged(context);
-  }, TIME_TO_UPDATE_CARET_ELEMENT);
+  // when we import a script and load it, some events that changes the selection
+  // are triggered and makes this hook runs before the postAceInit to be called.
+  // This causes updateCaretElement being called without being initialized. To avoid
+  // it we check if the object has been created. Related to #1417
+  if(updateCaretElement) {
+    updateCaretElement.schedule(function() {
+      caretElementChange.sendMessageCaretElementChanged(context);
+    }, TIME_TO_UPDATE_CARET_ELEMENT);
+  }
 }
 
 exports.aceKeyEvent = function(hook, context) {
