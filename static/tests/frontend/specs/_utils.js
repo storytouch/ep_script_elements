@@ -95,47 +95,28 @@ ep_script_elements_test_helper.utils = {
   DIALOGUE: 'dialogue',
   TRANSITION: 'transition',
   SHOT: 'shot',
-  TARGET_ELEMENT: {
-    'general'       : { val : '-1' },
-    'heading'       : { val : '0' },
-    'action'        : { val : '1' },
-    'character'     : { val : '2' },
-    'parenthetical' : { val : '3' },
-    'dialogue'      : { val : '4' },
-    'transition'    : { val : '5' },
-    'shot'          : { val : '6' }
-  },
-  valOf: function(tag) {
-    return this.TARGET_ELEMENT[tag].val;
-  },
+
   changeToElement: function(element, cb, lineNum){
     lineNum = lineNum || 0;
     var apiUtils = ep_script_elements_test_helper.apiUtils;
+    var utils = ep_script_elements_test_helper.utils;
+
     var $line = helper.padInner$('div').eq(lineNum);
     helper.selectLines($line, $line);
+
     apiUtils.simulateTriggerOfDropdownChanged(element);
-    helper.waitFor(function(){
-      var $line = helper.padInner$('div').eq(lineNum);
-      return $line.find(element).length === 1;
-    }).done(cb);
-  },
-  changeToElementAndCheckNewLinePosition: function(tag, callback, lineTarget, newLinePosition){
-    lineTarget = lineTarget || 0;
-    var chrome$ = helper.padChrome$;
-    var inner$ = helper.padInner$;
-    var targetElement = ep_script_elements_test_helper.utils.TARGET_ELEMENT[tag];
 
-    chrome$('#script_element-selection').val(targetElement.val);
-    chrome$('#script_element-selection').change();
-
-    helper.waitFor(function() {
-      var $textElement = ep_script_elements_test_helper.utils.getLine(newLinePosition);
-      return tag === 'general' || $textElement.find(tag).length > 0;
+    if (element === utils.GENERAL) {
+      cb();
+    } else {
+      // headings have synopsis created above them
+      var targetLine = element === utils.HEADING ? lineNum + 2 : lineNum;
+      helper.waitFor(function() {
+        var $line = helper.padInner$('div').eq(targetLine);
+        return $line.find(element).length === 1;
+      }).done(cb);
     }
-    // this helper.waitFor needs a little more time to finish, so we give it 2s
-    , 2000).done(callback);
   },
-
 
   cleanText: function(text) {
     return text.replace(/\s/gi, " ");
@@ -313,5 +294,10 @@ ep_script_elements_test_helper.utils = {
   changeElementType: function(element) {
     var seApiUtils = ep_script_elements_test_helper.apiUtils;
     seApiUtils.simulateTriggerOfDropdownChanged(element);
+  },
+
+  waitForCaretToBeOnLineWithType: function(element, done) {
+    var apiUtils = ep_script_elements_test_helper.apiUtils;
+    apiUtils.waitForApiToSend(element, done);
   },
 };
