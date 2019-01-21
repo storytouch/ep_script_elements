@@ -63,8 +63,7 @@ function placeCaretOnLine(line, editorInfo) {
 function scrollToLine(lineNumber, rep) {
   // Set the top of the form to be the same Y as the target Rep
   var y = getYofLine(lineNumber, rep);
-  utils.getPadOuter().find('#outerdocbody').scrollTop(y); // Works in Chrome
-  utils.getPadOuter().find('#outerdocbody').parent().scrollTop(y); // Works in Firefox
+  utils.getPadOuter().find('#outerdocbody').parent().scrollTop(y);
 }
 
 function getYofLine(lineNumber, rep) {
