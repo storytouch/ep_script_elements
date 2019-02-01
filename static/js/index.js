@@ -9,6 +9,7 @@ var sceneTag = require('ep_script_elements/static/js/shared').sceneTag;
 
 var utils                         = require('./utils');
 var SM_AND_HEADING                = _.union(utils.SCENE_MARK_SELECTOR, ['heading']);
+var aceEditorCSS                  = require('./aceEditorCSS');
 var shortcuts                     = require('./shortcuts');
 var mergeLines                    = require('./mergeLines');
 var undoPagination                = require('./undoPagination');
@@ -25,11 +26,7 @@ var TIME_TO_UPDATE_CARET_ELEMENT = 900;
 // 'undo' & 'redo' are triggered by toolbar buttons; other events are triggered by key shortcuts
 var UNDO_REDO_EVENTS = ['handleKeyEvent', 'undo', 'redo']
 
-var CSS_TO_BE_DISABLED_ON_PASTE = 'ep_script_elements/static/css/disable_on_paste.css';
-var cssFiles = [
-  'ep_script_elements/static/css/editor.css',
-  CSS_TO_BE_DISABLED_ON_PASTE,
-];
+var CSS_TO_BE_DISABLED_ON_PASTE = aceEditorCSS.CSS_TO_BE_DISABLED_ON_PASTE;
 
 // All our tags are block elements, so we just return them.
 exports.aceRegisterBlockElements = function() {
@@ -198,10 +195,6 @@ exports.aceInitialized = function(hook, context) {
 
   pasteUtils.markStylesToBeDisabledOnPaste(CSS_TO_BE_DISABLED_ON_PASTE);
 }
-
-exports.aceEditorCSS = function() {
-  return cssFiles;
-};
 
 // Find out which lines are selected and remove scenetag from them
 function removeSceneTagFromSelection() {
