@@ -417,8 +417,9 @@ var replaceContentOfTargetLineByNextLine = function(targetLine, editorInfo, rep,
   changeLineAttribute(targetLine, attributeOfLineToBeKept, attributeManager);
 
   // replace content
-  var endOfTargetLine = rep.lines.offsetOfIndex(lineBelowTarget) - 1;
-  editorInfo.ace_performDocumentReplaceCharRange(endOfTargetLine, endOfTargetLine + 1, '');
+  var beginningOfTargetLine = rep.lines.offsetOfIndex(targetLine);
+  var beginningOfLineAfterTarget = rep.lines.offsetOfIndex(targetLine + 1);
+  editorInfo.ace_performDocumentReplaceCharRange(beginningOfTargetLine, beginningOfLineAfterTarget, '');
 }
 
 var placeCaretOnBeginningOfLine = function(targetLine, editorInfo, rep) {

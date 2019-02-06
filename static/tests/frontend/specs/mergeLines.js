@@ -14,7 +14,7 @@ describe("ep_script_elements - merge lines", function(){
   });
 
   context('when element is the first of pad and user presses backspace in the beginning of line', function() {
-    beforeEach(function(cb) {
+    before(function(cb) {
       utils.placeCaretInTheBeginningOfLine(0, function(){
         utils.pressKey(BACKSPACE);
 
@@ -38,7 +38,7 @@ describe("ep_script_elements - merge lines", function(){
   });
 
   context('when element is the last of pad and user presses delete in the end of line', function() {
-    beforeEach(function(cb) {
+    before(function(cb) {
       utils.placeCaretAtTheEndOfLine(2, function(){
         // apparently first DELETE is ignored
         utils.pressKey(DELETE);
@@ -256,7 +256,7 @@ describe("ep_script_elements - merge lines", function(){
   context('when user presses BACKSPACE and there is a selection', function(){
     var testItRestoresOriginalTextsAndTypesOnUndo = function() {
       context("and user performs undo", function(){
-        beforeEach(function(done){
+        before(function(done){
           // we have to wait a little to save the changes
           setTimeout(function() {
             utils.undo();
@@ -471,6 +471,7 @@ describe("ep_script_elements - merge lines", function(){
     });
   });
 
+  // test similar scenarios: (1) with 1st line completely empty, and (2) with 1st line with a whitespace
   context('when first line of script is an empty element and there is a heading with scene marks after it', function() {
     var LINE_WITH_HEADING = 7;
     var ORIGINAL_NUMBER_OF_LINES = 9;
@@ -504,7 +505,7 @@ describe("ep_script_elements - merge lines", function(){
       });
     }
 
-    var testUndoAddsEmptyLineBackAndKeepOriginalLineTypes = function() {
+    var testUndoAddsEmptyLineBackAndKeepOriginalLineTypes = function(emptyLineText) {
       context("then user presses UNDO", function(){
         before(function(done) {
           // wait some time, so changes are saved before undoing
@@ -520,7 +521,7 @@ describe("ep_script_elements - merge lines", function(){
           helper.waitFor(function() {
             return lineIsBackToScript();
           }).done(function() {
-            utils.validateLineTextAndType(0, '', 'action');
+            utils.validateLineTextAndType(0, emptyLineText, 'action');
             utils.validateLineTextAndType(1, sceneMarkUtils.actNameOf('heading'), 'act_name');
             utils.validateLineTextAndType(2, sceneMarkUtils.actSummaryOf('heading'), 'act_summary');
             utils.validateLineTextAndType(3, sceneMarkUtils.sequenceNameOf('heading'), 'sequence_name');
@@ -535,36 +536,43 @@ describe("ep_script_elements - merge lines", function(){
       });
     }
 
-    before(function(done) {
-      this.timeout(4000);
-      helperFunctions.createScriptWithEmptyNonHeadingOnTopThenAHeadingWithSceneMark(done);
-    });
+    var performAllTests = function(emptyLineText, contextDescription) {
+      context(contextDescription, function() {
+        before(function(done) {
+          this.timeout(4000);
+          helperFunctions.createScriptWithEmptyNonHeadingOnTopThenAHeadingWithSceneMark(emptyLineText, done);
+        });
 
-    context('and user presses DELETE at the line on top of script', function() {
-      before(function(done) {
-        utils.placeCaretInTheBeginningOfLine(0, function() {
-          utils.pressKey(DELETE);
-          done();
+        context('and user presses DELETE at the line on top of script', function() {
+          before(function(done) {
+            utils.placeCaretAtTheEndOfLine(0, function() {
+              utils.pressKey(DELETE);
+              done();
+            });
+          });
+
+          testItRemovesFirstLineAndKeepOriginalLineTypes();
+          testUndoAddsEmptyLineBackAndKeepOriginalLineTypes(emptyLineText);
+        });
+
+        context('and user presses BACKSPACE at the beginning of line with heading', function() {
+          before(function(done) {
+            utils.placeCaretInTheBeginningOfLine(LINE_WITH_HEADING, function() {
+              utils.pressKey(BACKSPACE);
+              done();
+            });
+          });
+
+          testItRemovesFirstLineAndKeepOriginalLineTypes();
+          testUndoAddsEmptyLineBackAndKeepOriginalLineTypes(emptyLineText);
         });
       });
+    }
 
-      testItRemovesFirstLineAndKeepOriginalLineTypes();
-      testUndoAddsEmptyLineBackAndKeepOriginalLineTypes();
-    });
-
-    context('and user presses BACKSPACE at the beginning of line with heading', function() {
-      before(function(done) {
-        utils.placeCaretInTheBeginningOfLine(LINE_WITH_HEADING, function() {
-          utils.pressKey(BACKSPACE);
-          done();
-        });
-      });
-
-      testItRemovesFirstLineAndKeepOriginalLineTypes();
-      testUndoAddsEmptyLineBackAndKeepOriginalLineTypes();
-    });
+    performAllTests('', 'and first line is completely empty');
+    // tests for https://trello.com/c/E2RDbEwy/1601
+    performAllTests('  ', 'and first line has whitespaces');
   });
-
 });
 
 var ep_script_elements_test_helper = ep_script_elements_test_helper || {};
@@ -591,11 +599,11 @@ ep_script_elements_test_helper.mergeLines = {
       utils.createScriptWith(script, "Third Line!", cb);
     });
   },
-  createScriptWithEmptyNonHeadingOnTopThenAHeadingWithSceneMark: function(cb){
+  createScriptWithEmptyNonHeadingOnTopThenAHeadingWithSceneMark: function(emptyLineText, cb) {
     var utils = ep_script_elements_test_helper.utils;
     var sceneMarkUtils = ep_script_scene_marks_test_helper.utils;
 
-    var empty     = utils.general('');
+    var empty     = utils.general(emptyLineText);
     var act       = sceneMarkUtils.act('heading');
     var sequence  = sceneMarkUtils.sequence('heading');
     var synopsis  = sceneMarkUtils.synopsis('heading');
