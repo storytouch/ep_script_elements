@@ -23,6 +23,14 @@
       }
     },
     {
+      "comment": "This part has the CSS styles that are exported on a separated <style> tag",
+      "name": "disable_css_on_paste",
+      "post": ["ep_script_elements/main"],
+      "client_hooks": {
+        "aceEditorCSS": "ep_script_elements/static/js/aceEditorCSS:disableOnPaste"
+      }
+    },
+    {
       "name": "aceKeyEvent",
       "pre": ["ep_font_color/main", "ep_comments_page/comments_page"],
       "client_hooks": {
