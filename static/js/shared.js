@@ -3,13 +3,22 @@ var _ = require('ep_etherpad-lite/static/js/underscore');
 var tags = ['heading', 'action', 'character', 'parenthetical', 'dialogue', 'transition', 'shot'];
 var sceneTag = ["scene-number", "scene-duration", "scene-temporality", "scene-workstate", "scene-time"];
 
+var SCENE_LENGTH_ATTRIB_NAME = 'sceneLength';
+var SCENE_LENGTH_CLASS_PREFIX = 'sceneLength-';
+
 var collectContentPre = function(hook, context){
   var tname = context.tname;
   var state = context.state;
   var lineAttributes = state.lineAttributes
+  var cls = context.cls || '';
 
   if(tname === "div" || tname === "p"){
     delete lineAttributes['script_element'];
+    delete lineAttributes[SCENE_LENGTH_ATTRIB_NAME];
+  }
+
+  if (cls.startsWith(SCENE_LENGTH_CLASS_PREFIX)){
+    lineAttributes[SCENE_LENGTH_ATTRIB_NAME] = cls.split('-')[1]; // from className-16 gets '16'
   }
 
   if (isScriptElement(tname)) {
@@ -29,7 +38,7 @@ var collectContentPost = function(hook, context){
   if(tagIndex >= 0){
     //take line-attributes used away - script_element and scenesData[]
     //all elements in the tags array uses script_element as key of lineattributes
-    var usedLineAttributes = _.union(sceneTag, ['script_element'])
+    var usedLineAttributes = _.union(sceneTag, ['script_element', SCENE_LENGTH_ATTRIB_NAME])
     for (var i = 0; i < usedLineAttributes.length ; i++) {
       delete lineAttributes[usedLineAttributes[i]];
     }
@@ -47,3 +56,5 @@ exports.collectContentPre = collectContentPre;
 exports.collectContentPost = collectContentPost;
 exports.tags = tags;
 exports.sceneTag = sceneTag;
+exports.SCENE_LENGTH_ATTRIB_NAME = SCENE_LENGTH_ATTRIB_NAME;
+exports.SCENE_LENGTH_CLASS_PREFIX = SCENE_LENGTH_CLASS_PREFIX;

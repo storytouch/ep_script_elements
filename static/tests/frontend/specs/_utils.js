@@ -71,9 +71,32 @@ ep_script_elements_test_helper.utils = {
   general: function(text) {
     return text + "<br/>";
   },
+  newPad: function(cb) {
+    var self = this;
+    var padId;
+    var apiUtils = ep_script_elements_test_helper.apiUtils;
+    padId = helper.newPad(function(){
+      self._setEascScriptAsEnabled();
+      apiUtils.startListeningToApiEvents();
+      self._waitLoadSceneMarkPlugin(function(){
+        cb(null, padId);
+      });
+    });
+  },
+  _waitLoadSceneMarkPlugin: function(cb) {
+    helper.waitFor(function(){
+      var pluginIsNotLoaded = (undefined === helper.padChrome$.window.clientVars.plugins.plugins.ep_script_scene_marks);
+      return !pluginIsNotLoaded;
+    }).done(cb);
+  },
+  _setEascScriptAsEnabled: function() {
+    var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
+    thisPlugin.isScriptActivated = true;
+  },
   createScriptWith: function(scriptContent, lastLineText, cb) {
     var inner$ = helper.padInner$;
     var utils = ep_script_elements_test_helper.utils;
+    this._setEascScriptAsEnabled();
 
     // set script content
     var $firstLine = inner$("div").first();
@@ -299,5 +322,22 @@ ep_script_elements_test_helper.utils = {
   waitForCaretToBeOnLineWithType: function(element, done) {
     var apiUtils = ep_script_elements_test_helper.apiUtils;
     apiUtils.waitForApiToSend(element, done);
+  },
+
+  waitForAddingSceneLengthClasses: function(cb){
+    var self = this;
+    helper.waitFor(function(){
+      var headingsClasses = self.getHeadingsSceneLengthClass();
+      return headingsClasses.length && headingsClasses[0];
+    }, 5000).done(cb);
+  },
+
+  getHeadingsSceneLengthClass: function() {
+    var $headings = helper.padInner$('heading');
+    return _.map($headings, function(heading){
+      return Array.from(heading.classList).find(function(headingClass){
+        return headingClass.startsWith('sceneLength-');
+      });
+    });
   },
 };

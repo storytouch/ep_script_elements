@@ -1,6 +1,9 @@
-var $                        = require('ep_etherpad-lite/static/js/rjquery').$;
-var _                        = require('ep_etherpad-lite/static/js/underscore');
-var SCRIPT_ELEMENTS_SELECTOR = require('./shared').tags;
+var $      = require('ep_etherpad-lite/static/js/rjquery').$;
+var _      = require('ep_etherpad-lite/static/js/underscore');
+var shared = require('./shared');
+
+var SCRIPT_ELEMENTS_SELECTOR = shared.tags;
+var sceneLengthClassPrefix = shared.SCENE_LENGTH_CLASS_PREFIX;
 exports.SCENE_MARK_SELECTOR  = require('ep_script_scene_marks/static/js/constants').SCENE_MARK_TAGS;
 
 var LINE_ELEMENTS_SELECTOR   = _.union(SCRIPT_ELEMENTS_SELECTOR, exports.SCENE_MARK_SELECTOR).join(", ");
@@ -9,6 +12,8 @@ exports.DEFAULT_LINE_ATTRIBS = ['author', 'lmkr', 'insertorder', 'start'];
 
 exports.CHANGE_ELEMENT_EVENT = 'insertscriptelement';
 exports.HEADING_ADD_EVENT    = 'headingAdded';
+
+var padHasLoaded = false;
 
 // Easier access to outer pad
 var padOuter;
@@ -157,4 +162,38 @@ exports.getLineNumberOfCaretLine = function(rep) {
   var firstLineNumber = exports.getLineNumberFromDOMLine($firstLine, rep);
 
   return firstLineNumber;
+}
+
+exports.getLineDefaultSize = function() {
+  return exports.getPadOuter().find('#linemetricsdiv').get(0).getBoundingClientRect().height;
+};
+
+// setWraps is the last event when loading a pad before user can start typing
+exports.checkIfPadHasLoaded = function(eventType) {
+  if (!padHasLoaded && eventType === 'setWraps') padHasLoaded = true;
+  return padHasLoaded;
+}
+
+exports.waitForLineToBeCompletelyCollected = function($line) {
+  var lineIsHeading = $line.find('heading').length;
+  if (!lineIsHeading) return true;
+  var heading = $line.find('heading').get(0);
+  return exports.getHeightOfSceneFromHeadingClass(heading);
+}
+
+exports.getHeightOfSceneFromHeadingClass = function(element) {
+  var elementClasses = element.classList;
+  var sceneLengthClass = Array.from(elementClasses).find(isSceneLenghtClass);
+  return getValueFromSceneLengthClass(sceneLengthClass);
+}
+
+// TODO: use this function on shared.js
+var getValueFromSceneLengthClass = function(sceneLengthClass) {
+  var lengthOfScene = sceneLengthClass ? sceneLengthClass.split('-')[1] : '0';
+  return Number(lengthOfScene);
+}
+
+// TODO: use this function on shared.js
+var isSceneLenghtClass = function(className) {
+  return className.startsWith(sceneLengthClassPrefix);
 }

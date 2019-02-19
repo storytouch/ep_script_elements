@@ -1,5 +1,6 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 var utils = require('./utils');
+var shared = require('./shared');
 var undoPagination = require('./undoPagination');
 
 exports.updateElementOfSelection = function(ace, element) {
@@ -39,6 +40,9 @@ exports.doInsertScriptElement = function(element) {
 }
 
 function removeAttribute(lineNumber, attributeManager) {
+  // on headings we have an additional attribute to save the scene length
+  attributeManager.removeAttributeOnLine(lineNumber, shared.SCENE_LENGTH_ATTRIB_NAME);
+
   attributeManager.removeAttributeOnLine(lineNumber, 'script_element');
 }
 

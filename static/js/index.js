@@ -1,12 +1,11 @@
 var $ = require('ep_etherpad-lite/static/js/rjquery').$;
 var _ = require('ep_etherpad-lite/static/js/underscore');
 
-var scriptElementTransitionUtils = require("ep_script_element_transitions/static/js/utils");
-var pasteUtils = require('ep_script_copy_cut_paste/static/js/utils');
+var scriptElementTransitionUtils = require('ep_script_element_transitions/static/js/utils');
+var pasteUtils                   = require('ep_script_copy_cut_paste/static/js/utils');
+var eascUtils                    = require("ep_script_toggle_view/static/js/utils");
 
-var tags     = require('ep_script_elements/static/js/shared').tags;
-var sceneTag = require('ep_script_elements/static/js/shared').sceneTag;
-
+var shared                        = require('./shared');
 var utils                         = require('./utils');
 var SM_AND_HEADING                = _.union(utils.SCENE_MARK_SELECTOR, ['heading']);
 var aceEditorCSS                  = require('./aceEditorCSS');
@@ -19,12 +18,21 @@ var api                           = require('./api');
 var changeElementOnDropdownChange = require('./changeElementOnDropdownChange');
 var placeCaretOnFirstSEOnLoad     = require('./placeCaretOnFirstSEOnLoad');
 var scheduler                     = require('./scheduler');
+var calculateSceneLength          = require('./calculateSceneLength');
+var ace_calculateSceneLength;
+var calculateSceneEdgesLength = require('./calculateSceneEdgesLength');
 
-var updateCaretElement;
+var tags = shared.tags;
+var sceneTag = shared.sceneTag;
+var schedule, updateSceneLengthSchedule;
+var SM_AND_HEADING = _.union(utils.SCENE_MARK_SELECTOR, ['heading']);
 var TIME_TO_UPDATE_CARET_ELEMENT = 900;
+var TIME_TO_CALCULATE_SCENE_LENGTH = 1200;
+
+var pluginHasInitialized = false;
 
 // 'undo' & 'redo' are triggered by toolbar buttons; other events are triggered by key shortcuts
-var UNDO_REDO_EVENTS = ['handleKeyEvent', 'undo', 'redo']
+var UNDO_REDO_EVENTS = ['handleKeyEvent', 'undo', 'redo'];
 
 var CSS_TO_BE_DISABLED_ON_PASTE = aceEditorCSS.CSS_TO_BE_DISABLED_ON_PASTE;
 
@@ -36,10 +44,30 @@ exports.aceRegisterBlockElements = function() {
 exports.aceEditEvent = function(hook, context) {
   var callstack  = context.callstack;
   var eventType  = callstack.editEvent.eventType;
+  var padHasLoadedCompletely = finishedLoadingPadAndSceneMarkIsInitialized(eventType);
 
   if (lineWasChangedByShortcut(eventType) || eventMightBeAnUndo(callstack)) {
     caretElementChange.sendMessageCaretElementChanged(context);
   }
+
+  if (padHasLoadedCompletely && (isAChangeOnPadContent(eventType, callstack) || isAChangeOnElementType(eventType))) {
+    updateSceneLengthSchedule.schedule(function() {
+      ace_calculateSceneLength().run();
+    }, TIME_TO_CALCULATE_SCENE_LENGTH);
+  }
+}
+
+var finishedLoadingPadAndSceneMarkIsInitialized = function(eventType) {
+  return utils.checkIfPadHasLoaded(eventType) && pluginHasInitialized;
+}
+
+var isAChangeOnPadContent = function(eventType, callstack) {
+  return callstack.docTextChanged && utils.checkIfPadHasLoaded(eventType);
+}
+
+var isAChangeOnElementType = function(eventType) {
+  return lineWasChangedByShortcut(eventType) ||
+         eventType === utils.CHANGE_ELEMENT_EVENT;
 }
 
 var lineWasChangedByShortcut = function(eventType) {
@@ -53,28 +81,47 @@ var eventMightBeAnUndo = function(callstack) {
 
 exports.postAceInit = function(hook, context) {
   var ace = context.ace;
+  pad.plugins = pad.plugins || {};
+  pad.plugins.ep_script_elements = {};
+  thisPlugin = pad.plugins.ep_script_elements;
+  thisPlugin.calculateSceneEdgesLength = calculateSceneEdgesLength.init();
+  thisPlugin.isScriptActivated = undefined;
 
   preventMultilineDeletion.init();
   api.init(ace);
   // need to load before the placeCaretOnFirstSEOnLoad, otherwise aceSelectionChanged is called
-  // and updateCaretElement is not defined yet
-  updateCaretElement = scheduler.init();
+  // and schedule is not defined yet
+  schedule = scheduler.init();
+  updateSceneLengthSchedule = scheduler.init();
+
   placeCaretOnFirstSEOnLoad.init(ace);
+  listenToEascChanges();
+  pluginHasInitialized = true;
 };
+
+var listenToEascChanges = function() {
+  var $innerDoc = utils.getPadInner().find('#innerdocbody');
+  $innerDoc.on(eascUtils.EASC_CHANGED_EVENT, function(e, data){
+    var eascMode = data.eascMode;
+    var isScriptActivated = eascMode.includes(eascUtils.SCRIPT_ELEMENT_TYPE);
+    thisPlugin.isScriptActivated = isScriptActivated;
+  });
+}
 
 // On caret position change show the current script element
 exports.aceSelectionChanged = function(hook, context, cb) {
   var cs = context.callstack;
 
   // If it's an initial setup event then do nothing
-  if(cs.type == "setBaseText" || cs.type == "setup" || cs.type == "importText") return false;
+  if (cs.type == 'setBaseText' || cs.type == 'setup' || cs.type == 'importText') return false;
 
   // when we import a script and load it, some events that changes the selection
   // are triggered and makes this hook runs before the postAceInit to be called.
-  // This causes updateCaretElement being called without being initialized. To avoid
+  // This causes schedule being called without being initialized. To avoid
   // it we check if the object has been created. Related to #1417
-  if(updateCaretElement) {
-    updateCaretElement.schedule(function() {
+
+  if (schedule) {
+    schedule.schedule(function() {
       caretElementChange.sendMessageCaretElementChanged(context);
     }, TIME_TO_UPDATE_CARET_ELEMENT);
   }
@@ -115,6 +162,8 @@ exports.aceAttribsToClasses = function(hook, context) {
     return [ 'script_element:' + context.value ];
   } else if (context.key === undoPagination.UNDO_FIX_ATTRIB) {
     return [ undoPagination.UNDO_FIX_ATTRIB ];
+  } else if (context.key === shared.SCENE_LENGTH_ATTRIB_NAME) {
+    return [ shared.SCENE_LENGTH_ATTRIB_NAME + ':' + context.value ]; // e.g. sceneLength:32
   }
 }
 
@@ -154,6 +203,7 @@ var findExtraFlagForLine = function($node) {
 // Here we convert the class script_element:heading into a tag
 var processScriptElementAttribute = function(cls) {
   var scriptElementType = /(?:^| )script_element:([A-Za-z0-9]*)/.exec(cls);
+  var sceneLength = /(?:^| )sceneLength:([0-9 \/]+)/.exec(cls);
   var tagIndex;
 
   if (scriptElementType) tagIndex = _.indexOf(tags, scriptElementType[1]);
@@ -161,7 +211,7 @@ var processScriptElementAttribute = function(cls) {
   if (tagIndex !== undefined && tagIndex >= 0) {
     var tag = tags[tagIndex];
     var modifier = {
-      preHtml: '<' + tag +'>',
+      preHtml: '<' + tag + buildSceneLengthClass(sceneLength) + '>',
       postHtml: '</' + tag + '>',
       processedMarker: true
     };
@@ -169,6 +219,15 @@ var processScriptElementAttribute = function(cls) {
   }
 
   return [];
+}
+
+// we only add this class on headings
+var buildSceneLengthClass = function(sceneLength) {
+  var sceneLengthClass = '';
+  if (sceneLength) {
+    sceneLengthClass = ' class=" ' + shared.SCENE_LENGTH_CLASS_PREFIX + sceneLength[1] + '"';
+  }
+  return sceneLengthClass;
 }
 
 var processUndoFixAttribute = function(cls) {
@@ -192,6 +251,7 @@ exports.aceInitialized = function(hook, context) {
 
   editorInfo.ace_removeSceneTagFromSelection = _(removeSceneTagFromSelection).bind(context);
   editorInfo.ace_doInsertScriptElement = _(changeElementOnDropdownChange.doInsertScriptElement).bind(context);
+  ace_calculateSceneLength = _(calculateSceneLength.init).bind(context);
 
   pasteUtils.markStylesToBeDisabledOnPaste(CSS_TO_BE_DISABLED_ON_PASTE);
 }
