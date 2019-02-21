@@ -13,27 +13,28 @@ exports.stylesForExport = function(hook, padId, cb){
   cb(style);
 };
 
-// line, apool,attribLine,text
 exports.getLineHTMLForExport = function (hook, context) {
   var attribLine = context.attribLine;
   var apool = context.apool;
   var hasSceneMark = sceneMarkUtils.findSceneMarkAttribKey(context);
-  if (hasSceneMark){ // if it is a scene mark it is not a script element (including a general)
-    return;
-  }
-  var script_element = null;
-  script_element = findAttrib(attribLine, apool, "script_element");
 
-  //try to find a scene line attributes. if it's found it mount the HTML with it
-  var dataAttributes = mountAdditionalSceneData(context);
+  //if it is a scene mark it is not a script element (including a general)
+  if (hasSceneMark) return;
+
+  //try to find a scene line attributes. if it's found it mounts the HTML with it
+  var script_element = findAttrib(attribLine, apool, "script_element");
   var text = context.lineContent;
   if (script_element) {
     text = text.substring(1);
-  } else { // if it is not a script either a scene mark so it is a general
+  } else { // if it is not a script nor a scene mark, then it is a general
     script_element = "general";
   }
+
   //these dataAttributes refers do scene attributes like scene-name, scene-number, ...
-  return "<" + script_element + ">" + dataAttributes + text + "</" + script_element + ">";
+  var dataAttributes = mountAdditionalSceneData(context);
+
+  //finally, mount the HTML to export
+  context.lineContent = `<${script_element}>${dataAttributes}${text}</${script_element}>`;
 }
 
 //attrib is the element key in the pair key-value, scene-name:'whatever', in this case scene-name
