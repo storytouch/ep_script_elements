@@ -1,7 +1,6 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 var $ = require('ep_etherpad-lite/static/js/rjquery').$;
 var detailedLinesChangedListener = require('ep_script_scene_marks/static/js/detailedLinesChangedListener');
-var utils = require('./utils');
 
 var calculateSceneEdgesLength = function() {
   this._listenToElementsChanges();

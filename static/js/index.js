@@ -85,6 +85,7 @@ exports.postAceInit = function(hook, context) {
   pad.plugins.ep_script_elements = {};
   thisPlugin = pad.plugins.ep_script_elements;
   thisPlugin.calculateSceneEdgesLength = calculateSceneEdgesLength.init();
+  thisPlugin.calculateSceneLength = ace_calculateSceneLength; // provide access to other plugins
   thisPlugin.isScriptActivated = undefined;
 
   preventMultilineDeletion.init();

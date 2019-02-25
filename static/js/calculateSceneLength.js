@@ -79,6 +79,22 @@ calculateSceneLength.prototype._getSceneLength = function($interval, lineDefault
   return lastElementBottom - firstElementTop;
 };
 
+calculateSceneLength.prototype.getSumOfAllScenesUntilScene = function($heading) {
+  var $allHeadingsUntilSceneTarget = this._getScenesTarget($heading);
+  var sumOfAllSceneUntilSceneTarget = _.reduce($allHeadingsUntilSceneTarget, function(sumOfSceneLength, div) {
+    var element = $(div).children().get(0);
+    var sceneLength = utils.getHeightOfSceneFromHeadingClass(element);
+    return sumOfSceneLength + sceneLength;
+  }, 0);
+  return sumOfAllSceneUntilSceneTarget;
+}
+
+calculateSceneLength.prototype._getScenesTarget = function($heading) {
+  var $allHeadings = utils.getPadInner().find('div:has(heading)');
+  var indexOfHeadingTarget = $allHeadings.index($heading);
+  return $allHeadings.slice(0, indexOfHeadingTarget);
+}
+
 exports.init = function() {
   var context = this;
   var attributeManager = context.documentAttributeManager;
