@@ -1,6 +1,5 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 var utils = require('./utils');
-var shared = require('./shared');
 var undoPagination = require('./undoPagination');
 
 exports.updateElementOfSelection = function(ace, element) {
@@ -22,7 +21,7 @@ exports.doInsertScriptElement = function(element) {
   var lastLine = getLastLine(firstLine, rep);
   var isRemovingAttribute = element === 'general';
 
-  var action = isRemovingAttribute ? removeAttribute : addAttributeIfElementIsNotSM;
+  var action = isRemovingAttribute ? utils.removeLineType : addAttributeIfElementIsNotSM;
   _(_.range(firstLine, lastLine + 1)).each(function(lineNumber) {
     action(lineNumber, attributeManager, element);
 
@@ -39,19 +38,11 @@ exports.doInsertScriptElement = function(element) {
   });
 }
 
-function removeAttribute(lineNumber, attributeManager) {
-  // on headings we have an additional attribute to save the scene length
-  attributeManager.removeAttributeOnLine(lineNumber, shared.SCENE_LENGTH_ATTRIB_NAME);
-
-  attributeManager.removeAttributeOnLine(lineNumber, 'script_element');
-}
-
-function addAttributeIfElementIsNotSM(lineNumber, attributeManager, value) {
+var addAttributeIfElementIsNotSM = function(lineNumber, attributeManager, value) {
   // avoid applying SE attrib on SM tags
   var isLineScriptElement = utils.lineIsScriptElement(lineNumber);
-  if(isLineScriptElement){
-    attributeManager.removeAttributeOnLine(lineNumber, 'script_element');
-    attributeManager.setAttributeOnLine(lineNumber, 'script_element', value);
+  if (isLineScriptElement) {
+    utils.setLineType(lineNumber, attributeManager, value);
   }
 }
 

@@ -296,14 +296,6 @@ var isFirstLinePartiallySelected = function(context){
   return firstLineIsPartiallySelected;
 }
 
-var changeLineAttribute = function(line, lineAttribute, attributeManager) {
-  if (lineAttribute) {
-    attributeManager.setAttributeOnLine(line, 'script_element', lineAttribute);
-  } else {
-    attributeManager.removeAttributeOnLine(line, 'script_element');
-  }
-}
-
 var textSelected = function(editorInfo) {
   // HACK: we need to force editor to sync with user selection before testing if there
   // is some text selected
@@ -409,12 +401,12 @@ var removeContentFromEndOfPreviousLineUntilEndOfTargetLine = function(targetLine
 }
 var replaceContentOfTargetLineByNextLine = function(targetLine, editorInfo, rep, attributeManager) {
   // this is necessary for UNDO to work:
-  changeLineAttribute(targetLine, null, attributeManager);
+  utils.updateLineType(targetLine, attributeManager, null);
 
   // set line type
   var lineBelowTarget = targetLine + 1;
   var attributeOfLineToBeKept = utils.getLineType(lineBelowTarget, attributeManager);
-  changeLineAttribute(targetLine, attributeOfLineToBeKept, attributeManager);
+  utils.updateLineType(targetLine, attributeManager, attributeOfLineToBeKept);
 
   // replace content
   var beginningOfTargetLine = rep.lines.offsetOfIndex(targetLine);

@@ -54,7 +54,8 @@ var createANewLine = function(editorInfo){
 }
 
 var setAttributesOnLine = function(attribs, line, attributeManager){
-  attributeManager.removeAttributeOnLine(line, 'script_element');
+  utils.removeLineType(line, attributeManager);
+
   attribs.forEach(function(attrib) {
     var attribName = attrib[0];
     var attribValue = attrib[1];

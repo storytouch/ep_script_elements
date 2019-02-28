@@ -57,6 +57,27 @@ var domLineIsAScriptElement = function($line) {
 }
 exports.domLineIsAScriptElement = domLineIsAScriptElement;
 
+var removeLineType = function(lineNumber, attributeManager) {
+  // on headings we have an additional attribute to save the scene length
+  attributeManager.removeAttributeOnLine(lineNumber, shared.SCENE_LENGTH_ATTRIB_NAME);
+
+  attributeManager.removeAttributeOnLine(lineNumber, 'script_element');
+}
+exports.removeLineType = removeLineType;
+
+var setLineType = function(lineNumber, attributeManager, value) {
+  // avoid issues with UNDO
+  removeLineType(lineNumber, attributeManager);
+
+  attributeManager.setAttributeOnLine(lineNumber, 'script_element', value);
+}
+exports.setLineType = setLineType;
+
+exports.updateLineType = function(lineNumber, attributeManager, value) {
+  var adjustLineType = value ? setLineType : removeLineType;
+  adjustLineType(lineNumber, attributeManager, value);
+}
+
 var getLineType = function(targetLine, attributeManager) {
   return attributeManager.getAttributeOnLine(targetLine, 'script_element');
 }
