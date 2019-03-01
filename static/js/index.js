@@ -3,7 +3,6 @@ var _ = require('ep_etherpad-lite/static/js/underscore');
 
 var scriptElementTransitionUtils = require('ep_script_element_transitions/static/js/utils');
 var pasteUtils                   = require('ep_script_copy_cut_paste/static/js/utils');
-var eascUtils                    = require("ep_script_toggle_view/static/js/utils");
 
 var shared                        = require('./shared');
 var utils                         = require('./utils');
@@ -18,6 +17,7 @@ var api                           = require('./api');
 var changeElementOnDropdownChange = require('./changeElementOnDropdownChange');
 var placeCaretOnFirstSEOnLoad     = require('./placeCaretOnFirstSEOnLoad');
 var scheduler                     = require('./scheduler');
+var scriptActivatedState          = require('./scriptActivatedState');
 var calculateSceneLength          = require('./calculateSceneLength');
 var ace_calculateSceneLength;
 var calculateSceneEdgesLength = require('./calculateSceneEdgesLength');
@@ -81,13 +81,11 @@ var eventMightBeAnUndo = function(callstack) {
 
 exports.postAceInit = function(hook, context) {
   var ace = context.ace;
-  pad.plugins = pad.plugins || {};
-  pad.plugins.ep_script_elements = {};
-  thisPlugin = pad.plugins.ep_script_elements;
+  var thisPlugin = utils.getThisPluginProps();
   thisPlugin.calculateSceneEdgesLength = calculateSceneEdgesLength.init();
   thisPlugin.calculateSceneLength = ace_calculateSceneLength; // provide access to other plugins
-  thisPlugin.isScriptActivated = undefined;
 
+  scriptActivatedState.init();
   preventMultilineDeletion.init();
   api.init(ace);
   // need to load before the placeCaretOnFirstSEOnLoad, otherwise aceSelectionChanged is called
@@ -96,18 +94,8 @@ exports.postAceInit = function(hook, context) {
   updateSceneLengthSchedule = scheduler.init();
 
   placeCaretOnFirstSEOnLoad.init(ace);
-  listenToEascChanges();
   pluginHasInitialized = true;
 };
-
-var listenToEascChanges = function() {
-  var $innerDoc = utils.getPadInner().find('#innerdocbody');
-  $innerDoc.on(eascUtils.EASC_CHANGED_EVENT, function(e, data){
-    var eascMode = data.eascMode;
-    var isScriptActivated = eascMode.includes(eascUtils.SCRIPT_ELEMENT_TYPE);
-    thisPlugin.isScriptActivated = isScriptActivated;
-  });
-}
 
 // On caret position change show the current script element
 exports.aceSelectionChanged = function(hook, context, cb) {

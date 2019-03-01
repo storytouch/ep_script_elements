@@ -7,8 +7,8 @@ var calculateSceneLength = function(attributeManager, rep, editorInfo) {
   this.attributeManager = attributeManager;
   this.rep = rep;
   this.editorInfo = editorInfo;
-  this.thisPlugin = pad.plugins.ep_script_elements;
-  this.calculateSceneEdgesLength = thisPlugin.calculateSceneEdgesLength;
+  this.thisPlugin = utils.getThisPluginProps();
+  this.calculateSceneEdgesLength = this.thisPlugin.calculateSceneEdgesLength;
 };
 
 calculateSceneLength.prototype.run = function() {

@@ -90,8 +90,7 @@ ep_script_elements_test_helper.utils = {
     }).done(cb);
   },
   _setEascScriptAsEnabled: function() {
-    var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
-    thisPlugin.isScriptActivated = true;
+    ep_script_toggle_view_test_helper.utils.setEascMode(['script']);
   },
   createScriptWith: function(scriptContent, lastLineText, cb) {
     var inner$ = helper.padInner$;

@@ -29,6 +29,18 @@ exports.getPadInner = function() {
  return padInner;
 }
 
+// Easier access to this plugin
+var thisPlugin;
+exports.getThisPluginProps = function() {
+  if (!thisPlugin) {
+    pad.plugins = pad.plugins || {};
+    pad.plugins.ep_script_elements = {};
+    thisPlugin = pad.plugins.ep_script_elements;
+  }
+
+  return thisPlugin;
+}
+
 exports.SCENE_MARK_TYPE = {
   0 : 'withEpi',
   1 : 'withEpi',
