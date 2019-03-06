@@ -1,26 +1,70 @@
 describe('ep_script_elements - calculate scene length', function() {
   var helperFunctions, smUtils;
+  var utils = ep_script_elements_test_helper.utils;
+
   var FIRST_ACTION_LINE = 9;
   var FIRST_HEADING_LINE = 12;
+
   before(function(done) {
     helperFunctions = ep_script_elements_test_helper.calculateSceneLength;
     smUtils = ep_script_scene_marks_test_helper.utils;
     helper.newPad(function() {
-      helperFunctions.createScript(done);
+      helperFunctions.createScript(function() {
+        utils.waitForAddingSceneLengthClasses(done);
+      });
     });
     this.timeout(60000);
   });
 
   it('saves the length of scene on the headings', function(done) {
-    helperFunctions.testIfScenesLengthValueIsCorrect(done);
+    helperFunctions.testIfScenesLengthValueIsCorrect();
+    done();
+  });
+
+  // scenarios for https://trello.com/c/niKzu7yz/1747
+  context('when it edits a heading', function() {
+    var originalSceneId, originalSceneLengthValue;
+    var targetScene = 0; // first scene
+
+    // test for edition that would even change the scene length
+    // (making the heading too long, for example)
+    [
+      {
+        description: 'and inserted text is long',
+        text: '[edited]'.repeat(40),
+      },
+      {
+        description: 'and inserted text is short',
+        text: '[edited]',
+      },
+    ].forEach(function(test) {
+      context(test.description, function() {
+        before(function() {
+          originalSceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
+          originalSceneId = helperFunctions.getSceneId(targetScene);
+          var $heading = helper.padInner$('heading').first();
+          $heading.sendkeys(test.text);
+        });
+
+        after(function() {
+          utils.undo();
+        })
+
+        it('keeps the caret on the edited line', function(done) {
+          helperFunctions.testCaretDidNotChangeToOtherLine(targetScene, originalSceneId, done, this);
+        });
+      });
+    });
   });
 
   context('when it edits an element of scene', function() {
     // action and shot has the same spacing
     context('and the scene length does not change', function() {
       var originalSceneId;
+      var targetScene = 0; // first scene
+
       before(function(done) {
-        originalSceneId = helperFunctions.getSceneId(0); // first scene
+        originalSceneId = helperFunctions.getSceneId(targetScene);
         smUtils.changeLineToElement(smUtils.TRANSITION, FIRST_ACTION_LINE, done);
       });
 
@@ -29,17 +73,15 @@ describe('ep_script_elements - calculate scene length', function() {
       });
 
       it('does not update the scene length', function(done) {
-        setTimeout(function() {
-          var sceneId = helperFunctions.getSceneId(0);
-          expect(sceneId).to.be(originalSceneId);
-          done();
-        }, 1500);
+        this.timeout(2500);
+        helperFunctions.testSceneLenghtWasNotUpdated(targetScene, originalSceneId, done);
       });
     });
 
     context('and the scene length changes', function() {
       var originalSceneId, originalSceneLengthValue;
       var targetScene = 0; // first scene
+
       before(function(done) {
         originalSceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
         originalSceneId = helperFunctions.getSceneId(targetScene);
@@ -51,22 +93,15 @@ describe('ep_script_elements - calculate scene length', function() {
       });
 
       it('updates the scene length', function(done) {
-        helper.waitFor(function() {
-          var sceneId = helperFunctions.getSceneId(targetScene);
-          return originalSceneId !== sceneId;
-        }, 2000).done(function() {
-          var sceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
-          var sceneLengthChanged = originalSceneLengthValue !== sceneLengthValue;
-          expect(sceneLengthChanged).to.be(true);
-          done();
-        })
-      })
+        helperFunctions.testSceneLenghtWasUpdated(targetScene, originalSceneId, originalSceneLengthValue, done);
+      });
     });
   });
 
   context('when it changes an element type', function() {
     var originalSceneId, originalSceneLengthValue;
     var targetScene = 0; // second scene
+
     context('and the element changed is a heading', function() {
       before(function(done) {
         originalSceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
@@ -79,16 +114,8 @@ describe('ep_script_elements - calculate scene length', function() {
       })
 
       it('updates the scene length', function(done) {
-        helper.waitFor(function() {
-          var sceneId = helperFunctions.getSceneId(targetScene);
-          return originalSceneId !== sceneId;
-        }, 2000).done(function() {
-          var sceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
-          var sceneLengthChanged = originalSceneLengthValue !== sceneLengthValue;
-          expect(sceneLengthChanged).to.be(true);
-          done();
-        })
-      })
+        helperFunctions.testSceneLenghtWasUpdated(targetScene, originalSceneId, originalSceneLengthValue, done);
+      });
     });
   })
 });
@@ -140,30 +167,73 @@ ep_script_elements_test_helper.calculateSceneLength = {
   lineDefaultSize: function() {
     return helper.padOuter$('#linemetricsdiv').get(0).getBoundingClientRect().height;
   },
-  sceneLengthValueIsInsideTolerance: function(expectedSceneLength, sceneLength) {
-    return (expectedSceneLength - this.TOLERANCE <= sceneLength) && (sceneLength <= expectedSceneLength + this.TOLERANCE);
-  },
   getExpectedScenesLength: function() {
     var lineDefaultSize = this.lineDefaultSize();
     return _.map(this.SCENE_LINES_LENGTH, function(sceneLineLength) {
       return sceneLineLength * lineDefaultSize;
     }, this);
   },
-  testIfScenesLengthValueIsCorrect: function(cb) {
+
+  waitForSceneToBeUpdated: function(targetScene, originalSceneId, done) {
     var self = this;
+    return helper.waitFor(function() {
+      var sceneId = self.getSceneId(targetScene);
+      return originalSceneId !== sceneId;
+    }, 2000).done(done);
+  },
+
+  testIfScenesLengthValueIsCorrect: function() {
+    var scenesLength = this.getScenesLengthValue();
+    var expectedScenesLength = this.getExpectedScenesLength();
+    _.each(scenesLength, function(sceneLength, index) {
+      var expectedSceneLength = expectedScenesLength[index];
+      expect(sceneLength).to.be.within(
+        expectedSceneLength - this.TOLERANCE,
+        expectedSceneLength + this.TOLERANCE
+      );
+    }, this);
+  },
+
+  testSceneLenghtWasUpdated: function(targetScene, originalSceneId, originalSceneLengthValue, done) {
+    var self = this;
+
+    this.waitForSceneToBeUpdated(targetScene, originalSceneId, function() {
+      var sceneLengthValue = self.getSceneLengthValue(targetScene);
+      expect(sceneLengthValue).to.not.be(originalSceneLengthValue);
+      done();
+    });
+  },
+
+  testSceneLenghtWasNotUpdated: function(targetScene, originalSceneId, done) {
+    var self = this;
+
+    this.waitForSceneToBeUpdated(targetScene, originalSceneId, function() {
+      // should not had been updated, test failed
+      expect().fail(function() { return `Length of scene ${targetScene} was updated`; });
+    }).fail(function() {
+      // ok, there was no scene updated
+      done();
+    });
+  },
+
+  testCaretDidNotChangeToOtherLine: function(targetScene, originalSceneId, done, test) {
     var utils = ep_script_elements_test_helper.utils;
-    utils.waitForAddingSceneLengthClasses(function() {
-      var scenesLength = self.getScenesLengthValue();
-      var expectedScenesLength = self.getExpectedScenesLength();
-      _.each(scenesLength, function(sceneLength, index) {
-        var expectedSceneLength = expectedScenesLength[index];
-        if (!self.sceneLengthValueIsInsideTolerance(expectedSceneLength, sceneLength)) {
-          expect().fail(function() {
-            return 'scene '  + index + ' should have length of ' + expectedSceneLength + ' but it got ' + sceneLength;
-          });
-        }
+    test.timeout(5000);
+
+    // need to wait for scene line to be updated, otherwise we might validate
+    // too soon (before Etherpad even had processed the change)
+    this.waitForSceneToBeUpdated(targetScene, originalSceneId, function() {
+      helper.waitFor(function() {
+        var lineWithCaret = utils.getLineWhereCaretIs().get(0);
+        var editedLine = helper.padInner$('div:has(heading)').get(targetScene);
+        return lineWithCaret !== editedLine;
+      }, 2000).done(function() {
+        // caret moved, test failed
+        expect().fail(function() { return `Caret moved from line of scene ${targetScene}`; });
+      }).fail(function() {
+        // ok, caret stayed on target line
+        done();
       });
-      cb();
     });
   },
 };

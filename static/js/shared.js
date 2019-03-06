@@ -1,10 +1,12 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 
 var tags = ['heading', 'action', 'character', 'parenthetical', 'dialogue', 'transition', 'shot'];
-var sceneTag = ["scene-number", "scene-duration", "scene-temporality", "scene-workstate", "scene-time"];
+var sceneTag = ['scene-number', 'scene-duration', 'scene-temporality', 'scene-workstate', 'scene-time'];
 
 var SCENE_LENGTH_ATTRIB_NAME = 'sceneLength';
 var SCENE_LENGTH_CLASS_PREFIX = 'sceneLength-';
+// from sceneLength-16 gets '16'
+var SCENE_LENGTH_REGEXP = new RegExp(SCENE_LENGTH_CLASS_PREFIX + '([0-9]+)');
 
 var collectContentPre = function(hook, context){
   var tname = context.tname;
@@ -12,17 +14,19 @@ var collectContentPre = function(hook, context){
   var lineAttributes = state.lineAttributes
   var cls = context.cls || '';
 
-  if(tname === "div" || tname === "p"){
+  if(tname === 'div' || tname === 'p'){
     delete lineAttributes['script_element'];
     delete lineAttributes[SCENE_LENGTH_ATTRIB_NAME];
   }
 
-  if (cls.startsWith(SCENE_LENGTH_CLASS_PREFIX)){
-    lineAttributes[SCENE_LENGTH_ATTRIB_NAME] = cls.split('-')[1]; // from className-16 gets '16'
-  }
-
   if (isScriptElement(tname)) {
     lineAttributes['script_element'] = tname;
+
+    // collect scene length
+    var sceneLength = SCENE_LENGTH_REGEXP.exec(cls);
+    if (sceneLength) {
+      lineAttributes[SCENE_LENGTH_ATTRIB_NAME] = sceneLength[1];
+    }
   } else if (isSceneTag(tname)) {
     // scene tag value is stored on element class
     lineAttributes[tname] = context.cls;

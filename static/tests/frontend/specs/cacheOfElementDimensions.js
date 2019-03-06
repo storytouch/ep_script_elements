@@ -1,29 +1,33 @@
 describe('ep_script_elements - cache of element dimensions', function() {
-  var helperFunctions, smUtils, utils;
+  var helperFunctions, smUtils;
+  var utils = ep_script_elements_test_helper.utils;
+
   var INDEX_OF_ACTION_SCENELESS = 0;
   var INDEX_OF_LAST_ACTION_SCENE_1 = 3;
   var INDEX_OF_ACTION_MIDDLE_SCENE_1 = 2;
   var INDEX_OF_TRANSITION = 0;
+
   var FIRST_SCENE = 0;
   var SECOND_SCENE = 1;
   var SECOND_HEADING_LINE_NUMBER = 9;
-  var ACTION = 'action';
-  var HEADING = 'heading';
-  var TRANSITION = 'transition';
+
+  var ACTION = utils.ACTION;
+  var HEADING = utils.HEADING;
+  var TRANSITION = utils.TRANSITION;
 
   before(function(done) {
-    utils = ep_script_elements_test_helper.utils;
     helperFunctions = ep_script_elements_test_helper.cacheElementsDimensions;
     smUtils = ep_script_scene_marks_test_helper.utils;
+
     helper.newPad(function() {
-      helperFunctions.createScript(function(){
+      helperFunctions.createScript(function() {
         utils.waitForAddingSceneLengthClasses(done);
       });
     });
     this.timeout(60000);
   });
 
-  var testIfElementCacheWasKept = function(line, elementType) {
+  var testItKeepsTheElementCache = function(line, elementType) {
     it('does not update the cache of the ' + elementType + ' of the scene', function(done) {
       helper.waitFor(function() {
         var elementCache = helperFunctions.getDimensionOfElement(line, elementType);
@@ -38,21 +42,54 @@ describe('ep_script_elements - cache of element dimensions', function() {
     });
   }
 
+  context('when it edits a scene heading', function() {
+    var previousLastElementDimension;
+
+    before(function(done) {
+      // make sure last element is ready to start the test
+      helper.waitFor(function() {
+        previousLastElementDimension = helperFunctions.getDimensionsOfLastElementOfScene(FIRST_SCENE);
+        return previousLastElementDimension;
+      }, 2000).done(function() {
+        helperFunctions.editElement(FIRST_SCENE, HEADING);
+        done();
+      });
+    });
+
+    it('updates the cache of the last element of the scene', function(done) {
+      helperFunctions.waitForSaveOnCacheAgain(INDEX_OF_LAST_ACTION_SCENE_1, ACTION, this, function(elementDimension) {
+        expect(elementDimension.bottom).to.be.greaterThan(previousLastElementDimension.bottom);
+        done();
+      });
+    });
+
+    context('and user presses UNDO', function() {
+      before(function() {
+        previousLastElementDimension = helperFunctions.getDimensionsOfLastElementOfScene(FIRST_SCENE);
+        utils.undo();
+      });
+
+      it('updates the cache of the last element of the scene', function(done) {
+        helperFunctions.waitForSaveOnCacheAgain(INDEX_OF_LAST_ACTION_SCENE_1, ACTION, this, function(elementDimension) {
+          expect(elementDimension.bottom).to.be.lessThan(previousLastElementDimension.bottom);
+          done();
+        });
+      });
+    });
+  });
+
   context('when it edits an element inside the scene', function() {
     var previousLastElementDimension;
-    before(function(done){
+    before(function() {
       previousLastElementDimension = helperFunctions.getDimensionsOfLastElementOfScene(FIRST_SCENE);
       helperFunctions.editElement(INDEX_OF_ACTION_MIDDLE_SCENE_1, ACTION);
-      done();
     });
 
-    after(function(done) {
-      // for some reason calling 'undo' does not work
-      helperFunctions.resetScriptContent(done);
-      this.timeout(20000);
+    after(function() {
+      utils.undo();
     });
 
-    testIfElementCacheWasKept(FIRST_SCENE, HEADING);
+    testItKeepsTheElementCache(FIRST_SCENE, HEADING);
 
     it('updates the cache of the last element of the scene', function(done) {
       helperFunctions.waitForSaveOnCacheAgain(INDEX_OF_LAST_ACTION_SCENE_1, ACTION, this, function(elementDimension) {
@@ -63,13 +100,22 @@ describe('ep_script_elements - cache of element dimensions', function() {
   });
 
   context('when it edits an element at the edge of the scene', function() {
-    before(function(done){
-      previousLastElementDimension = helperFunctions.getDimensionsOfLastElementOfScene(FIRST_SCENE);
-      helperFunctions.editElement(INDEX_OF_LAST_ACTION_SCENE_1 , ACTION);
-      helperFunctions.waitUntilCleanElementCache(INDEX_OF_LAST_ACTION_SCENE_1, ACTION, done);
+    var previousLastElementDimension;
+
+    before(function(done) {
+      this.timeout(5000);
+
+      // make sure last element is ready to start the test
+      helper.waitFor(function() {
+        previousLastElementDimension = helperFunctions.getDimensionsOfLastElementOfScene(FIRST_SCENE);
+        return previousLastElementDimension;
+      }, 3000).done(function() {
+        helperFunctions.editElement(INDEX_OF_LAST_ACTION_SCENE_1 , ACTION);
+        done();
+      });
     });
 
-    after(function(){
+    after(function() {
       utils.undo();
     })
 
@@ -86,7 +132,7 @@ describe('ep_script_elements - cache of element dimensions', function() {
       helperFunctions.editElement(INDEX_OF_ACTION_SCENELESS, 'action');
     });
 
-    after(function(){
+    after(function() {
       utils.undo();
     });
 
@@ -118,11 +164,10 @@ describe('ep_script_elements - cache of element dimensions', function() {
       // be the same element that was the end of the second scene - the one
       // that was removed
       lastElementOfScene2 = helperFunctions.getDimensionsOfLastElementOfScene(SECOND_SCENE);
-      var smUtils = ep_script_scene_marks_test_helper.utils
       smUtils.changeLineToElement(utils.ACTION, SECOND_HEADING_LINE_NUMBER, done, SECOND_HEADING_LINE_NUMBER - 2); // - 2 (remove synopsis lines)
     });
 
-    after(function(){
+    after(function() {
       utils.undo();
     })
 
@@ -152,15 +197,6 @@ ep_script_elements_test_helper.cacheElementsDimensions = {
     var script = sceneHeadless + firstScene + secondScene;
     utils.createScriptWith(script, lastLineText, cb);
   },
-  resetScriptContent: function(cb) {
-    var self = this;
-    var utils = ep_script_elements_test_helper.utils;
-    utils.cleanPad(function(){
-      self.createScript(function(){
-        utils.waitForAddingSceneLengthClasses(cb);
-      });
-    });
-  },
   getDimensionsOfScene: function(index) {
     return this.getDimensionOfElement(index, 'heading');
   },
@@ -175,21 +211,24 @@ ep_script_elements_test_helper.cacheElementsDimensions = {
     var stuff = $lines.eq(index).children();
     return targetElement._boundingClientRect;
   },
-  waitUntilCleanElementCache: function(line, elementType, cb) {
+  waitUntilCleanElementCache: function(line, elementType, done) {
     var self = this;
     helper.waitFor(function() {
       var elementDimension = self.getDimensionOfElement(line, elementType);
       return elementDimension === null;
-    }).done(cb)
+    }).done(done)
   },
-  waitForSaveOnCacheAgain: function(line, elementType, test, cb){
+  waitForSaveOnCacheAgain: function(line, elementType, test, done) {
     var elementDimension;
     var self = this;
-    helper.waitFor(function() {
-      elementDimension = self.getDimensionOfElement(line, elementType);
-      return elementDimension; // we have built the cache already
-    }, 5000).done(function() {
-      cb(elementDimension);
+
+    this.waitUntilCleanElementCache(line, elementType, function() {
+      helper.waitFor(function() {
+        elementDimension = self.getDimensionOfElement(line, elementType);
+        return elementDimension; // we have built the cache already
+      }, 5000).done(function() {
+        done(elementDimension);
+      });
     });
     test.timeout(20000);
   },

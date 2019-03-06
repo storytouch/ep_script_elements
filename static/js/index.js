@@ -19,12 +19,14 @@ var placeCaretOnFirstSEOnLoad     = require('./placeCaretOnFirstSEOnLoad');
 var scheduler                     = require('./scheduler');
 var scriptActivatedState          = require('./scriptActivatedState');
 var calculateSceneLength          = require('./calculateSceneLength');
-var ace_calculateSceneLength;
-var calculateSceneEdgesLength = require('./calculateSceneEdgesLength');
+var calculateSceneEdgesLength     = require('./calculateSceneEdgesLength');
 
 var tags = shared.tags;
 var sceneTag = shared.sceneTag;
+
+var ace_calculateSceneLength;
 var schedule, updateSceneLengthSchedule;
+
 var SM_AND_HEADING = _.union(utils.SCENE_MARK_SELECTOR, ['heading']);
 var TIME_TO_UPDATE_CARET_ELEMENT = 900;
 var TIME_TO_CALCULATE_SCENE_LENGTH = 1200;
@@ -52,7 +54,7 @@ exports.aceEditEvent = function(hook, context) {
 
   if (padHasLoadedCompletely && (isAChangeOnPadContent(eventType, callstack) || isAChangeOnElementType(eventType))) {
     updateSceneLengthSchedule.schedule(function() {
-      ace_calculateSceneLength().run();
+      utils.getThisPluginProps().calculateSceneLength.run();
     }, TIME_TO_CALCULATE_SCENE_LENGTH);
   }
 }
@@ -83,7 +85,8 @@ exports.postAceInit = function(hook, context) {
   var ace = context.ace;
   var thisPlugin = utils.getThisPluginProps();
   thisPlugin.calculateSceneEdgesLength = calculateSceneEdgesLength.init();
-  thisPlugin.calculateSceneLength = ace_calculateSceneLength; // provide access to other plugins
+  // provide access to other plugins
+  thisPlugin.calculateSceneLength = ace_calculateSceneLength();
 
   scriptActivatedState.init();
   preventMultilineDeletion.init();

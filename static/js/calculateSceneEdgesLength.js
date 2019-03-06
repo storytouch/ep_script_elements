@@ -22,11 +22,7 @@ calculateSceneEdgesLength.prototype._cleanElementDimensionCache = function(eleme
 
 calculateSceneEdgesLength.prototype._getLastElementOfSceneChanged = function(linesChanged) {
   var self = this;
-  var linesChangedNonHeadings = linesChanged.filter(function(lineChanged) {
-    var isHeading = $(lineChanged).find('heading').length;
-    return !isHeading;
-  });
-  var lastElementsOfScene = _.chain(linesChangedNonHeadings)
+  var lastElementsOfScene = _.chain(linesChanged)
     .map(self._getLastElementOfScene)
     .compact()
     .value();

@@ -38,18 +38,21 @@ calculateSceneLength.prototype._applyAttributeOnScene = function($headings, scen
 calculateSceneLength.prototype._applyAttributeOnLineIfNecessary= function(element, attribValue) {
   var self = this;
   self.editorInfo.ace_inCallStackIfNecessary('nonundoable', function(){
-    // we check the script element attribute value to avoid applying a line
-    // attribute on a line that is not heading. E.g. on tests is common to have
-    // something like '<div><action>...<br><heading>...<br><other>...<br>',
-    // what is not a 'heading' but it has the '<heading>'
-    var $element = $(element);
-    var line =  utils.getLineNumberFromDOMLine($element, self.rep);
-    var scriptElementType = utils.getLineType(line, self.attributeManager);
-    var isHeading = scriptElementType === 'heading';
-
-    if (isHeading && self._sceneLengthChanged(line, attribValue)) {
+    var line = utils.getLineNumberFromDOMLine($(element), self.rep);
+    if (self._sceneLengthChanged(line, attribValue)) {
       self.attributeManager.removeAttributeOnLine(line, shared.SCENE_LENGTH_ATTRIB_NAME);
       self.attributeManager.setAttributeOnLine(line, shared.SCENE_LENGTH_ATTRIB_NAME, attribValue);
+
+      // we need to force Etherpad to sync caret position because when we
+      // update the line attribs (on previous command), Etherpad re-generates
+      // the DOM line, which makes the caret be moved to the next DOM line
+      // available.
+      // Usually Etherpad can handle this scenario, but in this particular case
+      // we're executing a non-undoable chance and we need to enforce the caret
+      // repositioning
+      if (self._caretIsOnLine(line)) {
+        self.editorInfo.ace_updateBrowserSelectionFromRep();
+      }
     }
   });
 };
@@ -57,6 +60,10 @@ calculateSceneLength.prototype._applyAttributeOnLineIfNecessary= function(elemen
 calculateSceneLength.prototype._sceneLengthChanged = function(lineNumber, sceneLengthUpdated) {
   var actualSceneLengthValue = this.attributeManager.getAttributeOnLine(lineNumber, shared.SCENE_LENGTH_ATTRIB_NAME);
   return Number(actualSceneLengthValue) !== sceneLengthUpdated;
+};
+
+calculateSceneLength.prototype._caretIsOnLine = function(lineNumber) {
+  return this.rep.selStart && this.rep.selStart[0] === lineNumber;
 };
 
 calculateSceneLength.prototype._getSceneIntervals = function($headings) {
