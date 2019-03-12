@@ -32,6 +32,7 @@ var TIME_TO_UPDATE_CARET_ELEMENT = 900;
 var TIME_TO_CALCULATE_SCENE_LENGTH = 1200;
 
 var pluginHasInitialized = false;
+var isFirstTimeSceneLengthCalculationRunAfterLoading = true;
 
 // 'undo' & 'redo' are triggered by toolbar buttons; other events are triggered by key shortcuts
 var UNDO_REDO_EVENTS = ['handleKeyEvent', 'undo', 'redo'];
@@ -52,7 +53,11 @@ exports.aceEditEvent = function(hook, context) {
     caretElementChange.sendMessageCaretElementChanged(context);
   }
 
-  if (padHasLoadedCompletely && (isAChangeOnPadContent(eventType, callstack) || isAChangeOnElementType(eventType))) {
+  // when we import a script Etherpad does not trigger any event that makes
+  // isAChangeOnPadContent change to true. So to avoid not running the
+  // calculation of the scene length, we force run it as soon the pad loads
+  if (padHasLoadedCompletely && (isFirstTimeSceneLengthCalculationRunAfterLoading || isAChangeOnPadContent(eventType, callstack) )) {
+    isFirstTimeSceneLengthCalculationRunAfterLoading = false;
     updateSceneLengthSchedule.schedule(function() {
       utils.getThisPluginProps().calculateSceneLength.run();
     }, TIME_TO_CALCULATE_SCENE_LENGTH);
@@ -64,7 +69,7 @@ var finishedLoadingPadAndSceneMarkIsInitialized = function(eventType) {
 }
 
 var isAChangeOnPadContent = function(eventType, callstack) {
-  return callstack.docTextChanged && utils.checkIfPadHasLoaded(eventType);
+  return (callstack.docTextChanged && utils.checkIfPadHasLoaded(eventType)) || isAChangeOnElementType(eventType);
 }
 
 var isAChangeOnElementType = function(eventType) {
