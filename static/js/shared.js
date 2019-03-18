@@ -5,8 +5,14 @@ var sceneTag = ['scene-number', 'scene-duration', 'scene-temporality', 'scene-wo
 
 var SCENE_LENGTH_ATTRIB_NAME = 'sceneLength';
 var SCENE_LENGTH_CLASS_PREFIX = 'sceneLength-';
+var SCENE_DURATION_CLASS_PREFIX = 'sceneDuration-';
+var SCENE_DURATION_ATTRIB_NAME = 'sceneDuration';
+
 // from sceneLength-16 gets '16'
 var SCENE_LENGTH_REGEXP = new RegExp(SCENE_LENGTH_CLASS_PREFIX + '([0-9]+)');
+
+// from sceneDuration-30 gets '30'
+var SCENE_DURATION_REGEXP = new RegExp(SCENE_DURATION_CLASS_PREFIX + '([0-9]+)');
 
 var collectContentPre = function(hook, context){
   var tname = context.tname;
@@ -17,15 +23,21 @@ var collectContentPre = function(hook, context){
   if(tname === 'div' || tname === 'p'){
     delete lineAttributes['script_element'];
     delete lineAttributes[SCENE_LENGTH_ATTRIB_NAME];
+    delete lineAttributes[SCENE_DURATION_ATTRIB_NAME];
   }
 
   if (isScriptElement(tname)) {
     lineAttributes['script_element'] = tname;
 
-    // collect scene length
+    // collect scene metric
     var sceneLength = SCENE_LENGTH_REGEXP.exec(cls);
+    var sceneDuration = SCENE_DURATION_REGEXP.exec(cls);
+
     if (sceneLength) {
       lineAttributes[SCENE_LENGTH_ATTRIB_NAME] = sceneLength[1];
+    }
+    if (sceneDuration) {
+      lineAttributes[SCENE_DURATION_ATTRIB_NAME] = sceneDuration[1];
     }
   } else if (isSceneTag(tname)) {
     // scene tag value is stored on element class
@@ -42,7 +54,7 @@ var collectContentPost = function(hook, context){
   if(tagIndex >= 0){
     //take line-attributes used away - script_element and scenesData[]
     //all elements in the tags array uses script_element as key of lineattributes
-    var usedLineAttributes = _.union(sceneTag, ['script_element', SCENE_LENGTH_ATTRIB_NAME])
+    var usedLineAttributes = _.union(sceneTag, ['script_element', SCENE_LENGTH_ATTRIB_NAME, SCENE_DURATION_ATTRIB_NAME])
     for (var i = 0; i < usedLineAttributes.length ; i++) {
       delete lineAttributes[usedLineAttributes[i]];
     }
@@ -62,3 +74,5 @@ exports.tags = tags;
 exports.sceneTag = sceneTag;
 exports.SCENE_LENGTH_ATTRIB_NAME = SCENE_LENGTH_ATTRIB_NAME;
 exports.SCENE_LENGTH_CLASS_PREFIX = SCENE_LENGTH_CLASS_PREFIX;
+exports.SCENE_DURATION_ATTRIB_NAME = SCENE_DURATION_ATTRIB_NAME;
+exports.SCENE_DURATION_CLASS_PREFIX  = SCENE_DURATION_CLASS_PREFIX;

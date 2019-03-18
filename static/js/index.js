@@ -20,6 +20,7 @@ var scheduler                     = require('./scheduler');
 var scriptActivatedState          = require('./scriptActivatedState');
 var calculateSceneLength          = require('./calculateSceneLength');
 var calculateSceneEdgesLength     = require('./calculateSceneEdgesLength');
+var sceneDuration                 = require('./sceneDuration');
 
 var tags = shared.tags;
 var sceneTag = shared.sceneTag;
@@ -161,6 +162,8 @@ exports.aceAttribsToClasses = function(hook, context) {
     return [ undoPagination.UNDO_FIX_ATTRIB ];
   } else if (context.key === shared.SCENE_LENGTH_ATTRIB_NAME) {
     return [ shared.SCENE_LENGTH_ATTRIB_NAME + ':' + context.value ]; // e.g. sceneLength:32
+  } else if (context.key === shared.SCENE_DURATION_ATTRIB_NAME)  {
+    return [ shared.SCENE_DURATION_ATTRIB_NAME + ':' + context.value ]; // e.g. sceneDuration:60
   }
 }
 
@@ -201,6 +204,7 @@ var findExtraFlagForLine = function($node) {
 var processScriptElementAttribute = function(cls) {
   var scriptElementType = /(?:^| )script_element:([A-Za-z0-9]*)/.exec(cls);
   var sceneLength = /(?:^| )sceneLength:([0-9 \/]+)/.exec(cls);
+  var sceneDurationInSeconds = /(?:^| )sceneDuration:([0-9 \/]+)/.exec(cls);
   var tagIndex;
 
   if (scriptElementType) tagIndex = _.indexOf(tags, scriptElementType[1]);
@@ -208,7 +212,7 @@ var processScriptElementAttribute = function(cls) {
   if (tagIndex !== undefined && tagIndex >= 0) {
     var tag = tags[tagIndex];
     var modifier = {
-      preHtml: '<' + tag + buildSceneLengthClass(sceneLength) + '>',
+      preHtml: '<' + tag + buildSceneMetricClasses(sceneLength, sceneDurationInSeconds) + '>',
       postHtml: '</' + tag + '>',
       processedMarker: true
     };
@@ -219,12 +223,14 @@ var processScriptElementAttribute = function(cls) {
 }
 
 // we only add this class on headings
-var buildSceneLengthClass = function(sceneLength) {
-  var sceneLengthClass = '';
-  if (sceneLength) {
-    sceneLengthClass = ' class=" ' + shared.SCENE_LENGTH_CLASS_PREFIX + sceneLength[1] + '"';
+var buildSceneMetricClasses = function(sceneLength, sceneDurationInSeconds) {
+  var sceneMetricClasses = '';
+  if (sceneLength || sceneDurationInSeconds) {
+    var sceneLengthClass = sceneLength ? shared.SCENE_LENGTH_CLASS_PREFIX + sceneLength[1] : '';
+    var sceneDurationClass = sceneDurationInSeconds ? shared.SCENE_DURATION_CLASS_PREFIX + sceneDurationInSeconds[1] : '';
+    sceneMetricClasses = ` class="${sceneLengthClass} ${sceneDurationClass}"`
   }
-  return sceneLengthClass;
+  return sceneMetricClasses;
 }
 
 var processUndoFixAttribute = function(cls) {
@@ -249,6 +255,7 @@ exports.aceInitialized = function(hook, context) {
   editorInfo.ace_removeSceneTagFromSelection = _(removeSceneTagFromSelection).bind(context);
   editorInfo.ace_doInsertScriptElement = _(changeElementOnDropdownChange.doInsertScriptElement).bind(context);
   ace_calculateSceneLength = _(calculateSceneLength.init).bind(context);
+  editorInfo.ace_addSceneDurationAttribute = _(sceneDuration.addSceneDurationAttribute).bind(context);
 
   pasteUtils.markStylesToBeDisabledOnPaste(CSS_TO_BE_DISABLED_ON_PASTE);
 }

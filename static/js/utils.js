@@ -4,6 +4,8 @@ var shared = require('./shared');
 
 var SCRIPT_ELEMENTS_SELECTOR = shared.tags;
 var sceneLengthClassPrefix = shared.SCENE_LENGTH_CLASS_PREFIX;
+var sceneDurationClassPrefix = shared.SCENE_DURATION_CLASS_PREFIX;
+
 exports.SCENE_MARK_SELECTOR  = require('ep_script_scene_marks/static/js/constants').SCENE_MARK_TAGS;
 
 var LINE_ELEMENTS_SELECTOR   = _.union(SCRIPT_ELEMENTS_SELECTOR, exports.SCENE_MARK_SELECTOR).join(", ");
@@ -185,9 +187,13 @@ var getLineNumberOrLastLine = function (offset) {
 
 exports.getLineNumberFromDOMLine = function ($line, rep) {
   var lineId     = $line.attr("id");
-  var lineNumber = rep.lines.indexOfKey(lineId);
+  var lineNumber = exports.getLineFromLineId(rep, lineId);
 
   return lineNumber;
+}
+
+exports.getLineFromLineId = function(rep, lineId) {
+  return rep.lines.indexOfKey(lineId);
 }
 
 exports.getLineNumberOfCaretLine = function(rep) {
@@ -215,15 +221,29 @@ exports.waitForLineToBeCompletelyCollected = function($line) {
 }
 
 exports.getHeightOfSceneFromHeadingClass = function(element) {
+  var defaultValue = '0'
   var elementClasses = element.classList;
   var sceneLengthClass = Array.from(elementClasses).find(isSceneLenghtClass);
-  return getValueFromSceneLengthClass(sceneLengthClass);
+  return getValueFromSceneMetricClass(sceneLengthClass, defaultValue);
+}
+
+exports.getDurationOfSceneFromHeadingClass = function(element) {
+  // we assume that the minimum duration is 30'
+  var defaultValue = '30';
+  var elementClasses = element.classList;
+  var sceneLengthClass = Array.from(elementClasses).find(isSceneDurationClass);
+  return getValueFromSceneMetricClass(sceneLengthClass, defaultValue);
 }
 
 // TODO: use this function on shared.js
-var getValueFromSceneLengthClass = function(sceneLengthClass) {
-  var lengthOfScene = sceneLengthClass ? sceneLengthClass.split('-')[1] : '0';
+// explain that we metric is like balblalbla-something
+var getValueFromSceneMetricClass = function(sceneMetricClass, defaultValue) {
+  var lengthOfScene = sceneMetricClass ? sceneMetricClass.split('-')[1] : defaultValue;
   return Number(lengthOfScene);
+}
+
+var isSceneDurationClass = function(className) {
+  return className.startsWith(sceneDurationClassPrefix);
 }
 
 // TODO: use this function on shared.js

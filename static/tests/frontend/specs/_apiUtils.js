@@ -4,6 +4,7 @@ ep_script_elements_test_helper.apiUtils = {
   CHANGE_CARET_ELEMENT_MESSAGE_TYPE: 'dropdown_caret_element_changed',
   DROPDOWN_ELEMENT_CHANGED: 'dropdown_element_changed',
   FORMATTING_BUTTON_PRESSED: 'formatting_button_pressed',
+  UPDATE_SCENE_DURATION: 'UPDATE_SCENE_DURATION',
   lastDataSent: {},
 
   startListeningToApiEvents: function() {
@@ -60,6 +61,26 @@ ep_script_elements_test_helper.apiUtils = {
     var message = {
       type: this.FORMATTING_BUTTON_PRESSED,
       buttonName: buttonName,
+    };
+
+    var inboundApiEventsTarget = helper.padChrome$.window;
+    inboundApiEventsTarget.postMessage(message, '*');
+  },
+  /**** UPDATE_SCENE_DURATION ****/
+  /*
+    message: {
+      type: 'UPDATE_SCENE_DURATION'
+      duration: '2',
+      scene: { ..., lineId: "magicdomid9", ... },
+    }
+  */
+  simulateTriggerOfUpdateOfSceneDuration: function(sceneDuration, sceneId) {
+    var message = {
+      type: this.UPDATE_SCENE_DURATION,
+      duration: sceneDuration,
+      scene: {
+        lineId: sceneId,
+      },
     };
 
     var inboundApiEventsTarget = helper.padChrome$.window;
