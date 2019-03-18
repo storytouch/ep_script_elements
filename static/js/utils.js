@@ -244,6 +244,11 @@ var getValueFromSceneMetricClass = function(sceneMetricClass, defaultValue) {
   return Number(lengthOfScene);
 }
 
+exports.GET_METRIC = {
+  eighth: exports.getHeightOfSceneFromHeadingClass,
+  duration: exports.getDurationOfSceneFromHeadingClass,
+}
+
 var isSceneDurationClass = function(className) {
   return className.startsWith(sceneDurationClassPrefix);
 }
