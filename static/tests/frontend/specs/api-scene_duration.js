@@ -1,6 +1,5 @@
 describe('ep_script_elements - API - save scene duration', function() {
   var utils = ep_script_elements_test_helper.utils;
-  var apiUtils = ep_script_elements_test_helper.apiUtils;
   var THIRD_HEADING_LINE = 20;
   var LAST_ELEMENT_TEXT = 'heading target';
 
@@ -16,10 +15,6 @@ describe('ep_script_elements - API - save scene duration', function() {
     });
     this.timeout(10000);
   });
-
-  var getIdFromScene = function(sceneIndex) {
-    return helper.padInner$('div:has(heading)').eq(sceneIndex).attr('id');
-  }
 
   var getSceneDurationClass = function(sceneIndex, cb) {
     var durationInSeconds;
@@ -39,8 +34,7 @@ describe('ep_script_elements - API - save scene duration', function() {
     var sceneIndex = 2;
 
     before(function() {
-      var sceneId = getIdFromScene(sceneIndex);
-      apiUtils.simulateTriggerOfUpdateOfSceneDuration(sceneDuration, sceneId);
+      utils.setDurationOfScene(sceneIndex, sceneDuration);
     });
 
     it('saves this value on the heading', function(done) {
