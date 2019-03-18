@@ -53,7 +53,7 @@ describe('ep_script_elements - API - save scene duration', function() {
     // we change to a general intentionally because if we don't remove the line
     // attribute will be added a "*" in the beginning of the text. On other
     // types of SE, only the scene duration class would be preserved
-    context.skip('and changes this heading to other element', function() {
+    context('and changes this heading to other element', function() {
       before(function(done) {
         var general = utils.GENERAL;
         utils.changeToElement(general, done, THIRD_HEADING_LINE);

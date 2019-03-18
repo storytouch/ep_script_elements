@@ -72,7 +72,9 @@ var domLineIsAScriptElement = function($line) {
 exports.domLineIsAScriptElement = domLineIsAScriptElement;
 
 var removeLineType = function(lineNumber, attributeManager) {
-  // on headings we have an additional attribute to save the scene length
+  // on headings we have additional attributes to save the scene metrics
+  // (length and duration)
+  attributeManager.removeAttributeOnLine(lineNumber, shared.SCENE_DURATION_ATTRIB_NAME);
   attributeManager.removeAttributeOnLine(lineNumber, shared.SCENE_LENGTH_ATTRIB_NAME);
 
   attributeManager.removeAttributeOnLine(lineNumber, 'script_element');
