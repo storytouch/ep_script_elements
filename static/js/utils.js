@@ -238,7 +238,7 @@ exports.getDurationOfSceneFromHeadingClass = function(element) {
 }
 
 // TODO: use this function on shared.js
-// explain that we metric is like balblalbla-something
+// the scene metric follow the format metricName-123
 var getValueFromSceneMetricClass = function(sceneMetricClass, defaultValue) {
   var lengthOfScene = sceneMetricClass ? sceneMetricClass.split('-')[1] : defaultValue;
   return Number(lengthOfScene);
