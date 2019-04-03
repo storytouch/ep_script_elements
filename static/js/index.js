@@ -26,11 +26,12 @@ var tags = shared.tags;
 var sceneTag = shared.sceneTag;
 
 var ace_calculateSceneLength;
-var schedule, updateSceneLengthSchedule;
+var caretElementChangeSchedule, updateSceneLengthSchedule;
 
 var SM_AND_HEADING = _.union(utils.SCENE_MARK_SELECTOR, ['heading']);
 var TIME_TO_UPDATE_CARET_ELEMENT = 900;
 var TIME_TO_CALCULATE_SCENE_LENGTH = 1200;
+var IDLE_WORK_COUNTER_INACTIVITY_THRESHOLD = 2;
 
 var pluginHasInitialized = false;
 var isFirstTimeSceneLengthCalculationRunAfterLoading = true;
@@ -54,14 +55,16 @@ exports.aceEditEvent = function(hook, context) {
     caretElementChange.sendMessageCaretElementChanged(context);
   }
 
+  if (updateSceneLengthSchedule) {
+    updateSceneLengthSchedule.postponeScheduledTaskIfEditorIsNotIdle(eventType);
+  }
+
   // when we import a script Etherpad does not trigger any event that makes
   // isAChangeOnPadContent change to true. So to avoid not running the
   // calculation of the scene length, we force run it as soon the pad loads
   if (padHasLoadedCompletely && (isFirstTimeSceneLengthCalculationRunAfterLoading || isAChangeOnPadContent(eventType, callstack) )) {
     isFirstTimeSceneLengthCalculationRunAfterLoading = false;
-    updateSceneLengthSchedule.schedule(function() {
-      utils.getThisPluginProps().calculateSceneLength.run();
-    }, TIME_TO_CALCULATE_SCENE_LENGTH);
+    updateSceneLengthSchedule.schedule();
   }
 }
 
@@ -97,10 +100,29 @@ exports.postAceInit = function(hook, context) {
   scriptActivatedState.init();
   preventMultilineDeletion.init();
   api.init(ace);
+
   // need to load before the placeCaretOnFirstSEOnLoad, otherwise aceSelectionChanged is called
-  // and schedule is not defined yet
-  schedule = scheduler.init();
-  updateSceneLengthSchedule = scheduler.init();
+  // and caretElementChangeSchedule is not defined yet
+  var caretElementChangeSendMessageBound = function() {
+    ace.callWithAce(function(ace) {
+      ace.ace_caretElementChangeSendMessage();
+    })
+  };
+
+  caretElementChangeSchedule = scheduler.init(
+    caretElementChangeSendMessageBound,
+    TIME_TO_UPDATE_CARET_ELEMENT
+  );
+
+  var thisCalculateSceneLength = utils.getThisPluginProps().calculateSceneLength;
+  updateSceneLengthSchedule = scheduler.init(
+    utils.getThisPluginProps().calculateSceneLength.run.bind(thisCalculateSceneLength),
+    TIME_TO_CALCULATE_SCENE_LENGTH,
+    IDLE_WORK_COUNTER_INACTIVITY_THRESHOLD
+  );
+
+  // expose it to be able to override inner variables on tests
+  thisPlugin.updateSceneLengthSchedule = updateSceneLengthSchedule;
 
   placeCaretOnFirstSEOnLoad.init(ace);
   pluginHasInitialized = true;
@@ -115,13 +137,11 @@ exports.aceSelectionChanged = function(hook, context, cb) {
 
   // when we import a script and load it, some events that changes the selection
   // are triggered and makes this hook runs before the postAceInit to be called.
-  // This causes schedule being called without being initialized. To avoid
+  // This causes caretElementChangeSchedule being called without being initialized. To avoid
   // it we check if the object has been created. Related to #1417
 
-  if (schedule) {
-    schedule.schedule(function() {
-      caretElementChange.sendMessageCaretElementChanged(context);
-    }, TIME_TO_UPDATE_CARET_ELEMENT);
+  if (caretElementChangeSchedule) {
+    caretElementChangeSchedule.schedule();
   }
 }
 
@@ -256,6 +276,7 @@ exports.aceInitialized = function(hook, context) {
   editorInfo.ace_doInsertScriptElement = _(changeElementOnDropdownChange.doInsertScriptElement).bind(context);
   ace_calculateSceneLength = _(calculateSceneLength.init).bind(context);
   editorInfo.ace_addSceneDurationAttribute = _(sceneDuration.addSceneDurationAttribute).bind(context);
+  editorInfo.ace_caretElementChangeSendMessage = _(caretElementChange.sendMessageCaretElementChanged).bind(context);
 
   pasteUtils.markStylesToBeDisabledOnPaste(CSS_TO_BE_DISABLED_ON_PASTE);
 }

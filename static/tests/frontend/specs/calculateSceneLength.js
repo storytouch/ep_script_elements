@@ -9,6 +9,7 @@ describe('ep_script_elements - calculate scene length', function() {
     helperFunctions = ep_script_elements_test_helper.calculateSceneLength;
     smUtils = ep_script_scene_marks_test_helper.utils;
     helper.newPad(function() {
+      helperFunctions.speedUpTests();
       helperFunctions.createScript(function() {
         utils.waitForAddingSceneLengthClasses(done);
       });
@@ -236,4 +237,10 @@ ep_script_elements_test_helper.calculateSceneLength = {
       });
     });
   },
+
+  // don't wait for any idleWorkTimer event to run the scene length calculation
+  speedUpTests: function() {
+    var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
+    thisPlugin.updateSceneLengthSchedule._idleWorkCounterInactivityThreshold = 0;
+  }
 };

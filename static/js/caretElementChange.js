@@ -2,9 +2,10 @@ var _ = require('ep_etherpad-lite/static/js/underscore');
 var utils          = require('./utils');
 var api            = require('./api');
 
-exports.sendMessageCaretElementChanged = function (context) {
-  var rep              = context.rep;
-  var attributeManager = context.documentAttributeManager;
+exports.sendMessageCaretElementChanged = function(context) {
+  var callerContext    = context || this;
+  var rep              = callerContext.rep;
+  var attributeManager = callerContext.documentAttributeManager;
   var sameElementOnSelection = isSameElementOnSelection(rep, attributeManager);
   var elementOfCurrentLine;
   var currentLine = rep.selStart[0];
