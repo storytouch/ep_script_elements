@@ -119,6 +119,38 @@ describe('ep_script_elements - calculate scene length', function() {
       });
     });
   })
+
+  // this scenario tests if the calculation of the scene length is triggered
+  // only when the editor is idle. We use the event "idleWorkTimer" to ensure
+  // the editor is idle. In this particular case, we consider 2 consecutives
+  // events the treshold to consider the editor idle. As the event is triggered
+  // on every 1 second, we edit a line [1], wait for 1.5 second and edit it
+  // again [2]. The calculation should process only after about 2 seconds after
+  // the last edition
+  context('when scene editions are made in an interval that does not let the editor idle between them', function() {
+    var targetScene = 0;
+    var originalSceneLengthValue;
+    before(function() {
+      helperFunctions.resetIdleWorkCounterInactivityThreshold();
+      originalSceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
+      var $heading = helper.padInner$('heading').first();
+      var text = 'edited '.repeat(10); // [1]
+      $heading.sendkeys(text);
+      setTimeout(function() {
+        var $heading = helper.padInner$('heading').first();
+        $heading.sendkeys(text); // [2]
+      }, 1500);
+    });
+
+    it('does not calculate the scene length', function(done) {
+      this.timeout(5000);
+      setTimeout(function() {
+        var actualSceneLength = helperFunctions.getSceneLengthValue(targetScene);
+        expect(actualSceneLength).to.be(originalSceneLengthValue);
+        done();
+      }, 3000);
+    });
+  })
 });
 
 var ep_script_elements_test_helper = ep_script_elements_test_helper || {};
@@ -240,7 +272,15 @@ ep_script_elements_test_helper.calculateSceneLength = {
 
   // don't wait for any idleWorkTimer event to run the scene length calculation
   speedUpTests: function() {
+    this.setIdleWorkCounterInactivityThreshold(0);
+  },
+
+  resetIdleWorkCounterInactivityThreshold: function() {
+    this.setIdleWorkCounterInactivityThreshold(2);
+  },
+
+  setIdleWorkCounterInactivityThreshold: function(value) {
     var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
-    thisPlugin.updateSceneLengthSchedule._idleWorkCounterInactivityThreshold = 0;
-  }
+    thisPlugin.updateSceneLengthSchedule._idleWorkCounterInactivityThreshold = value;
+  },
 };

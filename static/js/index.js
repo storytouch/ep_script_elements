@@ -56,7 +56,7 @@ exports.aceEditEvent = function(hook, context) {
   }
 
   if (updateSceneLengthSchedule) {
-    updateSceneLengthSchedule.postponeScheduledTaskIfEditorIsNotIdle(eventType);
+    updateSceneLengthSchedule.processAceEditEvent(eventType);
   }
 
   // when we import a script Etherpad does not trigger any event that makes
@@ -116,7 +116,7 @@ exports.postAceInit = function(hook, context) {
 
   var thisCalculateSceneLength = utils.getThisPluginProps().calculateSceneLength;
   updateSceneLengthSchedule = scheduler.init(
-    utils.getThisPluginProps().calculateSceneLength.run.bind(thisCalculateSceneLength),
+    thisCalculateSceneLength.run.bind(thisCalculateSceneLength),
     TIME_TO_CALCULATE_SCENE_LENGTH,
     IDLE_WORK_COUNTER_INACTIVITY_THRESHOLD
   );

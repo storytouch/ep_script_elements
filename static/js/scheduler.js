@@ -32,7 +32,7 @@ scheduler.prototype._resetIdleCounter = function() {
   this._idleEventCounter = 0;
 }
 
-scheduler.prototype.postponeScheduledTaskIfEditorIsNotIdle = function(eventType) {
+scheduler.prototype.processAceEditEvent = function(eventType) {
   if (eventType === IDLE_WORK_TIMER_EVENT) {
     this._idleEventCounter++;
   } else {
