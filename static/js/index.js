@@ -21,6 +21,7 @@ var scriptActivatedState          = require('./scriptActivatedState');
 var calculateSceneLength          = require('./calculateSceneLength');
 var calculateSceneEdgesLength     = require('./calculateSceneEdgesLength');
 var sceneDuration                 = require('./sceneDuration');
+var scenesLength                  = require('./scenesLength');
 
 var tags = shared.tags;
 var sceneTag = shared.sceneTag;
@@ -94,6 +95,8 @@ exports.postAceInit = function(hook, context) {
   var ace = context.ace;
   var thisPlugin = utils.getThisPluginProps();
   thisPlugin.calculateSceneEdgesLength = calculateSceneEdgesLength.init();
+  thisPlugin.scenesLength = scenesLength.init();
+
   // provide access to other plugins
   thisPlugin.calculateSceneLength = ace_calculateSceneLength();
 
@@ -126,6 +129,10 @@ exports.postAceInit = function(hook, context) {
 
   placeCaretOnFirstSEOnLoad.init(ace);
   pluginHasInitialized = true;
+
+  // TODO: check that! Maybe we should use other approach to choose
+  // when it should calculate for this time
+  thisPlugin.calculateSceneLength.run();
 };
 
 // On caret position change show the current script element
@@ -180,8 +187,6 @@ exports.aceAttribsToClasses = function(hook, context) {
     return [ 'script_element:' + context.value ];
   } else if (context.key === undoPagination.UNDO_FIX_ATTRIB) {
     return [ undoPagination.UNDO_FIX_ATTRIB ];
-  } else if (context.key === shared.SCENE_LENGTH_ATTRIB_NAME) {
-    return [ shared.SCENE_LENGTH_ATTRIB_NAME + ':' + context.value ]; // e.g. sceneLength:32
   } else if (context.key === shared.SCENE_DURATION_ATTRIB_NAME)  {
     return [ shared.SCENE_DURATION_ATTRIB_NAME + ':' + context.value ]; // e.g. sceneDuration:60
   }
@@ -223,7 +228,6 @@ var findExtraFlagForLine = function($node) {
 // Here we convert the class script_element:heading into a tag
 var processScriptElementAttribute = function(cls) {
   var scriptElementType = /(?:^| )script_element:([A-Za-z0-9]*)/.exec(cls);
-  var sceneLength = /(?:^| )sceneLength:([0-9 \/]+)/.exec(cls);
   var sceneDurationInSeconds = /(?:^| )sceneDuration:([0-9 \/]+)/.exec(cls);
   var tagIndex;
 
@@ -232,7 +236,7 @@ var processScriptElementAttribute = function(cls) {
   if (tagIndex !== undefined && tagIndex >= 0) {
     var tag = tags[tagIndex];
     var modifier = {
-      preHtml: '<' + tag + buildSceneMetricClasses(sceneLength, sceneDurationInSeconds) + '>',
+      preHtml: '<' + tag + buildSceneMetricClass(sceneDurationInSeconds) + '>',
       postHtml: '</' + tag + '>',
       processedMarker: true
     };
@@ -243,14 +247,13 @@ var processScriptElementAttribute = function(cls) {
 }
 
 // we only add this class on headings
-var buildSceneMetricClasses = function(sceneLength, sceneDurationInSeconds) {
-  var sceneMetricClasses = '';
-  if (sceneLength || sceneDurationInSeconds) {
-    var sceneLengthClass = sceneLength ? shared.SCENE_LENGTH_CLASS_PREFIX + sceneLength[1] : '';
+var buildSceneMetricClass = function(sceneDurationInSeconds) {
+  var sceneMetricClass = '';
+  if (sceneDurationInSeconds) {
     var sceneDurationClass = sceneDurationInSeconds ? shared.SCENE_DURATION_CLASS_PREFIX + sceneDurationInSeconds[1] : '';
-    sceneMetricClasses = ` class="${sceneLengthClass} ${sceneDurationClass}"`
+    sceneMetricClass = ` class="${sceneDurationClass}"`
   }
-  return sceneMetricClasses;
+  return sceneMetricClass;
 }
 
 var processUndoFixAttribute = function(cls) {

@@ -20,9 +20,7 @@ describe('ep_script_elements - cache of element dimensions', function() {
     smUtils = ep_script_scene_marks_test_helper.utils;
 
     helper.newPad(function() {
-      helperFunctions.createScript(function() {
-        utils.waitForAddingSceneLengthClasses(done);
-      });
+      helperFunctions.createScript(done);
     });
     this.timeout(60000);
   });
@@ -50,10 +48,11 @@ describe('ep_script_elements - cache of element dimensions', function() {
       helper.waitFor(function() {
         previousLastElementDimension = helperFunctions.getDimensionsOfLastElementOfScene(FIRST_SCENE);
         return previousLastElementDimension;
-      }, 2000).done(function() {
+      }, 5000).done(function() {
         helperFunctions.editElement(FIRST_SCENE, HEADING);
         done();
       });
+      this.timeout(10000);
     });
 
     it('updates the cache of the last element of the scene', function(done) {

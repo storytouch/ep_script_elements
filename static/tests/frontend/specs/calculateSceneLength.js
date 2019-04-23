@@ -11,7 +11,7 @@ describe('ep_script_elements - calculate scene length', function() {
     helper.newPad(function() {
       helperFunctions.speedUpTests();
       helperFunctions.createScript(function() {
-        utils.waitForAddingSceneLengthClasses(done);
+        utils.waitForCalculatingTheScenesLength(done);
       });
     });
     this.timeout(60000);
@@ -80,12 +80,11 @@ describe('ep_script_elements - calculate scene length', function() {
     });
 
     context('and the scene length changes', function() {
-      var originalSceneId, originalSceneLengthValue;
+      var originalSceneLengthValue;
       var targetScene = 0; // first scene
 
       before(function(done) {
         originalSceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
-        originalSceneId = helperFunctions.getSceneId(targetScene);
         smUtils.changeLineToElement(smUtils.GENERAL, FIRST_ACTION_LINE, done);
       });
 
@@ -94,19 +93,18 @@ describe('ep_script_elements - calculate scene length', function() {
       });
 
       it('updates the scene length', function(done) {
-        helperFunctions.testSceneLenghtWasUpdated(targetScene, originalSceneId, originalSceneLengthValue, done);
+        helperFunctions.testSceneLenghtWasUpdated(targetScene, originalSceneLengthValue, done);
       });
     });
   });
 
   context('when it changes an element type', function() {
-    var originalSceneId, originalSceneLengthValue;
+    var originalSceneLengthValue;
     var targetScene = 0; // second scene
 
     context('and the element changed is a heading', function() {
       before(function(done) {
         originalSceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
-        originalSceneId = helperFunctions.getSceneId(targetScene);
         smUtils.changeLineToElement(smUtils.GENERAL, FIRST_HEADING_LINE, done);
       });
 
@@ -115,7 +113,7 @@ describe('ep_script_elements - calculate scene length', function() {
       })
 
       it('updates the scene length', function(done) {
-        helperFunctions.testSceneLenghtWasUpdated(targetScene, originalSceneId, originalSceneLengthValue, done);
+        helperFunctions.testSceneLenghtWasUpdated(targetScene, originalSceneLengthValue, done);
       });
     });
   })
@@ -191,11 +189,9 @@ ep_script_elements_test_helper.calculateSceneLength = {
     return this.getScenesLengthValue()[index];
   },
   getScenesLengthValue: function() {
-    var utils = ep_script_elements_test_helper.utils;
-    var sceneLengthClasses = utils.getHeadingsSceneLengthClass();
-    return _.map(sceneLengthClasses, function(sceneLengthClass) {
-      return Number(sceneLengthClass.split('-')[1]); // from 'sceneLength-123' gets 123
-    });
+    var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
+    var scenesLength = thisPlugin.scenesLength._scenesLength;
+    return scenesLength;
   },
   lineDefaultSize: function() {
     return helper.padOuter$('#linemetricsdiv').get(0).getBoundingClientRect().height;
@@ -227,14 +223,13 @@ ep_script_elements_test_helper.calculateSceneLength = {
     }, this);
   },
 
-  testSceneLenghtWasUpdated: function(targetScene, originalSceneId, originalSceneLengthValue, done) {
+  testSceneLenghtWasUpdated: function(targetScene, originalSceneLengthValue, done) {
     var self = this;
 
-    this.waitForSceneToBeUpdated(targetScene, originalSceneId, function() {
+    helper.waitFor(function() {
       var sceneLengthValue = self.getSceneLengthValue(targetScene);
-      expect(sceneLengthValue).to.not.be(originalSceneLengthValue);
-      done();
-    });
+      return sceneLengthValue !== originalSceneLengthValue;
+    }, 2000).done(done);
   },
 
   testSceneLenghtWasNotUpdated: function(targetScene, originalSceneId, done) {

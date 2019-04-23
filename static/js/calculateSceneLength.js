@@ -2,6 +2,7 @@ var _ = require('ep_etherpad-lite/static/js/underscore');
 
 var shared = require('./shared');
 var utils = require('./utils');
+var getMetric = require('./getMetric');
 
 var calculateSceneLength = function(attributeManager, rep, editorInfo) {
   this.attributeManager = attributeManager;
@@ -26,44 +27,8 @@ calculateSceneLength.prototype.run = function() {
     var sceneLength = this._getSceneLength($sceneInterval, lineDefaultSize);
     return sceneLength;
   }, this);
-  this._applyAttributeOnScene($headings, scenesLength);
-};
 
-calculateSceneLength.prototype._applyAttributeOnScene = function($headings, scenesLength) {
-  _.each($headings, function(heading, index){
-    this._applyAttributeOnLineIfNecessary(heading, scenesLength[index]);
-  }, this);
-};
-
-calculateSceneLength.prototype._applyAttributeOnLineIfNecessary= function(element, attribValue) {
-  var self = this;
-  self.editorInfo.ace_inCallStackIfNecessary('nonundoable', function(){
-    var line = utils.getLineNumberFromDOMLine($(element), self.rep);
-    if (self._sceneLengthChanged(line, attribValue)) {
-      self.attributeManager.removeAttributeOnLine(line, shared.SCENE_LENGTH_ATTRIB_NAME);
-      self.attributeManager.setAttributeOnLine(line, shared.SCENE_LENGTH_ATTRIB_NAME, attribValue);
-
-      // we need to force Etherpad to sync caret position because when we
-      // update the line attribs (on previous command), Etherpad re-generates
-      // the DOM line, which makes the caret be moved to the next DOM line
-      // available.
-      // Usually Etherpad can handle this scenario, but in this particular case
-      // we're executing a non-undoable chance and we need to enforce the caret
-      // repositioning
-      if (self._caretIsOnLine(line)) {
-        self.editorInfo.ace_updateBrowserSelectionFromRep();
-      }
-    }
-  });
-};
-
-calculateSceneLength.prototype._sceneLengthChanged = function(lineNumber, sceneLengthUpdated) {
-  var actualSceneLengthValue = this.attributeManager.getAttributeOnLine(lineNumber, shared.SCENE_LENGTH_ATTRIB_NAME);
-  return Number(actualSceneLengthValue) !== sceneLengthUpdated;
-};
-
-calculateSceneLength.prototype._caretIsOnLine = function(lineNumber) {
-  return this.rep.selStart && this.rep.selStart[0] === lineNumber;
+  this.thisPlugin.scenesLength.setScenesLength(scenesLength);
 };
 
 calculateSceneLength.prototype._getSceneIntervals = function($headings) {
@@ -90,7 +55,8 @@ calculateSceneLength.prototype.getSumOfAllScenesUntilScene = function($heading) 
   var $allHeadingsUntilSceneTarget = this._getScenesTarget($heading);
   var sumOfAllSceneUntilSceneTarget = _.reduce($allHeadingsUntilSceneTarget, function(sumOfSceneLength, div) {
     var element = $(div).children().get(0);
-    var sceneLength = utils.getHeightOfSceneFromHeadingClass(element);
+    var getEighth = getMetric.GET_METRIC['eighth'];
+    var sceneLength = getEighth(element);
     return sumOfSceneLength + sceneLength;
   }, 0);
   return sumOfAllSceneUntilSceneTarget;

@@ -3,8 +3,6 @@ var _      = require('ep_etherpad-lite/static/js/underscore');
 var shared = require('./shared');
 
 var SCRIPT_ELEMENTS_SELECTOR = shared.tags;
-var sceneLengthClassPrefix = shared.SCENE_LENGTH_CLASS_PREFIX;
-var sceneDurationClassPrefix = shared.SCENE_DURATION_CLASS_PREFIX;
 
 exports.SCENE_MARK_SELECTOR  = require('ep_script_scene_marks/static/js/constants').SCENE_MARK_TAGS;
 
@@ -72,10 +70,8 @@ var domLineIsAScriptElement = function($line) {
 exports.domLineIsAScriptElement = domLineIsAScriptElement;
 
 var removeLineType = function(lineNumber, attributeManager) {
-  // on headings we have additional attributes to save the scene metrics
-  // (length and duration)
+  // on headings we have an additional attribute to save the scene duration
   attributeManager.removeAttributeOnLine(lineNumber, shared.SCENE_DURATION_ATTRIB_NAME);
-  attributeManager.removeAttributeOnLine(lineNumber, shared.SCENE_LENGTH_ATTRIB_NAME);
 
   attributeManager.removeAttributeOnLine(lineNumber, 'script_element');
 }
@@ -213,47 +209,4 @@ exports.getLineDefaultSize = function() {
 exports.checkIfPadHasLoaded = function(eventType) {
   if (!padHasLoaded && eventType === 'setWraps') padHasLoaded = true;
   return padHasLoaded;
-}
-
-exports.waitForLineToBeCompletelyCollected = function($line) {
-  var lineIsHeading = $line.find('heading').length;
-  if (!lineIsHeading) return true;
-  var heading = $line.find('heading').get(0);
-  return exports.getHeightOfSceneFromHeadingClass(heading);
-}
-
-exports.getHeightOfSceneFromHeadingClass = function(element) {
-  var defaultValue = '0'
-  var elementClasses = element.classList;
-  var sceneLengthClass = Array.from(elementClasses).find(isSceneLenghtClass);
-  return getValueFromSceneMetricClass(sceneLengthClass, defaultValue);
-}
-
-exports.getDurationOfSceneFromHeadingClass = function(element) {
-  // we assume that the minimum duration is 30'
-  var defaultValue = '30';
-  var elementClasses = element.classList;
-  var sceneLengthClass = Array.from(elementClasses).find(isSceneDurationClass);
-  return getValueFromSceneMetricClass(sceneLengthClass, defaultValue);
-}
-
-// TODO: use this function on shared.js
-// the scene metric follow the format metricName-123
-var getValueFromSceneMetricClass = function(sceneMetricClass, defaultValue) {
-  var lengthOfScene = sceneMetricClass ? sceneMetricClass.split('-')[1] : defaultValue;
-  return Number(lengthOfScene);
-}
-
-exports.GET_METRIC = {
-  eighth: exports.getHeightOfSceneFromHeadingClass,
-  duration: exports.getDurationOfSceneFromHeadingClass,
-}
-
-var isSceneDurationClass = function(className) {
-  return className.startsWith(sceneDurationClassPrefix);
-}
-
-// TODO: use this function on shared.js
-var isSceneLenghtClass = function(className) {
-  return className.startsWith(sceneLengthClassPrefix);
 }

@@ -323,21 +323,23 @@ ep_script_elements_test_helper.utils = {
     apiUtils.waitForApiToSend(element, done);
   },
 
+  waitForCalculatingTheScenesLength: function(cb) {
+    var self = this;
+    helper.waitFor(function(){
+      var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
+      var scenesLength = thisPlugin.scenesLength._scenesLength;
+      return scenesLength.length;
+    }, 2000).done(cb);
+  },
+
+  // TODO: this is not necessary anymore. We have to check all the place this
+  // is used
   waitForAddingSceneLengthClasses: function(cb){
     var self = this;
     helper.waitFor(function(){
       var headingsClasses = self.getHeadingsSceneLengthClass();
       return headingsClasses.length && headingsClasses[0];
     }, 5000).done(cb);
-  },
-
-  getHeadingsSceneLengthClass: function() {
-    var $headings = helper.padInner$('heading');
-    return _.map($headings, function(heading){
-      return Array.from(heading.classList).find(function(headingClass){
-        return headingClass.startsWith('sceneLength-');
-      });
-    });
   },
 
   // instead of passing the line number we use the scene index
