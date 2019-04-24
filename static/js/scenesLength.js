@@ -1,5 +1,6 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 
+var navigatorUtils = require('ep_scene_navigator/static/js/utils');
 var utils = require('./utils');
 
 var scenesLength = function() {
@@ -10,7 +11,7 @@ scenesLength.prototype.setScenesLength = function(scenesLength) {
   var hasScenesLenghChanged = this._scenesLengthHasChanged(scenesLength);
   if (hasScenesLenghChanged) {
     this._scenesLength = scenesLength;
-    this._sendMessageThatSceneLengthChanged();
+    this._forceUpdateNavigatorData();
   }
 }
 
@@ -22,8 +23,8 @@ scenesLength.prototype.getSceneLengthOfHeading = function(element) {
   return this._scenesLength[elementIndex];
 }
 
-scenesLength.prototype._sendMessageThatSceneLengthChanged = function() {
-  // TODO: implement it
+scenesLength.prototype._forceUpdateNavigatorData = function() {
+  navigatorUtils.triggerEventToRebuildNavigatorData({forceNavigatorUpdate: true});
 }
 
 scenesLength.prototype._scenesLengthHasChanged = function(newScenesLength) {
