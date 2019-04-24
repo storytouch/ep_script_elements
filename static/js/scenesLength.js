@@ -8,8 +8,8 @@ var scenesLength = function() {
 }
 
 scenesLength.prototype.setScenesLength = function(scenesLength) {
-  var hasScenesLenghChanged = this._scenesLengthHasChanged(scenesLength);
-  if (hasScenesLenghChanged) {
+  var hasScenesLengthChanged = this._scenesLengthHasChanged(scenesLength);
+  if (hasScenesLengthChanged) {
     this._scenesLength = scenesLength;
     this._forceUpdateNavigatorData();
   }
