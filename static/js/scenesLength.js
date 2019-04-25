@@ -17,7 +17,7 @@ scenesLength.prototype.setScenesLength = function(scenesLength) {
 
 scenesLength.prototype.getSceneLengthOfHeading = function(element) {
   // don't do any calculation if scene length is not calculated yet!
-  if (this._scenesLength.length === 0) return [];
+  if (this._scenesLength.length === 0) return 0;
 
   var elementIndex = this._getIndexOfElement(element);
   return this._scenesLength[elementIndex];
