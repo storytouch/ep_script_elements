@@ -99,6 +99,7 @@ exports.postAceInit = function(hook, context) {
 
   // provide access to other plugins
   thisPlugin.calculateSceneLength = ace_calculateSceneLength();
+  thisPlugin.calculateSceneLength.run(true);
 
   scriptActivatedState.init();
   preventMultilineDeletion.init();
@@ -130,9 +131,6 @@ exports.postAceInit = function(hook, context) {
   placeCaretOnFirstSEOnLoad.init(ace);
   pluginHasInitialized = true;
 
-  // TODO: check that! Maybe we should use other approach to choose
-  // when it should calculate for this time
-  thisPlugin.calculateSceneLength.run();
 };
 
 // On caret position change show the current script element

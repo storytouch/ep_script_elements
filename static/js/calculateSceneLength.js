@@ -12,10 +12,13 @@ var calculateSceneLength = function(attributeManager, rep, editorInfo) {
   this.calculateSceneEdgesLength = this.thisPlugin.calculateSceneEdgesLength;
 };
 
-calculateSceneLength.prototype.run = function() {
-  // when script is disable on EASC we don't calculate the scene length
-  var headingsAreVisible = this.thisPlugin.isScriptActivated;
-  if (!headingsAreVisible) {
+calculateSceneLength.prototype.run = function(forceCalculateScenesLength) {
+  // we need to calculate the scenes length when user loads the script to get
+  // the eighth of the script. At this moment EASC has not initiliazed yet, so
+  // "scriptElementsAreVisible" is "undefined". Once the script has loaded we
+  // only calculate the scenes length when the script elements are visible
+  var scriptElementsAreVisible = this.thisPlugin.isScriptActivated;
+  if (!(scriptElementsAreVisible || forceCalculateScenesLength)) {
     return;
   }
 

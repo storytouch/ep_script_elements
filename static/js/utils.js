@@ -12,6 +12,7 @@ exports.DEFAULT_LINE_ATTRIBS = ['author', 'lmkr', 'insertorder', 'start'];
 
 exports.CHANGE_ELEMENT_EVENT = 'insertscriptelement';
 exports.HEADING_ADD_EVENT    = 'headingAdded';
+exports.SCRIPT_LENGTH_CHANGED = 'script_length_changed';
 
 var padHasLoaded = false;
 
