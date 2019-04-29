@@ -332,16 +332,6 @@ ep_script_elements_test_helper.utils = {
     }, 2000).done(cb);
   },
 
-  // TODO: this is not necessary anymore. We have to check all the place this
-  // is used
-  waitForAddingSceneLengthClasses: function(cb){
-    var self = this;
-    helper.waitFor(function(){
-      var headingsClasses = self.getHeadingsSceneLengthClass();
-      return headingsClasses.length && headingsClasses[0];
-    }, 5000).done(cb);
-  },
-
   // instead of passing the line number we use the scene index
   setDurationOfScene: function(sceneIndex, sceneDuration) {
     var sceneId = helper.padInner$('div:has(heading)').eq(sceneIndex).attr('id');
