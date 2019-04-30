@@ -15,11 +15,11 @@ describe('ep_script_elements - scenes length', function() {
   }
 
   var getScenesLength = function() {
-    var headings = helper.padInner$('heading');
+    var $headings = helper.padInner$('heading');
     var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
     var scenesLength = thisPlugin.scenesLength;
-    return _.map(headings, function(heading) {
-      return scenesLength.getSceneLengthOfHeading(heading);
+    return $headings.map(function() {
+      return scenesLength.getSceneLengthOfHeading(this);
     });
   }
 
@@ -42,13 +42,12 @@ describe('ep_script_elements - scenes length', function() {
   }
 
   before(function(done) {
-    var lastElement = 'last heading';
     utils.newPad(function(){
       var lastSceneTitle = 'last scene';
       var createScene = function(text) { return utils.synopsis(text) + utils.heading(text)}
       var script = createScene('scene') + createScene(lastSceneTitle);
+      listenToEventScriptLengthChanged();
       utils.createScriptWith(script, lastSceneTitle, function() {
-        listenToEventScriptLengthChanged();
         waitToBuildScenesLengthObj(done);
       });
     });
@@ -70,9 +69,16 @@ describe('ep_script_elements - scenes length', function() {
       originalSceneLength = getScenesLength();
       var $lastHeading = helper.padInner$('heading').last();
       $lastHeading.sendkeys('{selectall}{rightarrow}EDITED');
-      setTimeout(function() {
+      helper.waitFor(function() {
+        return scriptLengthChangedEvent;
+      }).done(function() {
+        expect().fail(function() {
+          return 'Script length changed';
+        });
+      }).fail(function() {
+        // all set, script length not changed. We can finish the test
         done();
-      }, 4000)
+      });
       this.timeout(6000);
     });
 
@@ -89,7 +95,6 @@ describe('ep_script_elements - scenes length', function() {
     });
 
     it('does not trigger the scenes length change event', function(done) {
-      expect(scriptLengthChangedEvent).to.be(false);
       expect(scriptLengthEventData).to.be.empty();
       done();
     });
@@ -100,8 +105,6 @@ describe('ep_script_elements - scenes length', function() {
       resetEventData();
       utils.changeToElement(utils.GENERAL, function() {
         helper.waitFor(function() {
-          // as we've removed the second scene so we wait to update the scenes
-          // length object to only 1 element
           return scriptLengthChangedEvent;
         }, 4000).done(done);
       }, LAST_HEADING_LINE);

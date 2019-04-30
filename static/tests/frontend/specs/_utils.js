@@ -329,7 +329,7 @@ ep_script_elements_test_helper.utils = {
       var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
       var scenesLength = thisPlugin.scenesLength._scenesLength;
       return scenesLength.length;
-    }, 2000).done(cb);
+    }, 5000).done(cb);
   },
 
   // instead of passing the line number we use the scene index
