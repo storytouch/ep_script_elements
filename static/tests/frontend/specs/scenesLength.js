@@ -126,12 +126,10 @@ describe('ep_script_elements - scenes length', function() {
       done();
     });
 
-    context('ep_scene_navigator - integration with navigator data', function() {
-      it('triggers the script length change event with updateNavigator data equals to true', function(done) {
-        expect(scriptLengthChangedEvent).to.be(true);
-        expect(scriptLengthEventData.forceNavigatorUpdate).to.be(true);
-        done();
-      });
+    it('triggers the script length change event with updateNavigator data equals to true', function(done) {
+      expect(scriptLengthChangedEvent).to.be(true);
+      expect(scriptLengthEventData.forceNavigatorUpdate).to.be(true);
+      done();
     });
   });
 });
