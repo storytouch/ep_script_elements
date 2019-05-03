@@ -8,6 +8,8 @@ var sceneMarkUtils  = require("ep_script_scene_marks/utils");
 // Define the styles so they are consistant between client and server
 var style = eejs.require("ep_script_elements/static/css/editor.css")
 
+var SCENE_LENGTH_NAMESPACE = 'scenesLength';
+
 // Include CSS for HTML export
 exports.stylesForExport = function(hook, padId, cb){
   cb(style);
@@ -35,6 +37,23 @@ exports.getLineHTMLForExport = function (hook, context) {
 
   //finally, mount the HTML to export
   context.lineContent = `<${script_element}>${dataAttributes}${text}</${script_element}>`;
+}
+
+exports.socketio = function(hook, context, cb) {
+  context.io
+    .of(`/${SCENE_LENGTH_NAMESPACE}`)
+    .on('connection', function(socket) {
+      socket.on('broadcastSceneLengthChange', function(data) {
+        var padId = data.padId;
+        var scenesLength = data.scenesLength;
+
+        // join the room
+        socket.join(padId);
+
+        // broadcast scenes length to all clients except sender
+        socket.broadcast.to(padId).emit('scenesLengthChanged', scenesLength);
+      })
+    });
 }
 
 //attrib is the element key in the pair key-value, scene-name:'whatever', in this case scene-name

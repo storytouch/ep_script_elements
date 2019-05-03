@@ -1,15 +1,40 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 var utils = require('./utils');
+var epCommentUtils = require('ep_comments_page/static/js/utils');
+var SCENES_LENGTH_NAMESPACE = 'scenesLength';
 
 var scenesLength = function() {
   this._scenesLength = [];
+  this.socket = epCommentUtils.openSocketConnectionToRoute(`/${SCENES_LENGTH_NAMESPACE}`);
+  this.thisPlugin = utils.getThisPluginProps();
+  this.listenToSceneLengthChangeEvent();
 }
 
-scenesLength.prototype.setScenesLength = function(scenesLength) {
+scenesLength.prototype.listenToSceneLengthChangeEvent = function() {
+  var self = this;
+  this.socket.on('scenesLengthChanged', function(scenesLength) {
+    var scriptElementsAreVisible = self.thisPlugin.isScriptActivated;
+    if (!scriptElementsAreVisible) {
+      self.setScenesLength(scenesLength, false);
+    }
+  })
+}
+
+scenesLength.prototype.setScenesLength = function(scenesLength, broadcastChangeToClients) {
   var hasScenesLengthChanged = this._scenesLengthHasChanged(scenesLength);
   if (hasScenesLengthChanged) {
     this._scenesLength = scenesLength;
     this._triggerMessageThatScriptLengthHasChanged();
+
+    // when a client gets the scenes length data from other user we don't reemit
+    // the data
+    if (broadcastChangeToClients) {
+      var scenesLengthData = {
+        padId: clientVars.padId,
+        scenesLength: scenesLength
+      }
+      this.socket.emit('broadcastSceneLengthChange', scenesLengthData);
+    }
   }
 }
 

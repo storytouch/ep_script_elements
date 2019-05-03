@@ -19,7 +19,8 @@
         "collectContentPre": "ep_script_elements/static/js/shared",
         "collectContentPost": "ep_script_elements/static/js/shared",
         "getLineHTMLForExport": "ep_script_elements/index",
-        "stylesForExport" : "ep_script_elements/index"
+        "stylesForExport" : "ep_script_elements/index",
+        "socketio": "ep_script_elements/index"
       }
     },
     {

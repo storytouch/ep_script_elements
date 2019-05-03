@@ -132,4 +132,46 @@ describe('ep_script_elements - scenes length', function() {
       done();
     });
   });
+
+  context('when user has script disabled and other user changes the scene length', function() {
+    var multipleUsers = ep_script_copy_cut_paste_test_helper.multipleUsers;
+    var originalSceneLength;
+    before(function(done) {
+      originalSceneLength = getScenesLength(); // get user A original scenes length
+      ep_script_toggle_view_test_helper.utils.setEascMode(['scene']); // user A disables SCRIPT
+      multipleUsers.openSamePadOnWithAnotherUser(function() {
+        multipleUsers.startActingLikeOtherUser();
+
+        // we need to force to make script visible. This is required because
+        // we listen to EASC events from Teksto manager
+        ep_script_toggle_view_test_helper.utils.setEascMode(['script']);
+
+        // user B changes the scenes length
+        utils.changeToElement(utils.GENERAL, function() {
+          done();
+        }, LAST_HEADING_LINE);
+      });
+      this.timeout(50000);
+    });
+
+    it('updates the user scenes length', function(done) {
+      this.timeout(10000)
+      var scenesLength;
+      multipleUsers.startActingLikeThisUser(); // change to user A
+      helper.waitFor(function(){
+        scenesLength = getScenesLength();
+        return scenesLength[0] !== originalSceneLength[0];
+      }, 6000).done(function() {
+        expect(scenesLength.length).to.be(1);
+        var expectedSceneLength = getLineDefaultSize() * 4; // 1 heading + 1 general = 4 lines
+        // due to margins the first scene has about 10 pixels less
+        var tolerance = 11;
+        expect(scenesLength[0]).to.be.within(
+          expectedSceneLength - tolerance,
+          expectedSceneLength + tolerance
+        );
+        done();
+      });
+    });
+  });
 });

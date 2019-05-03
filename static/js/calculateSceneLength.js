@@ -31,7 +31,7 @@ calculateSceneLength.prototype.run = function(forceCalculateScenesLength) {
     return sceneLength;
   }, this);
 
-  this.thisPlugin.scenesLength.setScenesLength(scenesLength);
+  this.thisPlugin.scenesLength.setScenesLength(scenesLength, true);
 };
 
 calculateSceneLength.prototype._getSceneIntervals = function($headings) {
