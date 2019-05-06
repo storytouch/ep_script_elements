@@ -15,6 +15,8 @@ scenesLength.prototype.listenToSceneLengthChangeEvent = function() {
   this.socket.on('scenesLengthChanged', function(scenesLength) {
     var scriptElementsAreVisible = self.thisPlugin.isScriptActivated;
     if (!scriptElementsAreVisible) {
+      // when a client gets the scenes length data from other user we don't
+      // reemit the data
       self.setScenesLength(scenesLength, false);
     }
   })
@@ -26,8 +28,6 @@ scenesLength.prototype.setScenesLength = function(scenesLength, broadcastChangeT
     this._scenesLength = scenesLength;
     this._triggerMessageThatScriptLengthHasChanged();
 
-    // when a client gets the scenes length data from other user we don't reemit
-    // the data
     if (broadcastChangeToClients) {
       var scenesLengthData = {
         padId: clientVars.padId,

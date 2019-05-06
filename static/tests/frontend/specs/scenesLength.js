@@ -147,9 +147,7 @@ describe('ep_script_elements - scenes length', function() {
         ep_script_toggle_view_test_helper.utils.setEascMode(['script']);
 
         // user B changes the scenes length
-        utils.changeToElement(utils.GENERAL, function() {
-          done();
-        }, LAST_HEADING_LINE);
+        utils.changeToElement(utils.GENERAL, done, LAST_HEADING_LINE);
       });
       this.timeout(50000);
     });
@@ -163,13 +161,6 @@ describe('ep_script_elements - scenes length', function() {
         return scenesLength[0] !== originalSceneLength[0];
       }, 6000).done(function() {
         expect(scenesLength.length).to.be(1);
-        var expectedSceneLength = getLineDefaultSize() * 4; // 1 heading + 1 general = 4 lines
-        // due to margins the first scene has about 10 pixels less
-        var tolerance = 11;
-        expect(scenesLength[0]).to.be.within(
-          expectedSceneLength - tolerance,
-          expectedSceneLength + tolerance
-        );
         done();
       });
     });
