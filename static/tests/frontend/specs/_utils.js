@@ -337,5 +337,16 @@ ep_script_elements_test_helper.utils = {
     var sceneId = helper.padInner$('div:has(heading)').eq(sceneIndex).attr('id');
     var apiUtils = ep_script_elements_test_helper.apiUtils;
     apiUtils.simulateTriggerOfUpdateOfSceneDuration(sceneDuration, sceneId);
+  },
+
+  setDurationAndWaitApplyClassOnHeading: function(sceneIndex, sceneDuration, cb) {
+    var epSEUtils = ep_script_elements_test_helper.utils;
+    this.setDurationOfScene(sceneIndex, sceneDuration);
+    helper.waitFor(function() {
+      var headingClass = helper.padInner$('heading').eq(sceneIndex).attr('class');
+      var sceneDurationRegex = new RegExp('sceneDuration-([0-9]+)')
+      var durationInSeconds = sceneDurationRegex.exec(headingClass);
+      return durationInSeconds && durationInSeconds.length;
+    }).done(cb)
   }
 };

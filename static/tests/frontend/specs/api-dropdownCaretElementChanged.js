@@ -33,8 +33,7 @@ describe('ep_script_elements - API - dropdown caret element changed', function()
     }, 4000).done(done);
   });
 
-  // TODO: change the test we should add a scene duration attrib
-  context.skip('when API receives a message that line type has changed to general', function(){
+  context('when API receives a message that line type has changed to general', function(){
     before(function (done) {
       var inner$ = helper.padInner$;
       utils.cleanPad(function(){
@@ -44,13 +43,19 @@ describe('ep_script_elements - API - dropdown caret element changed', function()
         // sets first line to heading
         apiUtils.simulateTriggerOfDropdownChanged(utils.HEADING);
 
-        // we wait to add the scene length line attribute on the heading. If we
-        // don't remove it, it will appear an "*" in the begging of line
-        utils.waitForAddingSceneLengthClasses(function(){
-          // sets first line to general
-          apiUtils.simulateTriggerOfDropdownChanged(utils.GENERAL);
-          done();
-        });
+        helper.waitFor(function() {
+          return inner$('div').find('heading').length;
+        }).done(function() {
+          // we wait to add the scene duration line attribute on the heading. If
+          // we don't remove it, it will appear an "*" in the begging of line
+          var firstHeadingIndex = 0;
+          var sceneDuration = 1;
+          utils.setDurationAndWaitApplyClassOnHeading(firstHeadingIndex, sceneDuration, function() {
+            // sets first line to general
+            apiUtils.simulateTriggerOfDropdownChanged(utils.GENERAL);
+            done();
+          });
+        })
       });
       this.timeout(5000);
     });
