@@ -6,9 +6,8 @@ body{
 }
 */
 
-heading{
-  display:block;
-  text-transform: uppercase;
+heading {
+  background-color: #F9F9F9; /* $COLOR_249 */
 }
 heading:before {
   float: left;
@@ -28,22 +27,11 @@ heading:before {
   content: counter(scene) " ";
 }
 
-action{
-  display:block;
-}
-
-character{
-  display:block;
-  text-transform: uppercase;
-}
-
 /* avoid displaying empty parenthetical split in two lines */
-parenthetical br{
+parenthetical br {
   content: "";
 }
-parenthetical{
-  display:block;
-}
+
 /* [perf] do not build parenthesis while on paste */
 #innerdocbody:not(.pasting) parenthetical:before {
   content: '(';
@@ -54,24 +42,22 @@ parenthetical{
   margin-right: -6px;
 }
 
-dialogue{
-  display:block;
-}
-
-transition{
-  display:block;
+transition {
   text-align: right;
+}
+
+heading, character, transition, shot {
   text-transform: uppercase;
 }
 
-shot{
-  display:block;
-  text-transform: uppercase;
+heading, action, character, parenthetical, dialogue, transition, shot {
+  display: block;
 }
 
-/*hack to force display the element without losing the default font when it is pasted with ctrl+shift+v */
-heading, action, character, parenthetical, dialogue, transition, shot{
-  font-family: monospace;
+/* hack to force display the element without losing the default font
+   when it is pasted with ctrl+shift+v */
+div {
+  font-family: courier, monospace;
 }
 
 /* If available width is not even enough to have the regular 61
