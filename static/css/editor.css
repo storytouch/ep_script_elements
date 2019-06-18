@@ -56,7 +56,7 @@ heading, action, character, parenthetical, dialogue, transition, shot {
 
 /* hack to force display the element without losing the default font
    when it is pasted with ctrl+shift+v */
-div {
+#innerdocbody div {
   font-family: courier, monospace;
 }
 
