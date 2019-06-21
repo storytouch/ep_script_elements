@@ -159,7 +159,7 @@ describe('ep_script_elements - calculate scene length', function() {
   // problems with the heading cache that is used to calculate the scene
   // length. As the heading is not collected on other user pad, we have to
   // force recalculate the heading position
-  context('when there more than one user on the pad', function() {
+  context('when there are more than one user on the pad', function() {
     before(function(done) {
       var self = this;
       multipleUsers.openSamePadOnWithAnotherUser(function() {
@@ -172,7 +172,7 @@ describe('ep_script_elements - calculate scene length', function() {
       this.timeout(10000);
     });
 
-    context('and one user updates a scene that changes the next scenes position', function() {
+    context('and one user updates a scene length before and the next scene', function() {
       var sceneValues;
       var targetScene = 1;
       before(function(done) {
