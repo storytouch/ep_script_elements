@@ -1,9 +1,12 @@
 describe('ep_script_elements - calculate scene length', function() {
   var helperFunctions, smUtils;
   var utils = ep_script_elements_test_helper.utils;
+  var multipleUsers = ep_script_copy_cut_paste_test_helper.multipleUsers;
+  var multipleUsersApiUtils = ep_script_copy_cut_paste_test_helper.multipleUsersApiUtils;
 
   var FIRST_ACTION_LINE = 9;
   var FIRST_HEADING_LINE = 12;
+  var SECOND_ACTION_LINE = 13;
 
   before(function(done) {
     helperFunctions = ep_script_elements_test_helper.calculateSceneLength;
@@ -149,6 +152,51 @@ describe('ep_script_elements - calculate scene length', function() {
       }, 3000);
     });
   })
+
+  // this scenario tests against https://trello.com/c/fvdjvPX0/1906.
+  // When an element very next to a heading is edited, the heading is collected
+  // only in the document where this edition was made. This may cause some
+  // problems with the heading cache that is used to calculate the scene
+  // length. As the heading is not collected on other user pad, we have to
+  // force recalculate the heading position
+  context('when there more than one user on the pad', function() {
+    before(function(done) {
+      var self = this;
+      multipleUsers.openSamePadOnWithAnotherUser(function() {
+        multipleUsers.performAsOtherUser(function() {
+          // enable script to other user otherwise it won't calculate the
+          // scenes length
+          utils._setEascScriptAsEnabled();
+        }, done());
+      });
+      this.timeout(10000);
+    });
+
+    context('and one user updates a scene that changes the next scenes position', function() {
+      var sceneValues;
+      var targetScene = 1;
+      before(function(done) {
+        var newLinesLength = 10;
+        helperFunctions.createNLinesAfterLine(FIRST_ACTION_LINE, newLinesLength);
+        setTimeout(function() {
+          helperFunctions.createNLinesAfterLine(SECOND_ACTION_LINE + newLinesLength, newLinesLength);
+          sceneValues = helperFunctions.getScenesValueForBothUsers(targetScene);
+          done();
+        }, 1000)
+      });
+
+      it('has the same scene length for both users', function(done) {
+        helperFunctions.waitForSceneLengthToBeUpdatedForBothUsers(sceneValues, targetScene, this, function() {
+          var sceneValues = helperFunctions.getScenesValueForBothUsers(targetScene);
+          var thisUserSceneLenth = sceneValues[0];
+          var otherUserSceneLenth = sceneValues[1];
+          expect(thisUserSceneLenth).to.equal(otherUserSceneLenth);
+          done();
+        });
+        this.timeout(5000);
+      })
+    })
+  })
 });
 
 var ep_script_elements_test_helper = ep_script_elements_test_helper || {};
@@ -277,5 +325,32 @@ ep_script_elements_test_helper.calculateSceneLength = {
   setIdleWorkCounterInactivityThreshold: function(value) {
     var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
     thisPlugin.updateSceneLengthSchedule._idleWorkCounterInactivityThreshold = value;
+  },
+
+  createNLinesAfterLine: function(targetLine, numOfLines) {
+    var utils = ep_script_elements_test_helper.utils;
+    var $targetLine = utils.getLine(targetLine);
+    var newLines = 'new line{enter}'.repeat(numOfLines);
+    $targetLine.sendkeys('{selectall}{rightarrow}{enter}' + newLines);
+  },
+
+  waitForSceneLengthToBeUpdatedForBothUsers: function(scenesValue, targetScene, test, done) {
+    var self = this;
+    var utils = ep_cursortrace_test_helper.utils;
+    var multipleUsers = ep_script_copy_cut_paste_test_helper.multipleUsers;
+    test.timeout(5000)
+    helper.waitFor(function() {
+      var newScenesValue = self.getScenesValueForBothUsers(targetScene);
+      return (scenesValue[0] !== newScenesValue[0]) && (scenesValue[1] !== newScenesValue[1]);
+    }, 4000).done(done);
+  },
+
+  getScenesValueForBothUsers: function(targetScene) {
+    var multipleUsers = ep_script_copy_cut_paste_test_helper.multipleUsers;
+    multipleUsers.startActingLikeThisUser();
+    var thisUserSceneValue = this.getSceneLengthValue(targetScene);
+    multipleUsers.startActingLikeOtherUser();
+    var otherUserSceneValue = this.getSceneLengthValue(targetScene);
+    return [thisUserSceneValue, otherUserSceneValue];
   },
 };
