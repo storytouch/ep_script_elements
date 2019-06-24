@@ -162,11 +162,14 @@ describe('ep_script_elements - calculate scene length', function() {
   context('when there are more than one user on the pad', function() {
     before(function(done) {
       var self = this;
+      helperFunctions.speedUpTests();
       multipleUsers.openSamePadOnWithAnotherUser(function() {
         multipleUsers.performAsOtherUser(function() {
           // enable script to other user otherwise it won't calculate the
           // scenes length
           utils._setEascScriptAsEnabled();
+
+          helperFunctions.speedUpTests();
         }, done());
       });
       this.timeout(10000);
@@ -338,11 +341,11 @@ ep_script_elements_test_helper.calculateSceneLength = {
     var self = this;
     var utils = ep_cursortrace_test_helper.utils;
     var multipleUsers = ep_script_copy_cut_paste_test_helper.multipleUsers;
-    test.timeout(5000)
+    test.timeout(5000);
     helper.waitFor(function() {
       var newScenesValue = self.getScenesValueForBothUsers(targetScene);
       return (scenesValue[0] !== newScenesValue[0]) && (scenesValue[1] !== newScenesValue[1]);
-    }, 4000).done(done);
+    }, 2500).done(done);
   },
 
   getScenesValueForBothUsers: function(targetScene) {
