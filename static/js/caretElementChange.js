@@ -1,6 +1,9 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
-var utils          = require('./utils');
-var api            = require('./api');
+
+var smUtils = require('ep_script_scene_marks/static/js/utils');
+
+var utils = require('./utils');
+var api   = require('./api');
 
 exports.sendMessageCaretElementChanged = function(context) {
   var callerContext    = context || this;
@@ -8,13 +11,22 @@ exports.sendMessageCaretElementChanged = function(context) {
   var attributeManager = callerContext.documentAttributeManager;
   var sameElementOnSelection = isSameElementOnSelection(rep, attributeManager);
   var elementOfCurrentLine;
+  var sceneMarkSetType;
   var currentLine = rep.selStart[0];
   var $currentLine = $(rep.lines.atIndex(currentLine).lineNode);
   var isLineScriptElement = utils.domLineIsAScriptElement($currentLine);
   if (sameElementOnSelection && isLineScriptElement) {
     elementOfCurrentLine = utils.getLineType(currentLine, attributeManager) || 'general';
   }
+
+  // when elementOfCurrentLine is undefined means it is a scene mark
+  if (elementOfCurrentLine === undefined || elementOfCurrentLine === 'heading') {
+    var firstSMOfSet = smUtils.getFirstSceneMarkTagOfSet($currentLine); // e.g episode_name, sequence_name
+    sceneMarkSetType = firstSMOfSet.split('_')[0]; // episode, act, sequence, scene
+  }
+
   api.triggerCaretElementChanged(elementOfCurrentLine);
+  api.triggerSMSetElementChanged(sceneMarkSetType);
 }
 
 var isSameElementOnSelection = function(rep, attributeManager) {

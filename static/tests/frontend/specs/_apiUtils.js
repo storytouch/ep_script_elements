@@ -5,6 +5,7 @@ ep_script_elements_test_helper.apiUtils = {
   DROPDOWN_ELEMENT_CHANGED: 'dropdown_element_changed',
   FORMATTING_BUTTON_PRESSED: 'formatting_button_pressed',
   UPDATE_SCENE_DURATION: 'UPDATE_SCENE_DURATION',
+  CHANGE_SM_SET_MESSAGE_TYPE: 'scene_mark_set_element_changed',
   lastDataSent: {},
 
   startListeningToApiEvents: function() {
@@ -20,7 +21,20 @@ ep_script_elements_test_helper.apiUtils = {
     var self = this;
     helper.waitFor(function() {
       return self.lastDataSent[eventType];
-    }).done(done);
+    }, 2000).done(done);
+  },
+
+  resetLastDataSent: function() {
+    this.lastDataSent = {}
+  },
+
+  getLastSMSetElementChange: function() {
+    var elementType;
+    var lastMessageSent = this.lastDataSent[this.CHANGE_SM_SET_MESSAGE_TYPE];
+    if (lastMessageSent) {
+      elementType = lastMessageSent.elementType;
+    }
+    return elementType;
   },
 
   getLastCaretElementChange: function() {

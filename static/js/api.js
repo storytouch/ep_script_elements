@@ -3,6 +3,7 @@ var formattingStyleOfSelection    = require('./formattingStyleOfSelection');
 var sceneDuration                 = require('./sceneDuration');
 
 var CHANGE_CARET_ELEMENT_MESSAGE_TYPE = 'dropdown_caret_element_changed';
+var CHANGE_SM_SET_MESSAGE_TYPE        = 'scene_mark_set_element_changed';
 var DROPDOWN_ELEMENT_CHANGED          = 'dropdown_element_changed';
 var FORMATTING_BUTTON_PRESSED         = 'formatting_button_pressed';
 var UPDATE_SCENE_DURATION             = 'UPDATE_SCENE_DURATION';
@@ -14,9 +15,17 @@ exports.init = function(ace) {
   });
 }
 
-exports.triggerCaretElementChanged = function (elementType) {
+exports.triggerCaretElementChanged = function(elementType) {
   var message = {
     type: CHANGE_CARET_ELEMENT_MESSAGE_TYPE,
+    elementType: elementType,
+  };
+  _triggerEvent(message);
+}
+
+exports.triggerSMSetElementChanged = function(elementType) {
+  var message = {
+    type: CHANGE_SM_SET_MESSAGE_TYPE,
     elementType: elementType,
   };
   _triggerEvent(message);
