@@ -60,7 +60,7 @@ describe('ep_script_elements - API - scene mark set element type', function() {
     var elementType = element.type;
 
     context(`when caret is on a ${elementType}`, function() {
-      context(`and highest sm of set is a ${sceneMark}`, function() {
+      context(`and highest scene mark of set is a ${sceneMark}`, function() {
         before(function(done) {
           apiUtils.resetLastDataSent();
           utils.placeCaretOnLine(line, function() {
@@ -68,7 +68,7 @@ describe('ep_script_elements - API - scene mark set element type', function() {
           });
         });
 
-        it(`send ${sceneMark} via API`, function(done) {
+        it(`sends ${sceneMark} via API`, function(done) {
           expect(apiUtils.getLastSMSetElementChange()).to.be(sceneMark);
           done();
         })
