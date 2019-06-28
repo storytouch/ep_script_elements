@@ -29,12 +29,7 @@ ep_script_elements_test_helper.apiUtils = {
   },
 
   getLastSMSetElementChange: function() {
-    var elementType;
-    var lastMessageSent = this.lastDataSent[this.CHANGE_SM_SET_MESSAGE_TYPE];
-    if (lastMessageSent) {
-      elementType = lastMessageSent.elementType;
-    }
-    return elementType;
+    return (this.lastDataSent[this.CHANGE_SM_SET_MESSAGE_TYPE] || {}).elementType;
   },
 
   getLastCaretElementChange: function() {
