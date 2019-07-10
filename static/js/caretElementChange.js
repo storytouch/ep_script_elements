@@ -22,7 +22,7 @@ exports.sendMessageCaretElementChanged = function(context) {
   // when elementOfCurrentLine is undefined means it is a scene mark
   if (elementOfCurrentLine === undefined || elementOfCurrentLine === 'heading') {
     var firstSMOfSet = smUtils.getFirstSceneMarkTagOfSet($currentLine); // e.g episode_name, sequence_name
-    sceneMarkSetType = firstSMOfSet.split('_')[0]; // episode, act, sequence, scene
+    sceneMarkSetType = firstSMOfSet ? firstSMOfSet.split('_')[0] : undefined; // episode, act, sequence, scene
   }
 
   api.triggerCaretElementChanged(elementOfCurrentLine);

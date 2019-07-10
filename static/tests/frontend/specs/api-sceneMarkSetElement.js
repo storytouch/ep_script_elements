@@ -11,7 +11,8 @@ describe('ep_script_elements - API - scene mark set element type', function() {
   var HEADING_OF_SEQ          = 20;
   var SYNOPSIS_NAME_OF_SCENE  = 21;
   var HEADING_OF_SCENE        = 23;
-  var GENERAL_LINE            = 24;
+  var ACTION_LINE             = 24;
+  var GENERAL_LINE            = 25;
 
   var smAndHeadingData = [
     {sceneMark: 'episode',  line: EPISODE_NAME_OF_EP,      type: 'scene mark'},
@@ -33,8 +34,9 @@ describe('ep_script_elements - API - scene mark set element type', function() {
       var act = smUtils.createAct(sceneText);
       var sequence = smUtils.createSeq(sceneText);
       var scene = smUtils.createSynopsis(sceneText);
+      var action = utils.action('action');
       var general = utils.general(lastElementText);
-      var script = episode + act + sequence + scene + general;
+      var script = episode + act + sequence + scene + action + general;
       utils.createScriptWith(script, lastElementText, done);
     });
     this.timeout(10000);
@@ -46,6 +48,24 @@ describe('ep_script_elements - API - scene mark set element type', function() {
       utils.placeCaretOnLine(GENERAL_LINE, function() {
         apiUtils.waitForDataToBeSent(CHANGE_SM_SET_MESSAGE_TYPE, done);
       });
+    });
+
+    it('sends undefined via API', function(done) {
+      expect(apiUtils.getLastSMSetElementChange()).to.be(undefined);
+      done();
+    })
+  })
+
+  context('when multiple lines with different element types are selected', function() {
+    before(function(done) {
+      apiUtils.resetLastDataSent();
+
+      // select multiple lines
+      var $selectionStart = utils.getLine(ACTION_LINE);
+      var $selectionEnd = utils.getLine(GENERAL_LINE);
+      helper.selectLines($selectionStart,  $selectionEnd);
+
+      apiUtils.waitForDataToBeSent(CHANGE_SM_SET_MESSAGE_TYPE, done);
     });
 
     it('sends undefined via API', function(done) {
