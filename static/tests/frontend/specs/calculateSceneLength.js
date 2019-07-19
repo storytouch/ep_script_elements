@@ -5,7 +5,9 @@ describe('ep_script_elements - calculate scene length', function() {
   var multipleUsersApiUtils = ep_script_copy_cut_paste_test_helper.multipleUsersApiUtils;
 
   var FIRST_ACTION_LINE = 9;
-  var FIRST_HEADING_LINE = 12;
+  var FIRST_HEADING_LINE = 8;
+  var SECOND_HEADING_LINE = 12;
+  var FOURTH_HEADING_LINE = 72;
   var SECOND_ACTION_LINE = 13;
 
   before(function(done) {
@@ -103,21 +105,57 @@ describe('ep_script_elements - calculate scene length', function() {
 
   context('when it changes an element type', function() {
     var originalSceneLengthValue;
-    var targetScene = 0; // second scene
+    var targetScene = 0;
 
     context('and the element changed is a heading', function() {
       before(function(done) {
         originalSceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
-        smUtils.changeLineToElement(smUtils.GENERAL, FIRST_HEADING_LINE, done);
+        smUtils.changeLineToElement(smUtils.GENERAL, SECOND_HEADING_LINE, done);
       });
 
-      after(function() {
+      after(function(done) {
         smUtils.undo();
+        helper.waitFor(function() {
+          return helperFunctions.getScenesLengthValue().length === 5;
+        }, 2000).done(done);
       })
 
       it('updates the scene length', function(done) {
         helperFunctions.testSceneLenghtWasUpdated(targetScene, originalSceneLengthValue, done);
       });
+    });
+  })
+
+  // this scenario is against https://trello.com/c/iBGGXL83/1936
+  context('when user removes the next scene undoes the operation', function() {
+    var targetScene = 2;
+    var originalSceneLengthValue;
+    before(function(done) {
+      originalSceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
+      // we need to move the scene down to change the top position of the edges
+      smUtils.clickOnSceneMarkButtonOfLine(FIRST_HEADING_LINE);
+
+      // force an edition on the top element of the next scene. This
+      // recalculates the length of the first scene
+      smUtils.changeLineToElement(smUtils.GENERAL, FOURTH_HEADING_LINE, function() {
+        helper.waitFor(function() {
+          var newSceneLength = helperFunctions.getSceneLengthValue(targetScene);
+          return newSceneLength > originalSceneLengthValue;
+        }, 2000).done(function() {
+          // now, we force a recalculation of the first scene. Ideally, the
+          // edges of the first scene should be recalculated
+          utils.undo();
+          done();
+        })
+      });
+      this.timeout(5000)
+    })
+
+    it('keeps the same value', function(done) {
+      helper.waitFor(function() {
+        var sceneLength = helperFunctions.getSceneLengthValue(targetScene);
+        return sceneLength === originalSceneLengthValue;
+      }, 2000).done(done);
     });
   })
 

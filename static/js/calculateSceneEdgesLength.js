@@ -9,8 +9,8 @@ var calculateSceneEdgesLength = function() {
 calculateSceneEdgesLength.prototype._listenToElementsChanges = function() {
   var self = this;
   detailedLinesChangedListener.onLinesAddedOrRemoved(function(linesChanged) {
-    var lastElementOfChangedScene = self._getLastElementOfScenes(linesChanged.linesAdded);
     var firstElementOfChangedScene = self._getFirstElementOfScenes(linesChanged.linesAdded);
+    var lastElementOfChangedScene = self._getLastElementOfScenes(firstElementOfChangedScene);
     var scenesEdge = lastElementOfChangedScene.concat(firstElementOfChangedScene);
     self._cleanElementDimensionCache(scenesEdge);
   });
@@ -23,11 +23,11 @@ calculateSceneEdgesLength.prototype._cleanElementDimensionCache = function(eleme
 };
 
 calculateSceneEdgesLength.prototype._getLastElementOfScenes = function(linesChanged) {
-  return this._filterLinesBy(this._getfirstElementOfScene, linesChanged)
+  return this._filterLinesBy(this._getLastElementOfScene, linesChanged)
 }
 
 calculateSceneEdgesLength.prototype._getFirstElementOfScenes = function(linesChanged) {
-  return this._filterLinesBy(this._getLastElementOfScene, linesChanged)
+  return this._filterLinesBy(this._getfirstElementOfScene, linesChanged)
 }
 
 calculateSceneEdgesLength.prototype._filterLinesBy = function(filter, linesChanged) {
