@@ -8,6 +8,7 @@ describe('ep_script_elements - calculate scene length', function() {
   var FIRST_HEADING_LINE = 8;
   var SECOND_HEADING_LINE = 12;
   var FOURTH_HEADING_LINE = 72;
+  var FIFTH_HEADING_LINE = 86;
   var SECOND_ACTION_LINE = 13;
 
   before(function(done) {
@@ -151,6 +152,10 @@ describe('ep_script_elements - calculate scene length', function() {
       this.timeout(5000)
     })
 
+    after(function() {
+      smUtils.clickOnSceneMarkButtonOfLine(FIRST_HEADING_LINE);
+    })
+
     it('keeps the same value', function(done) {
       helper.waitFor(function() {
         var sceneLength = helperFunctions.getSceneLengthValue(targetScene);
@@ -158,6 +163,34 @@ describe('ep_script_elements - calculate scene length', function() {
       }, 2000).done(done);
     });
   })
+
+  context('when user edits a scene mark close to the heading', function() {
+    var originalSceneLengthValue;
+    var targetScene = 4;
+    before(function() {
+      originalSceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
+      smUtils.clickOnSceneMarkButtonOfLine(FIFTH_HEADING_LINE);
+      helper.padInner$('scene_summary').eq(targetScene).sendkeys('edited!');
+    })
+
+    after(function() {
+      utils.undo();
+      smUtils.clickOnSceneMarkButtonOfLine(FIFTH_HEADING_LINE);
+    })
+
+    it('does not change the scene length', function(done) {
+      helper.waitFor(function() {
+        var sceneLength = helperFunctions.getSceneLengthValue(targetScene);
+        return sceneLength !== originalSceneLengthValue;
+      }, 2000)
+        .done(function() {
+          expect().fail(function() {
+            return 'the scene length should not change!';
+          })
+        })
+        .fail(done());
+    })
+  });
 
   // this scenario tests if the calculation of the scene length is triggered
   // only when the editor is idle. We use the event "idleWorkTimer" to ensure
