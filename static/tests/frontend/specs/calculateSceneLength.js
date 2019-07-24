@@ -15,7 +15,7 @@ describe('ep_script_elements - calculate scene length', function() {
     helperFunctions = ep_script_elements_test_helper.calculateSceneLength;
     smUtils = ep_script_scene_marks_test_helper.utils;
     helper.newPad(function() {
-      helperFunctions.speedUpTests();
+      utils.speedUpTests();
       helperFunctions.createScript(function() {
         utils.waitForCalculatingTheScenesLength(done);
       });
@@ -203,7 +203,7 @@ describe('ep_script_elements - calculate scene length', function() {
     var targetScene = 0;
     var originalSceneLengthValue;
     before(function() {
-      helperFunctions.resetIdleWorkCounterInactivityThreshold();
+      utils.resetIdleWorkCounterInactivityThreshold();
       originalSceneLengthValue = helperFunctions.getSceneLengthValue(targetScene);
       var $heading = helper.padInner$('heading').first();
       var text = 'edited '.repeat(10); // [1]
@@ -233,14 +233,14 @@ describe('ep_script_elements - calculate scene length', function() {
   context('when there are more than one user on the pad', function() {
     before(function(done) {
       var self = this;
-      helperFunctions.speedUpTests();
+      utils.speedUpTests();
       multipleUsers.openSamePadOnWithAnotherUser(function() {
         multipleUsers.performAsOtherUser(function() {
           // enable script to other user otherwise it won't calculate the
           // scenes length
           utils._setEascScriptAsEnabled();
 
-          helperFunctions.speedUpTests();
+          utils.speedUpTests();
         }, done());
       });
       this.timeout(10000);
@@ -385,20 +385,6 @@ ep_script_elements_test_helper.calculateSceneLength = {
         done();
       });
     });
-  },
-
-  // don't wait for any idleWorkTimer event to run the scene length calculation
-  speedUpTests: function() {
-    this.setIdleWorkCounterInactivityThreshold(0);
-  },
-
-  resetIdleWorkCounterInactivityThreshold: function() {
-    this.setIdleWorkCounterInactivityThreshold(2);
-  },
-
-  setIdleWorkCounterInactivityThreshold: function(value) {
-    var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
-    thisPlugin.updateSceneLengthSchedule._idleWorkCounterInactivityThreshold = value;
   },
 
   createNLinesAfterLine: function(targetLine, numOfLines) {

@@ -348,5 +348,19 @@ ep_script_elements_test_helper.utils = {
       var durationInSeconds = sceneDurationRegex.exec(headingClass);
       return durationInSeconds && durationInSeconds.length;
     }).done(cb)
-  }
+  },
+
+  // don't wait for any idleWorkTimer event to run the scene length calculation
+  speedUpTests: function() {
+    this._setIdleWorkCounterInactivityThreshold(0);
+  },
+
+  resetIdleWorkCounterInactivityThreshold: function() {
+    this._setIdleWorkCounterInactivityThreshold(2);
+  },
+
+  _setIdleWorkCounterInactivityThreshold: function(value) {
+    var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
+    thisPlugin.updateSceneLengthSchedule._idleWorkCounterInactivityThreshold = value;
+  },
 };
