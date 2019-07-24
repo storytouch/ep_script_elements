@@ -111,8 +111,17 @@ describe('ep_script_elements - scenes length', function() {
       this.timeout(6000);
     });
 
-    after(function() {
+    // wait until the scene length get its value updated to 3 lines as the
+    // original state before running this context setup
+    after(function(done) {
       utils.undo();
+      helper.waitFor(function() {
+        var scenesLength = getScenesLength();
+        var expectedSceneLength = getLineDefaultSize() * 3; // 1 heading = 3 lines
+        return expectedSceneLength - TOLERANCE <= scenesLength[0] &&
+          scenesLength[0] <= expectedSceneLength + TOLERANCE;
+      }, 2000).done(done);
+      this.timeout(5000);
     });
 
     it('updates the scenes length object', function(done) {
