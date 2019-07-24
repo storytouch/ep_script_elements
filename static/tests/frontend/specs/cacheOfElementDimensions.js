@@ -25,21 +25,6 @@ describe('ep_script_elements - cache of element dimensions', function() {
     this.timeout(60000);
   });
 
-  var testItKeepsTheElementCache = function(line, elementType) {
-    it('does not update the cache of the ' + elementType + ' of the scene', function(done) {
-      helper.waitFor(function() {
-        var elementCache = helperFunctions.getDimensionOfElement(line, elementType);
-        return elementCache === null;
-      }, 800)
-        .done(function() {
-          expect().fail(function() { return 'Element dimensions were recalculated'; });
-        })
-        .fail(function() {
-          done(); // we kept the cache of the element dimensions
-        });
-    });
-  }
-
   context('when it edits a scene heading', function() {
     var previousLastElementDimension;
 
@@ -73,27 +58,6 @@ describe('ep_script_elements - cache of element dimensions', function() {
           expect(elementDimension.bottom).to.be.lessThan(previousLastElementDimension.bottom);
           done();
         });
-      });
-    });
-  });
-
-  context('when it edits an element inside the scene', function() {
-    var previousLastElementDimension;
-    before(function() {
-      previousLastElementDimension = helperFunctions.getDimensionsOfLastElementOfScene(FIRST_SCENE);
-      helperFunctions.editElement(INDEX_OF_ACTION_MIDDLE_SCENE_1, ACTION);
-    });
-
-    after(function() {
-      utils.undo();
-    });
-
-    testItKeepsTheElementCache(FIRST_SCENE, HEADING);
-
-    it('updates the cache of the last element of the scene', function(done) {
-      helperFunctions.waitForSaveOnCacheAgain(INDEX_OF_LAST_ACTION_SCENE_1, ACTION, this, function(elementDimension) {
-        expect(elementDimension.bottom).to.be.greaterThan(previousLastElementDimension.bottom);
-        done();
       });
     });
   });

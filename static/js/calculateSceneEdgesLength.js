@@ -9,17 +9,45 @@ var calculateSceneEdgesLength = function() {
 calculateSceneEdgesLength.prototype._listenToElementsChanges = function() {
   var self = this;
   detailedLinesChangedListener.onLinesAddedOrRemoved(function(linesChanged) {
-    // as an edition on one scene may change the length of the previous scene,
-    // see https://trello.com/c/fvdjvPX0/1906, we clean the cache of the
-    // current scene and the previous one
-    var firstElementOfChangedScenes = self._getFirstElementOfScenes(linesChanged.linesAdded);
-    var firstElementOfPreviousScenes = self._getFirstElementOfPreviousScenes(firstElementOfChangedScenes);
-    var headingsOfChangedSceneAndPreviousOne = firstElementOfChangedScenes.concat(firstElementOfPreviousScenes);
-    var lastElementOfChangedScenes = self._getLastElementOfScenes(headingsOfChangedSceneAndPreviousOne);
-    var scenesEdge = _.flatten(headingsOfChangedSceneAndPreviousOne.concat(lastElementOfChangedScenes));
-    self._cleanElementDimensionCache(scenesEdge);
+    var linesToResetCache = _.map(linesChanged.linesAdded, function(line) {
+      return self._getLinesToResetCache(line);
+    }, this)
+    self._cleanElementDimensionCache(_.flatten(linesToResetCache));
   });
 };
+
+/*
+when there is an edition we can have two scenarios:
+1. Edition was made between the heading and last element of a scene (inclusive) - 
+  In this case we only need to reset the cache of the edges of this scene. It's
+  important to mention that even though the heading position does not change we
+  have to update it (edition on the middle of a scene). Doing that we avoid a
+  problem with the calculation of the scene length on other user's pad, (see
+  https://trello.com/c/fvdjvPX0/1906 - When an element very next to a heading
+  is edited, the heading is collected only in the document where this edition
+  was made. As the heading of other user's pad is not collected, we have to
+  force to recalculate it).
+
+2. Edition was made before the beginning of a scene (any scene mark) -
+  if an edition is made on scene marks besides of resetting the cache of the
+  edges of the current scene we reset the cache of the edges of the previous
+  scene as well. We do it because editions on scene marks may change the length
+  of the previous scene as well, see https://trello.com/c/fvdjvPX0/1906
+*/
+calculateSceneEdgesLength.prototype._getLinesToResetCache = function(line) {
+  var firstElementOfChangedScene = this._getFirstElementOfScene(line);
+  var lastElementOfChangedScene = this._getLastElementOfScene(firstElementOfChangedScene);
+  var linesToResetCache = [firstElementOfChangedScene, lastElementOfChangedScene]; // [1]
+
+  var needUpdateFullSceneAndPreviousOne = $(line).hasClass('sceneMark');
+  if (needUpdateFullSceneAndPreviousOne) { // [2]
+    var firstElementOfPreviousScene = this._getFirstElementOfPreviousScene(firstElementOfChangedScene);
+    var lastElementOfPreviousScene = this._getLastElementOfScene(firstElementOfPreviousScene);
+    var linesToResetCache = linesToResetCache.concat(firstElementOfPreviousScene, lastElementOfPreviousScene);
+  }
+
+  return linesToResetCache;
+}
 
 calculateSceneEdgesLength.prototype._cleanElementDimensionCache = function(elements) {
   _.each(elements, function(element) {
@@ -27,28 +55,7 @@ calculateSceneEdgesLength.prototype._cleanElementDimensionCache = function(eleme
   });
 };
 
-calculateSceneEdgesLength.prototype._getLastElementOfScenes = function(linesChanged) {
-  return this._filterLinesBy(this._getLastElementOfScene, linesChanged)
-}
-
-calculateSceneEdgesLength.prototype._getFirstElementOfScenes = function(linesChanged) {
-  return this._filterLinesBy(this._getfirstElementOfScene, linesChanged)
-}
-
-calculateSceneEdgesLength.prototype._getFirstElementOfPreviousScenes = function(headingLineOfChangedScene) {
-  return this._filterLinesBy(this._getFirstElementOfPreviousScene, headingLineOfChangedScene)
-}
-
-calculateSceneEdgesLength.prototype._filterLinesBy = function(filter, linesChanged) {
-  return _.chain(linesChanged)
-    .map(filter)
-    .reject(function(line) { return line.length === 0})
-    .compact()
-    .uniq(function(line) { return line[0].id }) // remove duplicated lines
-    .value();
-};
-
-calculateSceneEdgesLength.prototype._getfirstElementOfScene = function(line) {
+calculateSceneEdgesLength.prototype._getFirstElementOfScene = function(line) {
   // if the edition is on a scene mark the scene affected is below this line
   var isLineSceneMark = $(line).hasClass('sceneMark');
   if (isLineSceneMark) {
