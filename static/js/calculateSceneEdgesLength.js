@@ -9,16 +9,24 @@ var calculateSceneEdgesLength = function() {
 calculateSceneEdgesLength.prototype._listenToElementsChanges = function() {
   var self = this;
   detailedLinesChangedListener.onLinesAddedOrRemoved(function(linesChanged) {
-    var linesToResetCache = _.map(linesChanged.linesAdded, function(line) {
-      return self._getLinesToResetCache(line);
-    }, this)
-    self._cleanElementDimensionCache(_.flatten(linesToResetCache));
+    var linesToResetCache = self._getUniqLinesToResetCache(linesChanged.linesAdded);
+    self._cleanElementDimensionCache(linesToResetCache);
   });
 };
 
+calculateSceneEdgesLength.prototype._getUniqLinesToResetCache = function(lines) {
+  var getLinesToResetCacheBound = _(this._getLinesToResetCache).bind(this)
+  return _.chain(lines)
+    .map(getLinesToResetCacheBound)
+    .flatten()
+    .reject(function(line) { return line.length === 0}) // remove undefined lines
+    .uniq(function(line) { return line[0].id }) // remove duplicated lines
+    .value();
+}
+
 /*
 when there is an edition we can have two scenarios:
-1. Edition was made between the heading and last element of a scene (inclusive) - 
+1. Edition was made between the heading and last element of a scene (inclusive) -
   In this case we only need to reset the cache of the edges of this scene. It's
   important to mention that even though the heading position does not change we
   have to update it (edition on the middle of a scene). Doing that we avoid a
@@ -35,15 +43,15 @@ when there is an edition we can have two scenarios:
   of the previous scene as well, see https://trello.com/c/fvdjvPX0/1906
 */
 calculateSceneEdgesLength.prototype._getLinesToResetCache = function(line) {
-  var firstElementOfChangedScene = this._getFirstElementOfScene(line);
-  var lastElementOfChangedScene = this._getLastElementOfScene(firstElementOfChangedScene);
-  var linesToResetCache = [firstElementOfChangedScene, lastElementOfChangedScene]; // [1]
+  var headingOfChangedScene = this._getHeadingOfScene(line);
+  var lastElementOfChangedScene = this._getLastElementOfScene(headingOfChangedScene);
+  var linesToResetCache = [headingOfChangedScene, lastElementOfChangedScene]; // [1]
 
   var needUpdateFullSceneAndPreviousOne = $(line).hasClass('sceneMark');
   if (needUpdateFullSceneAndPreviousOne) { // [2]
-    var firstElementOfPreviousScene = this._getFirstElementOfPreviousScene(firstElementOfChangedScene);
-    var lastElementOfPreviousScene = this._getLastElementOfScene(firstElementOfPreviousScene);
-    var linesToResetCache = linesToResetCache.concat(firstElementOfPreviousScene, lastElementOfPreviousScene);
+    var headingOfPreviousScene = this._getHeadingOfPreviousScene(headingOfChangedScene);
+    var lastElementOfPreviousScene = this._getLastElementOfScene(headingOfPreviousScene);
+    var linesToResetCache = linesToResetCache.concat(headingOfPreviousScene, lastElementOfPreviousScene);
   }
 
   return linesToResetCache;
@@ -55,7 +63,7 @@ calculateSceneEdgesLength.prototype._cleanElementDimensionCache = function(eleme
   });
 };
 
-calculateSceneEdgesLength.prototype._getFirstElementOfScene = function(line) {
+calculateSceneEdgesLength.prototype._getHeadingOfScene = function(line) {
   // if the edition is on a scene mark the scene affected is below this line
   var isLineSceneMark = $(line).hasClass('sceneMark');
   if (isLineSceneMark) {
@@ -69,7 +77,7 @@ calculateSceneEdgesLength.prototype._getLastElementOfScene = function(line) {
   return $(line).nextUntil('.sceneMark').addBack().last();
 };
 
-calculateSceneEdgesLength.prototype._getFirstElementOfPreviousScene = function(headingLineOfNextScene) {
+calculateSceneEdgesLength.prototype._getHeadingOfPreviousScene = function(headingLineOfNextScene) {
   return $(headingLineOfNextScene).prevUntil('.withHeading').last().prev();
 };
 

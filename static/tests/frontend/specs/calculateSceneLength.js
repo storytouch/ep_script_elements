@@ -128,7 +128,7 @@ describe('ep_script_elements - calculate scene length', function() {
   })
 
   // this scenario is against https://trello.com/c/iBGGXL83/1936
-  context('when user removes the next scene undoes the operation', function() {
+  context('when user removes the next scene and undoes the operation', function() {
     var targetScene = 2;
     var originalSceneLengthValue;
     before(function(done) {
