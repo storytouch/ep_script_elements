@@ -29,37 +29,56 @@ describe('ep_script_elements - API - save scene duration', function() {
     })
   }
 
-  context('when API receives a scene duration', function() {
-    var sceneDuration = 2;
-    var sceneIndex = 2;
-
-    before(function() {
-      utils.setDurationOfScene(sceneIndex, sceneDuration);
-    });
-
+  var testIfHeadingHasSceneDurationValue = function(sceneIndex, sceneDuration) {
     it('saves this value on the heading', function(done) {
       getSceneDurationClass(sceneIndex, function(durationClass) {
         expect(Number(durationClass)).to.be(sceneDuration * 60); // we save in seconds
         done();
       })
     })
-    
-    // we change to a general intentionally because if we don't remove the line
-    // attribute will be added a "*" in the beginning of the text. On other
-    // types of SE, only the scene duration class would be preserved
-    context('and changes this heading to other element', function() {
-      before(function(done) {
-        var general = utils.GENERAL;
-        utils.changeToElement(general, done, THIRD_HEADING_LINE);
+  }
+
+  context('when API receives a scene duration', function() {
+    context('and element id is from a heading', function() {
+      var sceneDuration = 2;
+      var sceneIndex = 2;
+
+      before(function() {
+        utils.setDurationOfScene(sceneIndex, sceneDuration);
       });
 
-      it('removes the duration class', function(done) {
-        var generalLine = THIRD_HEADING_LINE - 4; // we remove 4 scene marks (sequence)
-        var generalText = helper.padInner$('div').eq(generalLine).text();
-        expect(generalText).to.be(LAST_ELEMENT_TEXT);
-        done();
+      testIfHeadingHasSceneDurationValue(sceneIndex, sceneDuration);
+
+      // we change to a general intentionally because if we don't remove the line
+      // attribute will be added a "*" in the beginning of the text. On other
+      // types of SE, only the scene duration class would be preserved
+      context('and changes this heading to other element', function() {
+        before(function(done) {
+          var general = utils.GENERAL;
+          utils.changeToElement(general, done, THIRD_HEADING_LINE);
+        });
+
+        it('removes the duration class', function(done) {
+          var generalLine = THIRD_HEADING_LINE - 4; // we remove 4 scene marks (sequence)
+          var generalText = helper.padInner$('div').eq(generalLine).text();
+          expect(generalText).to.be(LAST_ELEMENT_TEXT);
+          done();
+        });
+      })
+    })
+
+    // this scenario tests the scenario of https://trello.com/c/sPIkPdJM/1952.
+    // When SCE is selected on EASC and user tries to update the scene duration
+    // the API is called with "scene_name id" instead of the "heading id"
+    context('and element id is not from a heading', function() {
+      var sceneIndex = 0;
+      var sceneDuration = 3;
+      before(function() {
+        var elementId = helper.padInner$('div:has(scene_name)').eq(sceneIndex).attr('id');
+        utils.simulateUpdateOfSceneDuration(sceneDuration, elementId);
       });
+
+      testIfHeadingHasSceneDurationValue(sceneIndex, sceneDuration);
     })
   })
-
 });

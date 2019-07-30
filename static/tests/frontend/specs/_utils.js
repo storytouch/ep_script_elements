@@ -335,8 +335,12 @@ ep_script_elements_test_helper.utils = {
   // instead of passing the line number we use the scene index
   setDurationOfScene: function(sceneIndex, sceneDuration) {
     var sceneId = helper.padInner$('div:has(heading)').eq(sceneIndex).attr('id');
+    this.simulateUpdateOfSceneDuration(sceneDuration, sceneId);
+  },
+
+  simulateUpdateOfSceneDuration: function(sceneDuration, elementId) {
     var apiUtils = ep_script_elements_test_helper.apiUtils;
-    apiUtils.simulateTriggerOfUpdateOfSceneDuration(sceneDuration, sceneId);
+    apiUtils.simulateTriggerOfUpdateOfSceneDuration(sceneDuration, elementId);
   },
 
   setDurationAndWaitApplyClassOnHeading: function(sceneIndex, sceneDuration, cb) {
