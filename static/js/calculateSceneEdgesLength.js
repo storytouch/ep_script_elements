@@ -21,7 +21,7 @@ calculateSceneEdgesLength.prototype._listenToElementsChanges = function() {
 };
 
 calculateSceneEdgesLength.prototype._scheduleCleanCacheDimensions = function(line) {
-  // don't need to clean the cache straight away. Wait until invalidates the
+  // don't need to clean the cache straight away. Wait until it invalidates the
   // timeout to run the cleaning
   this._cleanElementDimensionCacheScheduled.schedule();
 
@@ -36,9 +36,9 @@ calculateSceneEdgesLength.prototype._scheduleCleanCacheDimensions = function(lin
     this._linesToCleanCache = this._linesToCleanCache.concat(linesToCleanCache);
 
     // here we keep the previous line where the edition is being made. We use
-    // this line to know if user is repeatedly editing the same line - what it's
+    // this line to check if user is repeatedly editing the same line - what it's
     // the normal case when user is typing a sentence. As every time user edits
-    // a line, it updates its id we can't use it
+    // a line it updates its own id, we can't use it
     var idOfPreviousLine = line.previousSibling && line.previousSibling.id || line.id; // avoid error on first line of script
     this._prevLinesOfChangeId = this._prevLinesOfChangeId.concat(idOfPreviousLine)
   }
