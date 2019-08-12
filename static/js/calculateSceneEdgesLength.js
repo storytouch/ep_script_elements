@@ -1,23 +1,57 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 var $ = require('ep_etherpad-lite/static/js/rjquery').$;
 var detailedLinesChangedListener = require('ep_script_scene_marks/static/js/detailedLinesChangedListener');
+var scheduler = require('./scheduler');
+
+var TIMEOUT_TO_CLEAN_DIMENSIONS = 840;
 
 var calculateSceneEdgesLength = function() {
+  this._timeoutToCleanDimensions = TIMEOUT_TO_CLEAN_DIMENSIONS; // allow to override on tests
+  this._cleanElementDimensionCacheScheduled = scheduler.init(this._cleanElementDimensionCache.bind(this), this._timeoutToCleanDimensions);
+  this._linesToCleanCache = [];
+  this._prevLinesOfChangeId = [];
   this._listenToElementsChanges();
 };
 
 calculateSceneEdgesLength.prototype._listenToElementsChanges = function() {
   var self = this;
   detailedLinesChangedListener.onLinesAddedOrRemoved(function(linesChanged) {
-    var linesToResetCache = self._getUniqLinesToResetCache(linesChanged.linesAdded);
-    self._cleanElementDimensionCache(linesToResetCache);
+    linesChanged.linesAdded.forEach(self._scheduleCleanCacheDimensions.bind(self));
   });
 };
 
-calculateSceneEdgesLength.prototype._getUniqLinesToResetCache = function(lines) {
-  var getLinesToResetCacheBound = _(this._getLinesToResetCache).bind(this)
-  return _.chain(lines)
-    .map(getLinesToResetCacheBound)
+calculateSceneEdgesLength.prototype._scheduleCleanCacheDimensions = function(line) {
+  // don't need to clean the cache straight away. Wait until invalidates the
+  // timeout to run the cleaning
+  this._cleanElementDimensionCacheScheduled.schedule();
+
+  // if already there is a cache cleaning scheduled on this line, it postpones
+  // the execution. This improves the performance when user is typing on the
+  // same line
+  if (!this._hasScheduledTaskForThisLine(line)) {
+    this._cleanElementDimensionCacheScheduled.schedule();
+
+    // calculate the lines that will be "cleaned" next time the function runs
+    var linesToCleanCache = this._getUniqLinesToResetCache(line);
+    this._linesToCleanCache = this._linesToCleanCache.concat(linesToCleanCache);
+
+    // here we keep the previous line where the edition is being made. We use
+    // this line to know if user is repeatedly editing the same line - what it's
+    // the normal case when user is typing a sentence. As every time user edits
+    // a line, it updates its id we can't use it
+    var idOfPreviousLine = line.previousSibling && line.previousSibling.id || line.id; // avoid error on first line of script
+    this._prevLinesOfChangeId = this._prevLinesOfChangeId.concat(idOfPreviousLine)
+  }
+}
+
+calculateSceneEdgesLength.prototype._hasScheduledTaskForThisLine = function(line) {
+  var prevLineOfEditionId = line.previousSibling && line.previousSibling.id || '';
+  return this._prevLinesOfChangeId.includes(prevLineOfEditionId);
+}
+
+calculateSceneEdgesLength.prototype._getUniqLinesToResetCache = function(line) {
+  var linesToResetCache = this._getLinesToResetCache(line);
+  return _.chain(linesToResetCache)
     .flatten()
     .reject(function(line) { return line.length === 0}) // remove undefined lines
     .uniq(function(line) { return line[0].id }) // remove duplicated lines
@@ -57,11 +91,17 @@ calculateSceneEdgesLength.prototype._getLinesToResetCache = function(line) {
   return linesToResetCache;
 }
 
-calculateSceneEdgesLength.prototype._cleanElementDimensionCache = function(elements) {
-  _.each(elements, function(element) {
+calculateSceneEdgesLength.prototype._cleanElementDimensionCache = function() {
+  _.each(this._linesToCleanCache, function(element) {
     element.children().get(0)._boundingClientRect = null;
   });
+  this._resetTempVariables();
 };
+
+calculateSceneEdgesLength.prototype._resetTempVariables = function() {
+  this._linesToCleanCache = [];
+  this._prevLinesOfChangeId = [];
+}
 
 calculateSceneEdgesLength.prototype._getHeadingOfScene = function(line) {
   // if the edition is on a scene mark the scene affected is below this line

@@ -20,6 +20,7 @@ describe('ep_script_elements - cache of element dimensions', function() {
     smUtils = ep_script_scene_marks_test_helper.utils;
 
     helper.newPad(function() {
+      utils.speedUpCleanDimensionsSchedule();
       helperFunctions.createScript(done);
     });
     this.timeout(60000);
@@ -171,7 +172,6 @@ ep_script_elements_test_helper.cacheElementsDimensions = {
   getDimensionOfElement: function(index, type) {
     var $lines = helper.padInner$('div:has(' + type + ')');
     var targetElement = $lines.eq(index).children().get(0);
-    var stuff = $lines.eq(index).children();
     return targetElement._boundingClientRect;
   },
   waitUntilCleanElementCache: function(line, elementType, done) {
@@ -179,7 +179,7 @@ ep_script_elements_test_helper.cacheElementsDimensions = {
     helper.waitFor(function() {
       var elementDimension = self.getDimensionOfElement(line, elementType);
       return elementDimension === null;
-    }).done(done)
+    }, 5000).done(done)
   },
   waitForSaveOnCacheAgain: function(line, elementType, test, done) {
     var elementDimension;

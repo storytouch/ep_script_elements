@@ -326,8 +326,7 @@ ep_script_elements_test_helper.utils = {
   waitForCalculatingTheScenesLength: function(cb) {
     var self = this;
     helper.waitFor(function(){
-      var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
-      var scenesLength = thisPlugin.scenesLength._scenesLength;
+      var scenesLength = self.thisPlugin().scenesLength._scenesLength;
       return scenesLength.length;
     }, 5000).done(cb);
   },
@@ -363,8 +362,16 @@ ep_script_elements_test_helper.utils = {
     this._setIdleWorkCounterInactivityThreshold(2);
   },
 
-  _setIdleWorkCounterInactivityThreshold: function(value) {
-    var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
-    thisPlugin.updateSceneLengthSchedule._idleWorkCounterInactivityThreshold = value;
+  thisPlugin: function() {
+    return helper.padChrome$.window.pad.plugins.ep_script_elements;
   },
+
+  _setIdleWorkCounterInactivityThreshold: function(value) {
+    this.thisPlugin().updateSceneLengthSchedule._idleWorkCounterInactivityThreshold = value;
+  },
+
+  speedUpCleanDimensionsSchedule: function() {
+    this.thisPlugin().calculateSceneEdgesLength._timeoutToCleanDimensions = 0;
+  },
+
 };
