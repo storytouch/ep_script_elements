@@ -29,8 +29,6 @@ calculateSceneEdgesLength.prototype._scheduleCleanCacheDimensions = function(lin
   // the execution. This improves the performance when user is typing on the
   // same line
   if (!this._hasScheduledTaskForThisLine(line)) {
-    this._cleanElementDimensionCacheScheduled.schedule();
-
     // calculate the lines that will be "cleaned" next time the function runs
     var linesToCleanCache = this._getUniqLinesToResetCache(line);
     this._linesToCleanCache = this._linesToCleanCache.concat(linesToCleanCache);
