@@ -15,7 +15,6 @@ var caretElementChange            = require('./caretElementChange');
 var preventMultilineDeletion      = require('./doNotAllowEnterAndKeysOnMultilineSelection');
 var api                           = require('./api');
 var changeElementOnDropdownChange = require('./changeElementOnDropdownChange');
-var placeCaretOnFirstSEOnLoad     = require('./placeCaretOnFirstSEOnLoad');
 var scheduler                     = require('./scheduler');
 var scriptActivatedState          = require('./scriptActivatedState');
 var calculateSceneLength          = require('./calculateSceneLength');
@@ -105,8 +104,6 @@ exports.postAceInit = function(hook, context) {
   preventMultilineDeletion.init();
   api.init(ace);
 
-  // need to load before the placeCaretOnFirstSEOnLoad, otherwise aceSelectionChanged is called
-  // and caretElementChangeSchedule is not defined yet
   var caretElementChangeSendMessageBound = function() {
     ace.callWithAce(function(ace) {
       ace.ace_caretElementChangeSendMessage();
@@ -128,7 +125,6 @@ exports.postAceInit = function(hook, context) {
   // expose it to be able to override inner variables on tests
   thisPlugin.updateSceneLengthSchedule = updateSceneLengthSchedule;
 
-  placeCaretOnFirstSEOnLoad.init(ace);
   pluginHasInitialized = true;
 
 };
