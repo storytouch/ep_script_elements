@@ -211,3 +211,14 @@ exports.checkIfPadHasLoaded = function(eventType) {
   if (!padHasLoaded && eventType === 'setWraps') padHasLoaded = true;
   return padHasLoaded;
 }
+
+exports.getLength = function(line, rep) {
+  var nextLine = line + 1;
+  var startLineOffset = rep.lines.offsetOfIndex(line);
+  var endLineOffset   = rep.lines.offsetOfIndex(nextLine);
+
+  //lineLength without \n
+  var lineLength = endLineOffset - startLineOffset - 1;
+
+  return lineLength;
+}

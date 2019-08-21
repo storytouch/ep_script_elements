@@ -4,34 +4,19 @@ var utils                            = require("./utils");
 var removeLines                      = require("./removeLines");
 var _                                = require('ep_etherpad-lite/static/js/underscore');
 
-var BACKSPACE = 8;
-var DELETE = 46;
-
 exports.findHandlerFor = function(context) {
   var editorInfo       = context.editorInfo;
-  var attributeManager = context.documentAttributeManager;
   var evt              = context.evt;
   var rep              = context.rep;
 
-  // check key pressed before anything else to be more efficient
-  var isMergeKey = (evt.keyCode === BACKSPACE || evt.keyCode === DELETE) && evt.type === "keydown";
-
   // when user presses a mergeKey we can have three scenarios: no selection at all,
   // selection in only one line(this case is handled by default), selection in more than one line
-  if(isMergeKey && utils.selectionStartsOnAScriptElement()){
+  if(evt.isRemoveKey && utils.selectionStartsOnAScriptElement()){
     // if there is no selection at all
     if (!textSelected(editorInfo)) {
-      // HACK: we need to get current position after calling synchronizeEditorWithUserSelection(), otherwise
-      // some tests might fail
-      var currentLineNumber = rep.selStart[0];
-      var caretPosition = getCaretPosition(currentLineNumber, rep, editorInfo, attributeManager);
-
-      var atFirstLineOfPad = currentLineIsFirstLineOfPad(rep);
-      var atLastLineOfPad  = currentLineIsLastLineOfPad(rep);
-
-      if (evt.keyCode === BACKSPACE && caretPosition.beginningOfLine && !atFirstLineOfPad) {
+      if (evt.isBackspace && evt.caretPosition.beginningOfLine && !evt.atFirstLineOfPad) {
         return handleBackspace(context);
-      } else if (evt.keyCode === DELETE && caretPosition.endOfLine && !atLastLineOfPad) {
+      } else if (evt.isDelete && evt.caretPosition.endOfLine && !evt.atLastLineOfPad) {
         return handleDelete(context);
       }
 
@@ -202,7 +187,7 @@ var processTextSelected = function(context){
 
     // the part to be removed will end in the previous line of the beginning of scene mark cleaned
     prevLineOfStartOfLastSMOfSelection =  beginningOfLastSceneMarkOfSelection - 1;
-    var lengthOfprevLineOfStartOfLastSMOfSelection = getLength(prevLineOfStartOfLastSMOfSelection, rep);
+    var lengthOfprevLineOfStartOfLastSMOfSelection = utils.getLength(prevLineOfStartOfLastSMOfSelection, rep);
     endOfSelectionPosition = [prevLineOfStartOfLastSMOfSelection, lengthOfprevLineOfStartOfLastSMOfSelection];
 
   }else{
@@ -221,7 +206,7 @@ var processTextSelected = function(context){
 
       // the new part to be processed will end in the previous line of the beginning of scene mark cleaned
       prevLineOfStartOfLastSMOfSelection = beginningOfLastSceneMarkOfSelection - 1;
-      endOfSelectionPosition = [prevLineOfStartOfLastSMOfSelection, getLength(prevLineOfStartOfLastSMOfSelection, rep)];
+      endOfSelectionPosition = [prevLineOfStartOfLastSMOfSelection, utils.getLength(prevLineOfStartOfLastSMOfSelection, rep)];
       shouldRecoverAttribsOfLastLineSelected = false;
     }else if(isBothLinesBoundariesOfSelectionPartiallySelected(context) && !boundariesOfSelectionHasSameType){
       // [4] - when the boundaries of selection has different types we prevent of merge the lines
@@ -280,7 +265,7 @@ var isBothLinesBoundariesOfSelectionPartiallySelected = function(context){
 var isLastLinePartiallySelected = function(context){
   var rep = context.rep;
   var lastLineNumber = rep.selEnd[0];
-  var lastLineLength = getLength(lastLineNumber, rep);
+  var lastLineLength = utils.getLength(lastLineNumber, rep);
   var lastLineIsPartiallySelected = lastLineLength > rep.selEnd[1];
   return lastLineIsPartiallySelected;
 }
@@ -297,10 +282,6 @@ var isFirstLinePartiallySelected = function(context){
 }
 
 var textSelected = function(editorInfo) {
-  // HACK: we need to force editor to sync with user selection before testing if there
-  // is some text selected
-  synchronizeEditorWithUserSelection(editorInfo);
-
   return !editorInfo.ace_isCaret();
 }
 
@@ -332,37 +313,6 @@ var getLineFromLineNumber = function(lineNumber){
   return $line;
 }
 
-var synchronizeEditorWithUserSelection = function(editorInfo) {
-  editorInfo.ace_fastIncorp();
-}
-
-var getCaretPosition = function(line, rep, editorInfo, attributeManager) {
-  var lineLength = getLength(line, rep);
-  var caretPosition = editorInfo.ace_caretColumn();
-  var lineHasMarker = attributeManager.lineHasMarker(line);
-  var firstPostionOfLine = lineHasMarker ? 1 : 0;
-
-  var atBeginningOfLine = (caretPosition === firstPostionOfLine);
-  var atEndOfLine = (caretPosition === lineLength);
-
-  return {
-    beginningOfLine: atBeginningOfLine,
-    middleOfLine: (!atBeginningOfLine && !atEndOfLine),
-    endOfLine: atEndOfLine,
-  }
-}
-
-var getLength = function(line, rep) {
-  var nextLine = line + 1;
-  var startLineOffset = rep.lines.offsetOfIndex(line);
-  var endLineOffset   = rep.lines.offsetOfIndex(nextLine);
-
-  //lineLength without \n
-  var lineLength = endLineOffset - startLineOffset - 1;
-
-  return lineLength;
-}
-
 var getCurrentLineText = function(currentLine, rep, attributeManager) {
   var currentLineText = rep.lines.atIndex(currentLine).text;
   // if line has marker, it starts with "*". We need to ignore it
@@ -371,18 +321,6 @@ var getCurrentLineText = function(currentLine, rep, attributeManager) {
     currentLineText = currentLineText.substr(1);
   }
   return currentLineText;
-}
-
-var currentLineIsFirstLineOfPad = function(rep) {
-  var currentLine = rep.selStart[0];
-  return currentLine === 0;
-}
-
-var currentLineIsLastLineOfPad = function(rep) {
-  var totalLinesOfPad = rep.lines.length();
-  var currentLine = rep.selStart[0] + 1; // 1st line is 0, so we need to increase 1 to the value
-
-  return currentLine === totalLinesOfPad;
 }
 
 var performDeleteOf = function(targetLine, editorInfo, rep, attributeManager) {

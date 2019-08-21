@@ -39,6 +39,15 @@
       }
     },
     {
+      "comment": "This part has the generic values that are filled on context.evt of aceKeyEvent",
+      "name": "preAceKeyEvent",
+      "comment": "Make sure preAceKeyEvent is executed before running the regular ep_se.aceKeyEvent",
+      "post": ["ep_script_elements/aceKeyEvent"],
+      "client_hooks": {
+        "aceKeyEvent": "ep_script_elements/static/js/preAceKeyEvent"
+      }
+    },
+    {
       "name": "aceDomLineProcessLineAttributes",
       "pre": ["ep_font_color/main", "ep_comments_page/comments_page"],
       "client_hooks": {

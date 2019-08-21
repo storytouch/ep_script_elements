@@ -195,12 +195,7 @@ ep_script_elements_test_helper.utils = {
   // second line === getLine(1)
   // ...
   getLine: function(lineNum) {
-    var inner$ = helper.padInner$;
-    var line = inner$("div").first();
-    for (var i = lineNum - 1; i >= 0; i--) {
-      line = line.next();
-    }
-    return line;
+    return helper.padInner$('div:eq(' + lineNum + ')');
   },
 
   placeCaretOnLine: function(lineNum, cb) {
@@ -230,6 +225,14 @@ ep_script_elements_test_helper.utils = {
 
   ENTER: 13,
   UNDO_REDO: 90,
+  BACKSPACE: 8,
+  DELETE: 46,
+  pressBackspace: function() {
+    this.pressKey(this.BACKSPACE);
+  },
+  pressDelete: function() {
+    this.pressKey(this.DELETE);
+  },
   pressEnter: function() {
     this.pressKey(this.ENTER);
   },

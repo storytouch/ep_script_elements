@@ -149,7 +149,6 @@ exports.aceSelectionChanged = function(hook, context, cb) {
 exports.aceKeyEvent = function(hook, context) {
   var eventProcessed = false;
   var evt = context.evt;
-  var callstack =  context.callstack;
 
   var handleShortcut = shortcuts.findHandlerFor(evt);
   var handleMerge    = mergeLines.findHandlerFor(context);
