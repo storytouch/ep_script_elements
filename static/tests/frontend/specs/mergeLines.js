@@ -1,7 +1,7 @@
 var BACKSPACE = 8;
 var DELETE = 46;
 
-describe("ep_script_elements - merge lines", function(){
+describe('ep_script_elements - merge lines', function(){
   var utils, helperFunctions;
 
   before(function(cb){
@@ -22,15 +22,15 @@ describe("ep_script_elements - merge lines", function(){
       });
     });
 
-    it("does nothing", function(done) {
+    it('does nothing', function(done) {
       var inner$ = helper.padInner$;
       setTimeout(function() {
-        var $firstLine = inner$("div").first();
+        var $firstLine = inner$('div').first();
         var $secondLine = $firstLine.next();
         var $thirdLine = $secondLine.next();
-        expect($firstLine.text()).to.be("First Line!");
-        expect($secondLine.text()).to.be("Second Line!");
-        expect($thirdLine.text()).to.be("Third Line!");
+        expect($firstLine.text()).to.be('First Line!');
+        expect($secondLine.text()).to.be('Second Line!');
+        expect($thirdLine.text()).to.be('Third Line!');
 
         done();
       }, 1000);
@@ -48,15 +48,15 @@ describe("ep_script_elements - merge lines", function(){
       });
     });
 
-    it("does nothing", function(done) {
+    it('does nothing', function(done) {
       var inner$ = helper.padInner$;
       setTimeout(function() {
-        var $firstLine = inner$("div").first();
+        var $firstLine = inner$('div').first();
         var $secondLine = $firstLine.next();
         var $thirdLine = $secondLine.next();
-        expect($firstLine.text()).to.be("First Line!");
-        expect($secondLine.text()).to.be("Second Line!");
-        expect($thirdLine.text()).to.be("Third Line!");
+        expect($firstLine.text()).to.be('First Line!');
+        expect($secondLine.text()).to.be('Second Line!');
+        expect($thirdLine.text()).to.be('Third Line!');
 
         done();
       }, 1000);
@@ -64,17 +64,17 @@ describe("ep_script_elements - merge lines", function(){
   });
 
   context('when element is followed by a different element', function(){
-    context("and target line is not empty and user presses backspace in the beginning of it", function(){
+    context('and target line is not empty and user presses backspace in the beginning of it', function(){
 
-      it("does not merge these two lines", function(done){
+      it('does not merge these two lines', function(done){
         var inner$ = helper.padInner$;
         utils.placeCaretInTheBeginningOfLine(1, function(){
           utils.pressKey(BACKSPACE);
           setTimeout(function() {
-            var $firstLine = inner$("div").first();
+            var $firstLine = inner$('div').first();
             var $secondLine = $firstLine.next();
-            expect($firstLine.text()).to.be("First Line!");
-            expect($secondLine.text()).to.be("Second Line!");
+            expect($firstLine.text()).to.be('First Line!');
+            expect($secondLine.text()).to.be('Second Line!');
 
             done();
           }, 200);
@@ -82,9 +82,9 @@ describe("ep_script_elements - merge lines", function(){
       });
     });
 
-    context("and target line is not empty and user presses delete in the end of it", function(){
+    context('and target line is not empty and user presses delete in the end of it', function(){
 
-      it("does not merge these two lines", function(done){
+      it('does not merge these two lines', function(done){
         var inner$ = helper.padInner$;
         utils.placeCaretAtTheEndOfLine(1, function(){
           // apparently first DELETE is ignored
@@ -92,10 +92,10 @@ describe("ep_script_elements - merge lines", function(){
           utils.pressKey(DELETE);
 
           setTimeout(function() {
-            var $secondLine = inner$("div").first().next();
+            var $secondLine = inner$('div').first().next();
             var $thirdLine = $secondLine.next();
-            expect($secondLine.text()).to.be("Second Line!");
-            expect($thirdLine.text()).to.be("Third Line!");
+            expect($secondLine.text()).to.be('Second Line!');
+            expect($thirdLine.text()).to.be('Third Line!');
 
             done();
           }, 1000);
@@ -103,7 +103,7 @@ describe("ep_script_elements - merge lines", function(){
       });
     });
 
-    context("and element line is empty", function(){
+    context('and element line is empty', function(){
       var ORIGINAL_NUMBER_OF_LINES = 3;
       var TARGET_LINE = 1;
 
@@ -116,16 +116,16 @@ describe("ep_script_elements - merge lines", function(){
       var TYPE_OF_LINE_AFTER_TARGET  = 'parenthetical';
 
       var lineIsRemoved = function() {
-        var $lines = helper.padInner$("div");
+        var $lines = helper.padInner$('div');
         return $lines.length === (ORIGINAL_NUMBER_OF_LINES - 1);
       }
       var lineIsBackToScript = function() {
-        var $lines = helper.padInner$("div");
+        var $lines = helper.padInner$('div');
         return $lines.length === ORIGINAL_NUMBER_OF_LINES;
       }
 
       var testItRemovesTheEmptyLineAndKeepOriginalLineTypes = function() {
-        it("removes the empty line and keeps original line types", function(done){
+        it('removes the empty line and keeps original line types', function(done){
           helper.waitFor(function() {
             return lineIsRemoved();
           }).done(function() {
@@ -139,7 +139,7 @@ describe("ep_script_elements - merge lines", function(){
       }
 
       var testItPlacesCaretAtTheEndOfLineAboveRemovedLine = function() {
-        it("places the caret at the end of line above removed line", function(done){
+        it('places the caret at the end of line above removed line', function(done){
           var $lineAboveRemovedLine = utils.getLine(TARGET_LINE-1);
           var endOfLineAboveRemovedLine = $lineAboveRemovedLine.text().length;
 
@@ -150,7 +150,7 @@ describe("ep_script_elements - merge lines", function(){
         });
       }
       var testItPlacesCaretAtTheBeginningOfLineBelowRemovedLine = function() {
-        it("places the caret at the beginning of line below removed line", function(done){
+        it('places the caret at the beginning of line below removed line', function(done){
           // line was already removed, so now line below is the new TARGET_LINE
           var $lineBelowRemovedLine = utils.getLine(TARGET_LINE);
 
@@ -162,7 +162,7 @@ describe("ep_script_elements - merge lines", function(){
       }
 
       var testUndoAddsEmptyLineBackAndKeepOriginalLineTypes = function() {
-        context("then user presses UNDO", function(){
+        context('then user presses UNDO', function(){
           before(function(done) {
             // wait some time, so changes are saved before undoing
             setTimeout(function() {
@@ -171,7 +171,7 @@ describe("ep_script_elements - merge lines", function(){
             }, 1000);
           });
 
-          it("adds line back and keeps original line types", function(done){
+          it('adds line back and keeps original line types', function(done){
             helper.waitFor(function() {
               return lineIsBackToScript();
             }).done(function() {
@@ -187,7 +187,7 @@ describe("ep_script_elements - merge lines", function(){
 
       before(function (done) {
         // remove content from target line
-        var $targetLine = utils.getLine(TARGET_LINE).find("action");
+        var $targetLine = utils.getLine(TARGET_LINE).find('action');
         $targetLine.sendkeys('{selectall}');
         utils.pressKey(BACKSPACE);
         done();
@@ -197,7 +197,7 @@ describe("ep_script_elements - merge lines", function(){
         ep_script_elements_test_helper.mergeLines.createScriptWithThreeDifferentElements(done);
       });
 
-      context("and user presses backspace in the beginning of empty line", function(){
+      context('and user presses backspace in the beginning of empty line', function(){
         before(function(cb) {
           utils.placeCaretInTheBeginningOfLine(TARGET_LINE, function(){
             utils.pressKey(BACKSPACE);
@@ -210,7 +210,7 @@ describe("ep_script_elements - merge lines", function(){
         testUndoAddsEmptyLineBackAndKeepOriginalLineTypes();
       });
 
-      context("and user presses backspace in the beginning of line after empty line", function(){
+      context('and user presses backspace in the beginning of line after empty line', function(){
         before(function(cb) {
           utils.placeCaretInTheBeginningOfLine(TARGET_LINE + 1, function(){
             utils.pressKey(BACKSPACE);
@@ -223,7 +223,7 @@ describe("ep_script_elements - merge lines", function(){
         testUndoAddsEmptyLineBackAndKeepOriginalLineTypes();
       });
 
-      context("and user presses delete at the end of the line before empty line", function(){
+      context('and user presses delete at the end of the line before empty line', function(){
         before(function(cb) {
           utils.placeCaretAtTheEndOfLine(TARGET_LINE - 1, function(){
             utils.pressKey(DELETE);
@@ -236,7 +236,7 @@ describe("ep_script_elements - merge lines", function(){
         testUndoAddsEmptyLineBackAndKeepOriginalLineTypes();
       });
 
-      context("and user presses delete at the end of the empty line", function(){
+      context('and user presses delete at the end of the empty line', function(){
         before(function(cb) {
           utils.placeCaretAtTheEndOfLine(TARGET_LINE, function(){
             // apparently first DELETE is ignored
@@ -255,7 +255,7 @@ describe("ep_script_elements - merge lines", function(){
 
   context('when user presses BACKSPACE and there is a selection', function(){
     var testItRestoresOriginalTextsAndTypesOnUndo = function() {
-      context("and user performs undo", function(){
+      context('and user performs undo', function(){
         before(function(done){
           // we have to wait a little to save the changes
           setTimeout(function() {
@@ -264,7 +264,7 @@ describe("ep_script_elements - merge lines", function(){
           }, 1000);
         });
 
-        it("restores the original text and types", function(done){
+        it('restores the original text and types', function(done){
           helperFunctions.checkIfItHasTheOriginalText(done);
         });
       });
@@ -285,9 +285,9 @@ describe("ep_script_elements - merge lines", function(){
       utils.pressKey(BACKSPACE);
     }
 
-    context("and selection is wrapping more than one line", function(){
+    context('and selection is wrapping more than one line', function(){
 
-      context("and the first and last line of selection are partially selected and user removes selection", function(){
+      context('and the first and last line of selection are partially selected and user removes selection', function(){
 
         before(function(done) {
           var offsetAtFirstElement = 3;
@@ -297,26 +297,26 @@ describe("ep_script_elements - merge lines", function(){
           done();
         });
 
-        it("removes the lines between", function(done){
+        it('removes the lines between', function(done){
           helperFunctions.checkNumberOfLine(2);
           done();
         });
 
-        it("keeps the original element of lines", function(done){
-          var firstElement = "shot";
-          var firstElementText = "Fir";
-          var lastElementText = "rd Line!"
-          var lastElement =  "parenthetical"
+        it('keeps the original element of lines', function(done){
+          var firstElement = 'shot';
+          var firstElementText = 'Fir';
+          var lastElementText = 'rd Line!'
+          var lastElement =  'parenthetical'
           utils.validateLineTextAndType(0, firstElementText, firstElement);
           utils.validateLineTextAndType(1, lastElementText, lastElement)
           done();
         });
 
-        it("places the caret in the beginning of selection", function(done){
+        it('places the caret in the beginning of selection', function(done){
           helper.waitFor(function(){
             var $lineWhereCaretIs = utils.getLineWhereCaretIs();
 
-            var caretIsOnShot = $lineWhereCaretIs.find("shot").length;
+            var caretIsOnShot = $lineWhereCaretIs.find('shot').length;
             return caretIsOnShot;
           }).done(done);
         });
@@ -324,7 +324,7 @@ describe("ep_script_elements - merge lines", function(){
         testItRestoresOriginalTextsAndTypesOnUndo();
       });
 
-      context("and first line of selection is completely selected and last one is partially selected and user removes selection", function(){
+      context('and first line of selection is completely selected and last one is partially selected and user removes selection', function(){
 
         before(function(done) {
           var offsetAtFirstElement = 0;
@@ -334,14 +334,14 @@ describe("ep_script_elements - merge lines", function(){
           done();
         });
 
-        it("removes the lines", function(done){
+        it('removes the lines', function(done){
           helperFunctions.checkNumberOfLine(1);
           done();
         });
 
-        it("keeps the last line type and part of the text", function(done){
-          var elementText = "rd Line!"
-          var element =  "parenthetical"
+        it('keeps the last line type and part of the text', function(done){
+          var elementText = 'rd Line!'
+          var element =  'parenthetical'
           utils.validateLineTextAndType(0, elementText, element);
           done();
         });
@@ -349,7 +349,7 @@ describe("ep_script_elements - merge lines", function(){
         testItRestoresOriginalTextsAndTypesOnUndo();
       });
 
-      context("and first line of selection is partially selected and last one is completely selected and user removes selection", function(){
+      context('and first line of selection is partially selected and last one is completely selected and user removes selection', function(){
         before(function(done){
           var offsetAtFirstElement = 3;
           var offsetLastLineSelection = 0;
@@ -358,14 +358,14 @@ describe("ep_script_elements - merge lines", function(){
           done();
         });
 
-        it("removes the lines", function(done){
+        it('removes the lines', function(done){
           helperFunctions.checkNumberOfLine(1);
           done();
         });
 
-        it("keeps the first line type and part of the text", function(done){
-          var elementText = "Fir"
-          var element =  "shot"
+        it('keeps the first line type and part of the text', function(done){
+          var elementText = 'Fir'
+          var element =  'shot'
           utils.validateLineTextAndType(0, elementText, element);
           done();
         });
@@ -373,7 +373,7 @@ describe("ep_script_elements - merge lines", function(){
         testItRestoresOriginalTextsAndTypesOnUndo();
       });
 
-      context("and first and last line is completely selected", function(){
+      context('and first and last line is completely selected', function(){
 
         before(function(done){
           var offsetAtFirstElement = 0;
@@ -383,14 +383,14 @@ describe("ep_script_elements - merge lines", function(){
           done();
         });
 
-        it("removes the lines between", function(done){
+        it('removes the lines between', function(done){
           helperFunctions.checkNumberOfLine(1);
           done();
         });
 
-        it("keeps the original element of lines", function(done){
-          var firstElement = "shot";
-          var firstElementText = "";
+        it('keeps the original element of lines', function(done){
+          var firstElement = 'shot';
+          var firstElementText = '';
           utils.validateLineTextAndType(0, firstElementText, firstElement);
           done();
         });
@@ -400,7 +400,7 @@ describe("ep_script_elements - merge lines", function(){
       });
     });
 
-    context("and line is selected until the line break", function(){
+    context('and line is selected until the line break', function(){
       var selectLines = function() {
         var inner$ = helper.padInner$;
 
@@ -420,11 +420,11 @@ describe("ep_script_elements - merge lines", function(){
         done();
       });
 
-      it("removes only the line selected", function(done){
-        var firstElementText = "Second Line!";
-        var secondElementText = "Third Line!";
-        var firstElement = "action";
-        var secondElement = "parenthetical";
+      it('removes only the line selected', function(done){
+        var firstElementText = 'Second Line!';
+        var secondElementText = 'Third Line!';
+        var firstElement = 'action';
+        var secondElement = 'parenthetical';
         utils.validateLineTextAndType(0, firstElementText, firstElement);
         utils.validateLineTextAndType(1, secondElementText, secondElement);
         done();
@@ -433,7 +433,7 @@ describe("ep_script_elements - merge lines", function(){
       testItRestoresOriginalTextsAndTypesOnUndo();
     });
 
-    context("and selection has the same element on both edges", function(){
+    context('and selection has the same element on both edges', function(){
       var selectLines = function() {
         var inner$ = helper.padInner$;
 
@@ -457,14 +457,14 @@ describe("ep_script_elements - merge lines", function(){
         });
       });
 
-      it("removes the lines between", function(done){
+      it('removes the lines between', function(done){
         helperFunctions.checkNumberOfLine(1);
         done();
       });
 
-      it("join the lines", function(done){
-        var textOfLine = "Fine!";
-        var element = "shot";
+      it('join the lines', function(done){
+        var textOfLine = 'Fine!';
+        var element = 'shot';
         utils.validateLineTextAndType(0, textOfLine, element);
         done();
       });
@@ -477,16 +477,16 @@ describe("ep_script_elements - merge lines", function(){
     var ORIGINAL_NUMBER_OF_LINES = 9;
 
     var lineIsRemoved = function() {
-      var $lines = helper.padInner$("div");
+      var $lines = helper.padInner$('div');
       return $lines.length === (ORIGINAL_NUMBER_OF_LINES - 1);
     }
     var lineIsBackToScript = function() {
-      var $lines = helper.padInner$("div");
+      var $lines = helper.padInner$('div');
       return $lines.length === ORIGINAL_NUMBER_OF_LINES;
     }
 
     var testItRemovesFirstLineAndKeepOriginalLineTypes = function() {
-      it("removes first line and keeps types of other lines", function(done) {
+      it('removes first line and keeps types of other lines', function(done) {
         var sceneMarkUtils = ep_script_scene_marks_test_helper.utils;
 
         helper.waitFor(function() {
@@ -506,7 +506,7 @@ describe("ep_script_elements - merge lines", function(){
     }
 
     var testUndoAddsEmptyLineBackAndKeepOriginalLineTypes = function(emptyLineText) {
-      context("then user presses UNDO", function(){
+      context('then user presses UNDO', function(){
         before(function(done) {
           // wait some time, so changes are saved before undoing
           setTimeout(function() {
@@ -515,7 +515,7 @@ describe("ep_script_elements - merge lines", function(){
           }, 1000);
         });
 
-        it("adds line back and keeps original line types", function(done) {
+        it('adds line back and keeps original line types', function(done) {
           var sceneMarkUtils = ep_script_scene_marks_test_helper.utils;
 
           helper.waitFor(function() {
@@ -580,23 +580,23 @@ ep_script_elements_test_helper.mergeLines = {
   createScriptWithFirstAndLastElementEqual: function(cb) {
     var utils = ep_script_elements_test_helper.utils;
 
-    var shot          = utils.shot("First Line!");
-    var action        = utils.action("Second Line!");
-    var secondShot    = utils.shot("Third Line!");
+    var shot          = utils.shot('First Line!');
+    var action        = utils.action('Second Line!');
+    var secondShot    = utils.shot('Third Line!');
     var script        = shot + action + secondShot;
 
-    utils.createScriptWith(script, "Third Line!", cb);
+    utils.createScriptWith(script, 'Third Line!', cb);
   },
   createScriptWithThreeDifferentElements: function(cb) {
     var utils = ep_script_elements_test_helper.utils;
 
-    var shot          = utils.shot("First Line!");
-    var action        = utils.action("Second Line!");
-    var parenthetical = utils.parenthetical("Third Line!");
+    var shot          = utils.shot('First Line!');
+    var action        = utils.action('Second Line!');
+    var parenthetical = utils.parenthetical('Third Line!');
     var script        = shot + action + parenthetical;
 
     utils.cleanPad(function() {
-      utils.createScriptWith(script, "Third Line!", cb);
+      utils.createScriptWith(script, 'Third Line!', cb);
     });
   },
   createScriptWithEmptyNonHeadingOnTopThenAHeadingWithSceneMark: function(emptyLineText, cb) {
@@ -623,17 +623,17 @@ ep_script_elements_test_helper.mergeLines = {
   },
   checkNumberOfLine: function(numberOfLines){
     var inner$ = helper.padInner$;
-    var linesLength = inner$("div").length;
+    var linesLength = inner$('div').length;
     expect(linesLength).to.equal(numberOfLines);
   },
   checkIfItHasTheOriginalText: function(done){
     var utils = ep_script_elements_test_helper.utils;
-    var firstElementText = "First Line!";
-    var secondElementText = "Second Line!";
-    var thirdElementText = "Third Line!";
-    var firstElement = "shot";
-    var secondElement = "action";
-    var thirdElement = "parenthetical";
+    var firstElementText = 'First Line!';
+    var secondElementText = 'Second Line!';
+    var thirdElementText = 'Third Line!';
+    var firstElement = 'shot';
+    var secondElement = 'action';
+    var thirdElement = 'parenthetical';
     utils.validateLineTextAndType(0, firstElementText, firstElement);
     utils.validateLineTextAndType(1, secondElementText, secondElement);
     utils.validateLineTextAndType(2, thirdElementText, thirdElement);
