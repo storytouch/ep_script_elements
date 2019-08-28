@@ -3,7 +3,7 @@ var utils = require('./utils');
 
 var DELETE = 46;
 var BACKSPACE = 8;
-var CTRL_H = 72; // another way of pressing BACKSPACE
+var H_KEY = 72; // ctrl + h is another way of pressing BACKSPACE
 
 exports.aceKeyEvent = function(hook, context) {
   var editorInfo       = context.editorInfo;
@@ -13,7 +13,7 @@ exports.aceKeyEvent = function(hook, context) {
   var keyCode          = evt.keyCode;
 
   // set some values on context.evt, so they can be used on other plugins too
-  evt.isBackspace = keyCode === BACKSPACE || keyCode === CTRL_H;
+  evt.isBackspace = keyCode === BACKSPACE || (keyCode === H_KEY && evt.ctrl);
   evt.isDelete = keyCode === DELETE;
   // check key pressed before anything else to be more efficient
   evt.isRemoveKey = (evt.isDelete || evt.isBackspace) && evt.type === 'keydown';
