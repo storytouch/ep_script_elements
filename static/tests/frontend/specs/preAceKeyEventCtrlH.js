@@ -3,12 +3,12 @@ describe('preAceKeyEvent - process ctrl - h as backspace', function() {
 
   before(function(cb) {
     utils = ep_script_elements_test_helper.utils;
-    helperFunctions =  ep_script_elements_test_helper.shortcuts;
+    helperFunctions = ep_script_elements_test_helper.preAceKeyEvent;
 
     helper.newPad(function(){
       helperFunctions.createScript(cb);
     });
-    this.timeout(6000);
+    this.timeout(10000);
   });
 
   context('when script has more than one scene', function() {
@@ -52,7 +52,7 @@ describe('preAceKeyEvent - process ctrl - h as backspace', function() {
 });
 
 var ep_script_elements_test_helper = ep_script_elements_test_helper || {};
-ep_script_elements_test_helper.shortcuts = {
+ep_script_elements_test_helper.preAceKeyEvent = {
   H_KEYCODE: 72,
   utils: function() {
     return ep_script_elements_test_helper.utils;
