@@ -185,15 +185,17 @@ var getLineNumberOrLastLine = function (offset) {
 }
 
 exports.getLineNumberFromDOMLine = function ($line, rep) {
-  var lineId     = $line.attr("id");
-  var lineNumber = exports.getLineFromLineId(rep, lineId);
-
+  var lineId = $line.attr('id');
+  // try the fastest method first (via rep); if line id is not available yet,
+  // get line number via DOM
+  var lineNumber = lineId ? getLineFromLineId(rep, lineId) : $line.index();
   return lineNumber;
 }
 
-exports.getLineFromLineId = function(rep, lineId) {
+var getLineFromLineId = function(rep, lineId) {
   return rep.lines.indexOfKey(lineId);
 }
+exports.getLineFromLineId = getLineFromLineId;
 
 exports.getLineNumberOfCaretLine = function(rep) {
   var $firstLine = exports.getFirstLineOfSelection();
