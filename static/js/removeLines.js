@@ -43,6 +43,7 @@ var getAttributesOfLine = function(line, attributeManager){
 
   return lineAttribsOfLine;
 }
+exports.getAttributesOfLine = getAttributesOfLine;
 
 var removeSelection = function(beginningOfSelection, endOfSelection, editorInfo){
   editorInfo.ace_performDocumentReplaceRange(beginningOfSelection, endOfSelection, '');
@@ -63,6 +64,7 @@ var setAttributesOnLine = function(attribs, line, attributeManager){
     attributeManager.setAttributeOnLine(line, attribName, attribValue);
   });
 }
+exports.setAttributesOnLine = setAttributesOnLine;
 
 var placeCaretOnLine = function(editorInfo, linePosition){
   editorInfo.ace_inCallStackIfNecessary("placeCaretAfterRemoveSelection", function(){
