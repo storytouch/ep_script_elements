@@ -2,12 +2,16 @@ var _ = require('ep_etherpad-lite/static/js/underscore');
 var $ = require('ep_etherpad-lite/static/js/rjquery').$;
 var detailedLinesChangedListener = require('ep_script_scene_marks/static/js/detailedLinesChangedListener');
 var scheduler = require('./scheduler');
+var utils = require('./utils');
 
 var TIMEOUT_TO_CLEAN_DIMENSIONS = 840;
+var TIMEOUT_TO_TRIGGER_MESSAGE_SCRIPT_LENGTH = 840;
 
 var calculateSceneEdgesLength = function() {
   this._timeoutToCleanDimensions = TIMEOUT_TO_CLEAN_DIMENSIONS; // allow to override on tests
+  this._timeoutToTriggerMessageThatScripLengthHasChanged = TIMEOUT_TO_TRIGGER_MESSAGE_SCRIPT_LENGTH; // allow to override on tests
   this._cleanElementDimensionCacheScheduled = scheduler.init(this._cleanElementDimensionCache.bind(this), this._timeoutToCleanDimensions);
+  this._triggerMessageThatScriptLengthHasChangedScheduler = scheduler.init(this._triggerMessageThatScriptLengthHasChanged.bind(this), this._timeoutToTriggerMessageThatScripLengthHasChanged);
   this._linesToCleanCache = [];
   this._prevLinesOfChangeId = [];
   this._listenToElementsChanges();
@@ -16,9 +20,15 @@ var calculateSceneEdgesLength = function() {
 calculateSceneEdgesLength.prototype._listenToElementsChanges = function() {
   var self = this;
   detailedLinesChangedListener.onLinesAddedOrRemoved(function(linesChanged) {
+    self._triggerMessageThatScriptLengthHasChangedScheduler.schedule();
     linesChanged.linesAdded.forEach(self._scheduleCleanCacheDimensions.bind(self));
   });
 };
+
+calculateSceneEdgesLength.prototype._triggerMessageThatScriptLengthHasChanged = function() {
+  var $innerDoc = utils.getPadInner().find('#innerdocbody');
+  $innerDoc.trigger(utils.SCRIPT_LENGTH_CHANGED, {forceNavigatorUpdate: false});
+}
 
 calculateSceneEdgesLength.prototype._scheduleCleanCacheDimensions = function(line) {
   // don't need to clean the cache straight away. Wait until it invalidates the
