@@ -5,7 +5,7 @@ var scheduler = require('./scheduler');
 var utils = require('./utils');
 
 var TIMEOUT_TO_CLEAN_DIMENSIONS = 840;
-var TIMEOUT_TO_TRIGGER_MESSAGE_SCRIPT_LENGTH = 840;
+var TIMEOUT_TO_TRIGGER_MESSAGE_SCRIPT_LENGTH = 880;
 
 var calculateSceneEdgesLength = function() {
   this._timeoutToCleanDimensions = TIMEOUT_TO_CLEAN_DIMENSIONS; // allow to override on tests
