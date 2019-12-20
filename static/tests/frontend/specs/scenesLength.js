@@ -3,8 +3,7 @@ describe('ep_script_elements - scenes length', function() {
   var LAST_HEADING_LINE = 5;
   var SCRIPT_LENGTH_CHANGED = 'script_length_changed';
   var TOLERANCE = 1;
-  var scriptLengthChangedEvent;
-  var scriptLengthEventData;
+  var scriptLengthEventDataList = []
 
   var waitToBuildScenesLengthObj = function(cb) {
     helper.waitFor(function() {
@@ -31,14 +30,25 @@ describe('ep_script_elements - scenes length', function() {
     // use same jQuery instance that triggers the event
     var $editor = helper.padInner$('#innerdocbody');
     helper.padChrome$($editor.get(0)).on(SCRIPT_LENGTH_CHANGED, function(e, data) {
-      scriptLengthChangedEvent = true;
-      scriptLengthEventData = data;
+      scriptLengthEventDataList.push({
+        scriptLengthChangedEvent: true,
+        scriptLengthEventData: data,
+      })
     });
   }
 
   var resetEventData = function() {
-    scriptLengthChangedEvent = false;
-    scriptLengthEventData = {};
+    scriptLengthEventDataList = []
+  }
+
+  var eventScriptLengthChangedHasBeenCalled = function() {
+    return scriptLengthEventDataList.length > 0
+  }
+
+  var eventScriptLengthChangedHasBeenCalledWith = function(params) {
+    return scriptLengthEventDataList.some(function(entry) {
+      return _.isEqual(entry.scriptLengthEventData, params)
+    })
   }
 
   before(function(done) {
@@ -70,7 +80,7 @@ describe('ep_script_elements - scenes length', function() {
       var $lastHeading = helper.padInner$('heading').last();
       $lastHeading.sendkeys('{selectall}{rightarrow}EDITED');
       helper.waitFor(function() {
-        return scriptLengthChangedEvent;
+        return eventScriptLengthChangedHasBeenCalled();
       }).done(function() {
         expect().fail(function() {
           return 'Script length changed';
@@ -94,9 +104,12 @@ describe('ep_script_elements - scenes length', function() {
       done();
     });
 
-    it('does not trigger the scenes length change event', function(done) {
-      expect(scriptLengthEventData).to.be.empty();
-      done();
+    // this trigger is listened by ep_script_simple_page_view/static/js/calculateScriptLength.js
+    it('triggers the script length change event with updateNavigator data equals to false', function(done) {
+      const params = { forceNavigatorUpdate: false }
+      helper.waitFor(function() {
+        return eventScriptLengthChangedHasBeenCalledWith(params);
+      }, 6000).done(done);
     });
   });
 
@@ -105,7 +118,7 @@ describe('ep_script_elements - scenes length', function() {
       resetEventData();
       utils.changeToElement(utils.GENERAL, function() {
         helper.waitFor(function() {
-          return scriptLengthChangedEvent;
+          return eventScriptLengthChangedHasBeenCalled();
         }, 4000).done(done);
       }, LAST_HEADING_LINE);
       this.timeout(6000);
@@ -125,20 +138,31 @@ describe('ep_script_elements - scenes length', function() {
     });
 
     it('updates the scenes length object', function(done) {
-      var scenesLength = getScenesLength();
-      var expectedSceneLength = getLineDefaultSize() * 4; // 1 heading + 1 general = 4 lines
-      expect(scenesLength[0]).to.be.within(
-        expectedSceneLength - TOLERANCE,
-        expectedSceneLength + TOLERANCE
-      );
-      expect(scenesLength.length).to.be(1);
-      done();
+      helper.waitFor(function() {
+        var scenesLength = getScenesLength();
+        var expectedSceneLength = getLineDefaultSize() * 4; // 1 heading + 1 general = 4 lines
+        return expectedSceneLength - TOLERANCE <= scenesLength[0] &&
+          scenesLength[0] <= expectedSceneLength + TOLERANCE;
+      }, 6000).done(function() {
+        var scenesLength = getScenesLength();
+        expect(scenesLength.length).to.be(1);
+        done()
+      });
     });
 
     it('triggers the script length change event with updateNavigator data equals to true', function(done) {
-      expect(scriptLengthChangedEvent).to.be(true);
-      expect(scriptLengthEventData.forceNavigatorUpdate).to.be(true);
-      done();
+      const params = { forceNavigatorUpdate: true }
+      helper.waitFor(function() {
+        return eventScriptLengthChangedHasBeenCalledWith(params);
+      }, 6000).done(done);
+    });
+
+    // this trigger is listened by ep_script_simple_page_view/static/js/calculateScriptLength.js
+    it('also triggers the script length change event with updateNavigator data equals to false', function(done) {
+      const params = { forceNavigatorUpdate: false }
+      helper.waitFor(function() {
+        return eventScriptLengthChangedHasBeenCalledWith(params);
+      }, 6000).done(done);
     });
   });
 
