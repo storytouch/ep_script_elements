@@ -9,6 +9,10 @@ var SCENE_DURATION_ATTRIB_NAME = 'sceneDuration';
 // from sceneDuration-30 gets '30'
 var SCENE_DURATION_REGEXP = new RegExp(SCENE_DURATION_CLASS_PREFIX + '([0-9]+)');
 
+var SCENE_ID_KEY_ATTRIB = 'scene-id';
+var SCENE_ID_PREFIX = 'scid-';
+var SCENE_ID_REGEXP = new RegExp('(?:^| )' + SCENE_ID_PREFIX + '[A-Za-z0-9]+');
+
 var collectContentPre = function(hook, context){
   var tname = context.tname;
   var state = context.state;
@@ -22,6 +26,12 @@ var collectContentPre = function(hook, context){
 
   if (isScriptElement(tname)) {
     lineAttributes['script_element'] = tname;
+
+    // collect scene id
+    var sceneId = SCENE_ID_REGEXP.exec(context.cls);
+    if (sceneId) {
+      lineAttributes[SCENE_ID_KEY_ATTRIB] = sceneId[0];
+    }
 
     // collect scene metric
     var sceneDuration = SCENE_DURATION_REGEXP.exec(cls);
@@ -63,3 +73,6 @@ exports.tags = tags;
 exports.sceneTag = sceneTag;
 exports.SCENE_DURATION_ATTRIB_NAME = SCENE_DURATION_ATTRIB_NAME;
 exports.SCENE_DURATION_CLASS_PREFIX  = SCENE_DURATION_CLASS_PREFIX;
+exports.SCENE_ID_KEY_ATTRIB = SCENE_ID_KEY_ATTRIB;
+exports.SCENE_ID_PREFIX = SCENE_ID_PREFIX;
+exports.SCENE_ID_REGEXP = SCENE_ID_REGEXP;
