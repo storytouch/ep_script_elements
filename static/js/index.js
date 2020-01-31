@@ -252,7 +252,7 @@ var buildScriptElementClasses = function(cls) {
   // sceneId
   var sceneId = shared.SCENE_ID_REGEXP.exec(cls);
   if (sceneId) {
-    const sceneIdClass = shared.SCENE_ID_KEY_ATTRIB + sceneId[0];
+    var sceneIdClass = shared.SCENE_ID_KEY_ATTRIB + sceneId[0];
     classes.push(sceneIdClass);
   }
 
