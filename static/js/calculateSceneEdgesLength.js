@@ -101,7 +101,8 @@ calculateSceneEdgesLength.prototype._getLinesToResetCache = function(line) {
 
 calculateSceneEdgesLength.prototype._cleanElementDimensionCache = function() {
   _.each(this._linesToCleanCache, function(element) {
-    element.children().get(0)._boundingClientRect = null;
+    var target = element.children().get(0);
+    if (target.length) target._boundingClientRect = null;
   });
   this._resetTempVariables();
 };
