@@ -1,11 +1,12 @@
 describe('ep_script_elements - scenes unique id tagging', function() {
   var helperFunctions, padId;
-  var sceneNavigatorUtils;
+  var sceneNavigatorUtils, multipleUsers;
 
   var FIRST_SCENE_LINE = 2;
 
   before(function(done) {
     helperFunctions = ep_script_elements_test_helper.generalTests;
+    multipleUsers = ep_script_copy_cut_paste_test_helper.multipleUsers;
     sceneNavigatorUtils = ep_scene_navigator_test_helper.utils;
 
     padId = helper.newPad(function() {
@@ -27,7 +28,7 @@ describe('ep_script_elements - scenes unique id tagging', function() {
     });
 
     it('sets a unique for each heading', function(done) {
-      expect(padSceneIds.length).to.be(2);
+      expect(padSceneIds).to.have.length(2);
       expect(helperFunctions.hasOnlyUniqueEntries(padSceneIds)).to.be(true);
       done();
     });
@@ -50,28 +51,68 @@ describe('ep_script_elements - scenes unique id tagging', function() {
       });
     });
 
-    context('when user adds a SCENE', function() {
-      var padSceneIdsAfterCreatingNewScene;
+    context('and other user has this pad opened', function() {
+      var padSceneIdsForOtherUser;
 
       before(function(done) {
-        helperFunctions.addSceneAbove(FIRST_SCENE_LINE, function() {
+        multipleUsers.openSamePadOnWithAnotherUser(function() {
+          multipleUsers.startActingLikeOtherUser();
           helperFunctions.getSceneIds(function(sceneIds) {
-            padSceneIdsAfterCreatingNewScene = sceneIds;
+            padSceneIdsForOtherUser = sceneIds;
             done();
           });
         });
       });
 
-      it('creates a new id for the new heading', function(done) {
-        expect(padSceneIdsAfterCreatingNewScene.length).to.be(3);
-        expect(helperFunctions.hasOnlyUniqueEntries(padSceneIdsAfterCreatingNewScene)).to.be(true);
+      after(function() {
+        multipleUsers.startActingLikeThisUser(); // change focus to the main script
+        multipleUsers.closePadForOtherUser(); // closes the other user script
+      })
+
+      it('does not change the scene ids for the other user', function(done) {
+        expect(padSceneIdsForOtherUser).to.eql(padSceneIds);
         done();
       });
 
-      it('keeps the caret in the new heading line', function(done) {
-        var newHeadingLineNumber = 2;
-        expect(helperFunctions.getLineNumberWhereCaretIs()).to.be(newHeadingLineNumber);
-        done();
+      context('and user adds a SCENE', function() {
+        var padSceneIdsAfterCreatingNewScene, padSceneIdsAfterCreatingNewSceneForOtherUser;
+
+        before(function(done) {
+          multipleUsers.startActingLikeThisUser();
+          helperFunctions.addSceneAbove(FIRST_SCENE_LINE, function() {
+            // get new scene ids for this user
+            helperFunctions.getSceneIds(function(sceneIds) {
+              padSceneIdsAfterCreatingNewScene = sceneIds;
+
+              // get new scene ids for the other user
+              multipleUsers.startActingLikeOtherUser();
+              helperFunctions.getSceneIds(function(sceneIds) {
+                padSceneIdsAfterCreatingNewSceneForOtherUser = sceneIds;
+
+                // change focus to the main script again
+                multipleUsers.startActingLikeThisUser();
+                done();
+              });
+            });
+          });
+        });
+
+        it('creates a new id for the new heading', function(done) {
+          expect(padSceneIdsAfterCreatingNewScene).to.have.length(3);
+          expect(helperFunctions.hasOnlyUniqueEntries(padSceneIdsAfterCreatingNewScene)).to.be(true);
+          done();
+        });
+
+        it('keeps the caret in the new heading line', function(done) {
+          var newHeadingLineNumber = 2;
+          expect(helperFunctions.getLineNumberWhereCaretIs()).to.be(newHeadingLineNumber);
+          done();
+        });
+
+        it('updates the other user with the same scene ids', function(done) {
+          expect(padSceneIdsAfterCreatingNewSceneForOtherUser).to.eql(padSceneIdsAfterCreatingNewScene);
+          done();
+        });
       });
     });
   });
