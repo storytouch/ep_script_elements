@@ -21,6 +21,7 @@ var calculateSceneLength          = require('./calculateSceneLength');
 var calculateSceneEdgesLength     = require('./calculateSceneEdgesLength');
 var sceneDuration                 = require('./sceneDuration');
 var scenesLength                  = require('./scenesLength');
+var sceneUniqueIdTagging          = require('./scenesUniqueIdTagging');
 
 var tags = shared.tags;
 var sceneTag = shared.sceneTag;
@@ -65,6 +66,9 @@ exports.aceEditEvent = function(hook, context) {
   if (padHasLoadedCompletely && (isFirstTimeSceneLengthCalculationRunAfterLoading || isAChangeOnPadContent(eventType, callstack) )) {
     isFirstTimeSceneLengthCalculationRunAfterLoading = false;
     updateSceneLengthSchedule.schedule();
+
+    // mark scenes ids after loading script
+    utils.getThisPluginProps().sceneUniqueIdTagging.markScenesWithUniqueId();
   }
 }
 
@@ -95,6 +99,8 @@ exports.postAceInit = function(hook, context) {
   var thisPlugin = utils.getThisPluginProps();
   thisPlugin.calculateSceneEdgesLength = calculateSceneEdgesLength.init();
   thisPlugin.scenesLength = scenesLength.init();
+
+  thisPlugin.sceneUniqueIdTagging = ace_sceneUniqueIdTagging();
 
   // provide access to other plugins
   thisPlugin.calculateSceneLength = ace_calculateSceneLength();
@@ -182,6 +188,8 @@ exports.aceAttribsToClasses = function(hook, context) {
     return [ undoPagination.UNDO_FIX_ATTRIB ];
   } else if (context.key === shared.SCENE_DURATION_ATTRIB_NAME)  {
     return [ shared.SCENE_DURATION_ATTRIB_NAME + ':' + context.value ]; // e.g. sceneDuration:60
+  } else if (context.key === shared.SCENE_ID_KEY_ATTRIB)  {
+    return [ shared.SCENE_DURATION_ATTRIB_NAME, context.value ];
   }
 }
 
@@ -221,7 +229,6 @@ var findExtraFlagForLine = function($node) {
 // Here we convert the class script_element:heading into a tag
 var processScriptElementAttribute = function(cls) {
   var scriptElementType = /(?:^| )script_element:([A-Za-z0-9]*)/.exec(cls);
-  var sceneDurationInSeconds = /(?:^| )sceneDuration:([0-9 \/]+)/.exec(cls);
   var tagIndex;
 
   if (scriptElementType) tagIndex = _.indexOf(tags, scriptElementType[1]);
@@ -229,25 +236,37 @@ var processScriptElementAttribute = function(cls) {
   if (tagIndex !== undefined && tagIndex >= 0) {
     var tag = tags[tagIndex];
     var modifier = {
-      preHtml: '<' + tag + buildSceneMetricClass(sceneDurationInSeconds) + '>',
+      preHtml: '<' + tag + buildScriptElementClasses(cls) + '>',
       postHtml: '</' + tag + '>',
-      processedMarker: true
+      processedMarker: true,
     };
     return [modifier];
   }
 
   return [];
-}
+};
 
-// we only add this class on headings
-var buildSceneMetricClass = function(sceneDurationInSeconds) {
-  var sceneMetricClass = '';
-  if (sceneDurationInSeconds) {
-    var sceneDurationClass = sceneDurationInSeconds ? shared.SCENE_DURATION_CLASS_PREFIX + sceneDurationInSeconds[1] : '';
-    sceneMetricClass = ` class="${sceneDurationClass}"`
+var buildScriptElementClasses = function(cls) {
+  var classes = [];
+
+  // sceneId
+  var sceneId = shared.SCENE_ID_REGEXP.exec(cls);
+  if (sceneId) {
+    var sceneIdClass = shared.SCENE_ID_KEY_ATTRIB + sceneId[0];
+    classes.push(sceneIdClass);
   }
-  return sceneMetricClass;
-}
+
+  // scene duration
+  var sceneDurationInSeconds = /(?:^| )sceneDuration:([0-9 \/]+)/.exec(cls);
+  if (sceneDurationInSeconds) {
+    var sceneDurationClass = sceneDurationInSeconds
+      ? shared.SCENE_DURATION_CLASS_PREFIX + sceneDurationInSeconds[1]
+      : '';
+    classes.push(sceneDurationClass);
+  }
+
+  return classes.length > 0 ? ` class="${classes.join(' ')}"` : '';
+};
 
 var processUndoFixAttribute = function(cls) {
   if (cls.includes(undoPagination.UNDO_FIX_ATTRIB)) {
@@ -268,9 +287,10 @@ var processUndoFixAttribute = function(cls) {
 exports.aceInitialized = function(hook, context) {
   var editorInfo = context.editorInfo;
 
+  ace_calculateSceneLength = _(calculateSceneLength.init).bind(context);
+  ace_sceneUniqueIdTagging = _(sceneUniqueIdTagging.init).bind(context);
   editorInfo.ace_removeSceneTagFromSelection = _(removeSceneTagFromSelection).bind(context);
   editorInfo.ace_doInsertScriptElement = _(changeElementOnDropdownChange.doInsertScriptElement).bind(context);
-  ace_calculateSceneLength = _(calculateSceneLength.init).bind(context);
   editorInfo.ace_addSceneDurationAttribute = _(sceneDuration.addSceneDurationAttribute).bind(context);
   editorInfo.ace_caretElementChangeSendMessage = _(caretElementChange.sendMessageCaretElementChanged).bind(context);
 
