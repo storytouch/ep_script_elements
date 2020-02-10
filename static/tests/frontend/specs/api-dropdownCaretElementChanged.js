@@ -4,6 +4,7 @@
 // A4
 var GENERALS_PER_PAGE = 58;
 var CHANGE_CARET_ELEMENT_MESSAGE_TYPE = 'dropdown_caret_element_changed';
+var SCRIPT_CHANGED = 'script_changed';
 
 describe('ep_script_elements - API - dropdown caret element changed', function(){
   var utils, SMUtils, helperFunctions, padId, apiUtils;
@@ -16,22 +17,37 @@ describe('ep_script_elements - API - dropdown caret element changed', function()
     this.timeout(60000);
   });
 
-  it('changes the line type when API receives a message that line type has changed', function(done) {
-    this.timeout(6000);
-    var inner$ = helper.padInner$;
+  context('when API receives a message that line type has changed', function() {
+    var inner$;
+    var $firstTextElement;
 
-    var $firstTextElement = inner$('div').first();
-    $firstTextElement.sendkeys('First Line!');
+    before(function() {
+      this.timeout(6000);
+      inner$ = helper.padInner$;
 
-    // sets first line to action
-    apiUtils.simulateTriggerOfDropdownChanged(utils.ACTION);
+      $firstTextElement = inner$('div').first();
+      $firstTextElement.sendkeys('First Line!');
 
-    helper.waitFor(function(){
-      // wait for element to be processed and changed
-      $firstTextElement = inner$('div').first(); // need to get it again because line is changed by Content Collector
-      return $firstTextElement.find('action').length === 1;
-    }, 4000).done(done);
-  });
+      apiUtils.resetLastDataSent();
+
+      // sets first line to action
+      apiUtils.simulateTriggerOfDropdownChanged(utils.ACTION);
+    })
+
+    it('changes the line type', function(done) {
+      helper.waitFor(function(){
+        // wait for element to be processed and changed
+        $firstTextElement = inner$('div').first(); // need to get it again because line is changed by Content Collector
+        return $firstTextElement.find('action').length === 1;
+      }, 4000).done(done);
+    });
+
+    context('integration with ep_scene_navigator - notify script changed', function() {
+      it('notifies that the script changed', function(done) {
+        apiUtils.waitForDataToBeSent(SCRIPT_CHANGED, done);
+      })
+    })
+  })
 
   context('when API receives a message that line type has changed to general', function(){
     before(function (done) {
