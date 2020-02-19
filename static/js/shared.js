@@ -20,8 +20,7 @@ var collectContentPre = function(hook, context){
   var cls = context.cls || '';
 
   if(tname === 'div' || tname === 'p'){
-    delete lineAttributes['script_element'];
-    delete lineAttributes[SCENE_DURATION_ATTRIB_NAME];
+    resetLineAttributes(lineAttributes)
   }
 
   if (isScriptElement(tname)) {
@@ -50,15 +49,20 @@ var collectContentPost = function(hook, context){
   var state = context.state;
   var lineAttributes = state.lineAttributes
   var tagIndex = _.indexOf(tags, tname);
+
   if(tagIndex >= 0){
     //take line-attributes used away - script_element and scenesData[]
     //all elements in the tags array uses script_element as key of lineattributes
-    var usedLineAttributes = _.union(sceneTag, ['script_element', SCENE_DURATION_ATTRIB_NAME])
-    for (var i = 0; i < usedLineAttributes.length ; i++) {
-      delete lineAttributes[usedLineAttributes[i]];
-    }
+    resetLineAttributes(lineAttributes);
   }
 };
+
+var resetLineAttributes = function(lineAttributes) {
+  var usedLineAttributes = _.union(sceneTag, ['script_element', SCENE_DURATION_ATTRIB_NAME, SCENE_ID_KEY_ATTRIB])
+  for (var i = 0; i < usedLineAttributes.length ; i++) {
+    delete lineAttributes[usedLineAttributes[i]];
+  }
+}
 
 var isSceneTag = function(tname) {
   return _.indexOf(sceneTag, tname) >= 0;
