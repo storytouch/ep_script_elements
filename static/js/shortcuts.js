@@ -43,7 +43,7 @@ function moveCaretToAdjacentScene(context, findSceneHeading) {
 
   if (targetScene !== undefined) {
     // found one, can move caret to it
-    utils.placeCaretOnLine(editorInfo, targetScene);
+    utils.placeCaretOnLine(editorInfo, [targetScene, 0]);
 
     // scroll screen so targetScene is on top of the screen
     scrollToLine(targetScene, rep);
