@@ -34,8 +34,28 @@ sceneUniqueIdTagging.prototype._markSceneWithUniqueId = function(element, $lines
   // Not sure if we will encouter race conditions here. Be careful.
   var hasSceneId = this.attributeManager.getAttributeOnLine(lineNumber, SCENE_ID_KEY_ATTRIB);
   if (!hasSceneId) {
-    this.attributeManager.setAttributeOnLine(lineNumber, SCENE_ID_KEY_ATTRIB, sceneId);
+    // if we add the attribute after we force to place the caret on that line,
+    // the caret will go to the next line. E.g. when user adds a synopsis, by
+    // default we place the caret on the heading. But, after we place the
+    // caret on that heading we add the scene id attrib and recollect the heading.
+    // This attribute makes the caret goes to the next
+    // line. To cover this case, we have to make sure to preserve the caret
+    // line after applying the attribute
+    var isCaretOnLineWillPlaceAttrib = this.isCaretOnLine(lineNumber); // caret is on line will be collected
+    this.attributeManager.setAttributeOnLine(lineNumber, SCENE_ID_KEY_ATTRIB, sceneId); // apply the attrib
+    if (isCaretOnLineWillPlaceAttrib)  {
+      // make the caret goes back to this line
+      utils.placeCaretOnLine(this.editorInfo, [lineNumber, 0]);
+    }
   }
+};
+
+sceneUniqueIdTagging.prototype.isCaretOnLine = function(lineNumber) {
+  var rep = this.editorInfo.ace_getRep();
+  var notASelection = (rep.selStart[0] && rep.selEnd[0])
+    && (rep.selStart[1] && rep.selEnd[1]);
+
+  return notASelection && (rep.selStart[0] && lineNumber);
 };
 
 sceneUniqueIdTagging.prototype.markScenesWithUniqueId = function() {

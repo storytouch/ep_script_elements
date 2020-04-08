@@ -225,7 +225,7 @@ var processTextSelected = function(context){
     }
   }
   removeLines.removeAndProcessSelection(context, beginningOfSelectionPosition, endOfSelectionPosition, shouldCreateNewLine, lineToSetAttributes, shouldRecoverAttribsOfLastLineSelected);
-  placeCaretOnLine(editorInfo, beginningOfSelectionPosition);
+  utils.placeCaretOnLine(editorInfo, beginningOfSelectionPosition);
   return true;
 }
 exports.processTextSelected = processTextSelected;
@@ -357,11 +357,4 @@ var placeCaretOnBeginningOfLine = function(targetLine, editorInfo, rep) {
   var beginningOfTargetLine = [targetLine, targetLineEntry.lineMarker];
 
   editorInfo.ace_performSelectionChange(beginningOfTargetLine, beginningOfTargetLine, true);
-}
-
-var placeCaretOnLine = function(editorInfo, linePosition){
-  editorInfo.ace_inCallStackIfNecessary("placeCaretAfterRemoveSelection", function(){
-    editorInfo.ace_performSelectionChange(linePosition, linePosition, true);
-    editorInfo.ace_updateBrowserSelectionFromRep();
-  })
 }

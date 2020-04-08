@@ -43,7 +43,7 @@ function moveCaretToAdjacentScene(context, findSceneHeading) {
 
   if (targetScene !== undefined) {
     // found one, can move caret to it
-    placeCaretOnLine(targetScene, editorInfo);
+    utils.placeCaretOnLine(editorInfo, targetScene);
 
     // scroll screen so targetScene is on top of the screen
     scrollToLine(targetScene, rep);
@@ -52,12 +52,6 @@ function moveCaretToAdjacentScene(context, findSceneHeading) {
 
 function synchronizeEditorWithUserSelection(editorInfo) {
   editorInfo.ace_fastIncorp();
-}
-
-function placeCaretOnLine(line, editorInfo) {
-  var firstPostionOfLine = [line, 0];
-  editorInfo.ace_performSelectionChange(firstPostionOfLine, firstPostionOfLine, true);
-  editorInfo.ace_updateBrowserSelectionFromRep();
 }
 
 function scrollToLine(lineNumber, rep) {

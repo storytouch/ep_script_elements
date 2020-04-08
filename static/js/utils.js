@@ -223,3 +223,10 @@ exports.getLength = function(line, rep) {
 
   return lineLength;
 }
+
+exports.placeCaretOnLine = function(editorInfo, linePosition){
+  editorInfo.ace_inCallStackIfNecessary('placeCaretOnLine', function(){
+    editorInfo.ace_performSelectionChange(linePosition, linePosition, true);
+    editorInfo.ace_updateBrowserSelectionFromRep();
+  })
+}
