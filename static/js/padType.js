@@ -5,7 +5,7 @@ var BACKUP_DOCUMENT_TYPE = shared.BACKUP_DOCUMENT_TYPE;
 var SCRIPT_DOCUMENT_TYPE = shared.SCRIPT_DOCUMENT_TYPE;
 
 var padType = function() {
-  // I know it is wierd, ugly and unsafe, but it is necessary
+  // I know it is weird, ugly and unsafe, but it is necessary
   // to allow mocking the padType URL parameter in tests.
   //
   // So, if you want to test diferent padType values, assign
