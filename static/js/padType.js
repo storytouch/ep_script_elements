@@ -5,26 +5,21 @@ var BACKUP_DOCUMENT_TYPE = shared.BACKUP_DOCUMENT_TYPE;
 var SCRIPT_DOCUMENT_TYPE = shared.SCRIPT_DOCUMENT_TYPE;
 
 var padType = function() {
-  // I know it is weird, ugly and unsafe, but it is necessary
-  // to allow mocking the padType URL parameter in tests.
-  //
-  // So, if you want to test diferent padType values, assign
-  // window._getPadTypeParam = yourMockFunctionThatReturnsAType
-  // before creating a pad, as in .setPadType(type)
-  // ep_script_elements/static/tests/frontend/specs/_utils.js
-  //
-  // See an example at:
-  // ep_mouse_shortcuts/static/tests/frontend/specs/padType.js
-  this.getPadTypeParam = parent._getPadTypeParam || this._getPadTypeParam;
+  this._cachedPadTypeParam = null;
 };
 
 padType.prototype._getPadTypeParam = function() {
-  var params = new URL(window.location.href).searchParams;
-  var padTypeParam = params.get(PAD_TYPE_URL_PARAM);
+  if (!this._cachedPadTypeParam) {
+    // caches the pad type to avoid over-processing
+    var params = new URL(window.location.href).searchParams;
+    var padTypeParam = params.get(PAD_TYPE_URL_PARAM);
+    this._cachedPadTypeParam = padTypeParam;
+  }
+  return this._cachedPadTypeParam;
 };
 
 padType.prototype.isScriptDocumentPad = function() {
-  var padTypeParam = this.getPadTypeParam();
+  var padTypeParam = this._getPadTypeParam();
 
   // considering null types like ScriptDocument
   // for backward compatibility
