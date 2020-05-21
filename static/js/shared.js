@@ -1,5 +1,10 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 
+// pad types
+var BACKUP_DOCUMENT_TYPE = 'BackupDocument';
+var SCRIPT_DOCUMENT_TYPE = 'ScriptDocument';
+var TITLE_PAGE_DOCUMENT_TYPE = 'TitlePageDocument';
+
 var tags = ['heading', 'action', 'character', 'parenthetical', 'dialogue', 'transition', 'shot'];
 var sceneTag = ['scene-number', 'scene-duration', 'scene-temporality', 'scene-workstate', 'scene-time'];
 
@@ -75,6 +80,9 @@ exports.collectContentPre = collectContentPre;
 exports.collectContentPost = collectContentPost;
 exports.tags = tags;
 exports.sceneTag = sceneTag;
+exports.SCRIPT_DOCUMENT_TYPE = SCRIPT_DOCUMENT_TYPE;
+exports.BACKUP_DOCUMENT_TYPE = BACKUP_DOCUMENT_TYPE;
+exports.TITLE_PAGE_DOCUMENT_TYPE = TITLE_PAGE_DOCUMENT_TYPE;
 exports.SCENE_DURATION_ATTRIB_NAME = SCENE_DURATION_ATTRIB_NAME;
 exports.SCENE_DURATION_CLASS_PREFIX  = SCENE_DURATION_CLASS_PREFIX;
 exports.SCENE_ID_KEY_ATTRIB = SCENE_ID_KEY_ATTRIB;
