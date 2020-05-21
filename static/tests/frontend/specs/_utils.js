@@ -377,4 +377,18 @@ ep_script_elements_test_helper.utils = {
     this.thisPlugin().calculateSceneEdgesLength._timeoutToCleanDimensions = 0;
   },
 
+  // padTypes
+  BACKUP_DOCUMENT_TYPE: 'BackupDocument',
+  SCRIPT_DOCUMENT_TYPE: 'ScriptDocument',
+  TITLE_PAGE_DOCUMENT_TYPE: 'TitlePageDocument',
+
+  // used to mock the pad type
+  _getPadTypeParamMocked: function(type) {
+    return function() {
+      return type;
+    };
+  },
+  setPadType: function(type) {
+    window._getPadTypeParam = this._getPadTypeParamMocked(type);
+  }
 };
