@@ -382,13 +382,8 @@ ep_script_elements_test_helper.utils = {
   SCRIPT_DOCUMENT_TYPE: 'ScriptDocument',
   TITLE_PAGE_DOCUMENT_TYPE: 'TitlePageDocument',
 
-  // used to mock the pad type
-  _getPadTypeParamMocked: function(type) {
-    return function() {
-      return type;
-    };
+  newPadWithType: function(cb, type) {
+    var padName = "FRONTEND_TEST_" + helper.randomString(20);
+    helper.newPad(cb, `${padName}?padType=${type}`);
   },
-  setPadType: function(type) {
-    window._getPadTypeParam = this._getPadTypeParamMocked(type);
-  }
 };
