@@ -381,4 +381,9 @@ ep_script_elements_test_helper.utils = {
   BACKUP_DOCUMENT_TYPE: 'BackupDocument',
   SCRIPT_DOCUMENT_TYPE: 'ScriptDocument',
   TITLE_PAGE_DOCUMENT_TYPE: 'TitlePageDocument',
+
+  newPadWithType: function(cb, type) {
+    var padName = "FRONTEND_TEST_" + helper.randomString(20);
+    helper.newPad(cb, `${padName}?padType=${type}`);
+  },
 };
