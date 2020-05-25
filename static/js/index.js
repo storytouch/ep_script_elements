@@ -22,6 +22,7 @@ var calculateSceneEdgesLength     = require('./calculateSceneEdgesLength');
 var sceneDuration                 = require('./sceneDuration');
 var scenesLength                  = require('./scenesLength');
 var sceneUniqueIdTagging          = require('./scenesUniqueIdTagging');
+var padType                       = require('./padType');
 
 var tags = shared.tags;
 var sceneTag = shared.sceneTag;
@@ -97,6 +98,7 @@ var eventMightBeAnUndo = function(callstack) {
 exports.postAceInit = function(hook, context) {
   var ace = context.ace;
   var thisPlugin = utils.getThisPluginProps();
+  thisPlugin.padType = padType.init();
   thisPlugin.calculateSceneEdgesLength = calculateSceneEdgesLength.init();
   thisPlugin.scenesLength = scenesLength.init();
 
@@ -153,6 +155,11 @@ exports.aceSelectionChanged = function(hook, context, cb) {
 }
 
 exports.aceKeyEvent = function(hook, context) {
+  // handles key events only in ScriptDocument pads
+  var thisPlugin = utils.getThisPluginProps();
+  var isScriptDocumentPad = thisPlugin.padType.isScriptDocumentPad();
+  if (!isScriptDocumentPad) return false;
+
   var eventProcessed = false;
   var evt = context.evt;
 
