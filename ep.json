@@ -1,8 +1,15 @@
 {
   "parts": [
     {
+      "comment": "This part has all the modules that must be loaded at the beginning",
+      "name": "preLoader",
+      "client_hooks": {
+        "documentReady": "ep_script_elements/static/js/preLoader"
+      }
+    },
+    {
       "name": "main",
-      "pre": ["ep_font_color/main", "ep_comments_page/comments_page"],
+      "pre": ["ep_script_elements/preLoader", "ep_font_color/main", "ep_comments_page/comments_page"],
       "client_hooks": {
         "aceEditorCSS": "ep_script_elements/static/js/aceEditorCSS",
         "aceSelectionChanged": "ep_script_elements/static/js/index",
