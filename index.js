@@ -26,7 +26,7 @@ exports.getLineHTMLForExport = function (hook, context) {
   //try to find a scene line attributes. if it's found it mounts the HTML with it
   var script_element = findAttrib(attribLine, apool, "script_element");
   var text = context.lineContent;
-  if (script_element) {
+  if (script_element && !context.lineAttribsProcessed) {
     text = text.substring(1);
   } else { // if it is not a script nor a scene mark, then it is a general
     script_element = "general";
