@@ -258,7 +258,10 @@ ep_script_elements_test_helper.utils = {
     e.keyCode = CODE;
 
     // allow event to be prevented
-    e.originalEvent = { preventDefault: function() { this.defaultPrevented = true }};
+    e.originalEvent = {
+      preventDefault: function() { this.defaultPrevented = true },
+      stopPropagation: function() {}
+    };
     e.originalEvent.defaultPrevented = false;
 
     configEvent(e);
