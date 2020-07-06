@@ -59,10 +59,11 @@ describe('ep_script_elements - API - save scene duration', function() {
         });
 
         it('removes the duration class', function(done) {
-          var generalLine = THIRD_HEADING_LINE - 4; // we remove 4 scene marks (sequence)
-          var generalText = helper.padInner$('div').eq(generalLine).text();
-          expect(generalText).to.be(LAST_ELEMENT_TEXT);
-          done();
+          helper.waitFor(function() {
+            var generalLine = THIRD_HEADING_LINE - 4; // we remove 4 scene marks (sequence)
+            var generalText = helper.padInner$('div').eq(generalLine).text();
+            return generalText === LAST_ELEMENT_TEXT;
+          }).done(done);
         });
       })
     })
