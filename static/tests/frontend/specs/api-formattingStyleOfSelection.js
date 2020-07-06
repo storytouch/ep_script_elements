@@ -58,9 +58,11 @@ ep_script_elements_test_helper.formattingButtonHandle = {
     utils.createScriptWith(script, lastLineText, done);
   },
   testIfFormattingTagIsAppliedOnLine: function(lineNumber, style, shouldHaveTagApplied, done) {
-    var lineHasFormattingApplied = this.hasFormattingApplied(lineNumber, style);
-    expect(lineHasFormattingApplied).to.be(shouldHaveTagApplied);
-    done();
+    var self = this;
+    helper.waitFor(function() {
+      var lineHasFormattingApplied = self.hasFormattingApplied(lineNumber, style);
+      return lineHasFormattingApplied === shouldHaveTagApplied;
+    }).done(done)
   },
   hasFormattingApplied: function(lineNumber, style) {
     var $lineTarget = helper.padInner$('div').eq(lineNumber);
