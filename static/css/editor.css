@@ -60,61 +60,34 @@ heading, action, character, parenthetical, dialogue, transition, shot {
   font-family: courier, monospace;
 }
 
-/* If available width is not even enough to have the regular 61
-   chars/line, we make the margins proportional to available width: */
-@media (max-width : 463px) { /* based on value form ep_script_page_view */
-  character{
-    margin-left: 35%;
-    margin-right: 4%;
-  }
-
-  parenthetical{
-    margin-left: 26%;
-    margin-right: 35%;
-  }
-
-  dialogue{
-    margin-left: 17%;
-    margin-right: 26%;
-  }
-
-  transition{
-    margin-left: 64%;
-    margin-right: 9%;
-  }
+/* Dimensions of script elements*/
+action {
+  margin-top: 16px;
 }
 
-/*this CSS was taken from fixSmallZoom.js*/
+character {
+  width: 38ch;
+  margin: auto;
+  margin-top: 16px;
+}
 
-/* Dimensions of script elements*/
-@media (min-width : 464px) {
-  action {
-    margin-top: 16px;
-  }
+parenthetical {
+  width: 26ch;
+  margin: auto;
+}
 
-  character {
-    margin-left: 152px;
-    margin-right: 16px;
-    margin-top: 16px;
-  }
+dialogue {
+  width: 35ch;
+  margin: auto;
+}
 
-  parenthetical {
-    margin-left: 105px;
-    margin-right: 154px;
-  }
+transition {
+  width: 16ch;
+  margin: auto;
+  margin-right: 0;
+  margin-top: 16px;
+}
 
-  dialogue {
-    margin-left: 77px;
-    margin-right: 111px;
-  }
-
-  transition {
-    margin-left: 290px;
-    margin-right: 36px;
-    margin-top: 16px;
-  }
-
-  shot {
-    margin-top: 32px;
-  }
+shot {
+  margin-top: 32px;
 }
