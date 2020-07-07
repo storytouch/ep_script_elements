@@ -6,9 +6,10 @@ describe('ep_script_elements - scenes length', function() {
   var scriptLengthEventDataList = []
 
   var waitToBuildScenesLengthObj = function(cb) {
+    var thisPlugin = helper.padChrome$.window.pad.plugins.ep_script_elements;
+    var scenesLength = thisPlugin.scenesLength;
     helper.waitFor(function() {
-      var scenesLength = getScenesLength();
-      var hasBuiltScenesLengthObject = scenesLength[0] > 0;
+      var hasBuiltScenesLengthObject = scenesLength._scenesLength.length === 2;
       return hasBuiltScenesLengthObject;
     }, 4000).done(cb);
   }
@@ -74,22 +75,10 @@ describe('ep_script_elements - scenes length', function() {
 
   context('when an edition does not change the scene length', function() {
     var originalSceneLength;
-    before(function(done) {
-      resetEventData();
+    before(function() {
       originalSceneLength = getScenesLength();
       var $lastHeading = helper.padInner$('heading').last();
       $lastHeading.sendkeys('{selectall}{rightarrow}EDITED');
-      helper.waitFor(function() {
-        return eventScriptLengthChangedHasBeenCalled();
-      }).done(function() {
-        expect().fail(function() {
-          return 'Script length changed';
-        });
-      }).fail(function() {
-        // all set, script length not changed. We can finish the test
-        done();
-      });
-      this.timeout(6000);
     });
 
     after(function() {
@@ -97,10 +86,13 @@ describe('ep_script_elements - scenes length', function() {
     });
 
     it('does not change the scenes length object', function(done) {
-      var scenesLength = getScenesLength();
-      expect(originalSceneLength[0]).to.be(scenesLength[0]);
-      expect(originalSceneLength[1]).to.be(scenesLength[1]);
-      expect(originalSceneLength.length).to.be(scenesLength.length);
+      helper.waitFor(function() {
+        var scenesLength = getScenesLength();
+        var firstSceneKeptValue = originalSceneLength[0] === scenesLength[0];
+        var secondSceneKeptValue = originalSceneLength[1] === scenesLength[1];
+        var scenesLengthKeptValue = originalSceneLength.length === scenesLength.length;
+        return firstSceneKeptValue && secondSceneKeptValue && scenesLengthKeptValue;
+      }).done()
       done();
     });
 
@@ -138,6 +130,7 @@ describe('ep_script_elements - scenes length', function() {
     });
 
     it('updates the scenes length object', function(done) {
+      this.timeout(8000);
       helper.waitFor(function() {
         var scenesLength = getScenesLength();
         var expectedSceneLength = getLineDefaultSize() * 4; // 1 heading + 1 general = 4 lines

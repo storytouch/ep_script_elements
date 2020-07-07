@@ -62,6 +62,7 @@ describe('ep_script_elements - scenes unique id tagging', function() {
             done();
           });
         });
+        this.timeout(4000);
       });
 
       after(function() {
