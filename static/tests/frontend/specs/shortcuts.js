@@ -1,34 +1,35 @@
-describe("ep_script_elements - shortcuts", function() {
+describe('ep_script_elements - shortcuts', function() {
   var utils, pressShortcutToNextScene, pressShortcutToPreviousScene;
 
-  beforeEach(function(cb) {
+  beforeEach(function(done) {
     utils = ep_script_elements_test_helper.utils;
     pressShortcutToNextScene = ep_script_elements_test_helper.shortcuts.pressShortcutToNextScene;
     pressShortcutToPreviousScene = ep_script_elements_test_helper.shortcuts.pressShortcutToPreviousScene;
+    pressShortcutToToggleStrikethrough = ep_script_elements_test_helper.shortcuts.pressShortcutToToggleStrikethrough;
 
     helper.newPad(function(){
-      utils.cleanPad(cb);
+      utils.cleanPad(done);
     });
     this.timeout(60000);
   });
 
-  context("when script has more than one scene", function() {
+  context('when script has more than one scene', function() {
     var ACTION_BEFORE_FIRST_SCENE = 0;
     var FIRST_SCENE = 3; // we have a synopsis before
     var SECOND_SCENE = 8;
     var THIRD_SCENE = LAST_SCENE = 13;
     var FIRST_ACTION_OF_LAST_SCENE = 14;
 
-    beforeEach(function(cb) {
-      ep_script_elements_test_helper.shortcuts.createScriptWithThreeScenes(cb);
+    beforeEach(function(done) {
+      ep_script_elements_test_helper.shortcuts.createScriptWithThreeScenes(done);
     });
 
-    context("and caret is on action before first scene", function() {
-      beforeEach(function(cb) {
-        utils.placeCaretOnLine(ACTION_BEFORE_FIRST_SCENE, cb);
+    context('and caret is on action before first scene', function() {
+      beforeEach(function(done) {
+        utils.placeCaretOnLine(ACTION_BEFORE_FIRST_SCENE, done);
       });
 
-      it("moves caret to heading of first scene when Cmd+] is pressed", function(done) {
+      it('moves caret to heading of first scene when Cmd+] is pressed', function(done) {
         pressShortcutToNextScene();
 
         // wait for caret to be moved to correct scene
@@ -41,7 +42,7 @@ describe("ep_script_elements - shortcuts", function() {
         }).done(done);
       });
 
-      it("does not move caret when Cmd+[ is pressed", function(done) {
+      it('does not move caret when Cmd+[ is pressed', function(done) {
         pressShortcutToPreviousScene();
 
         helper.waitFor(function() {
@@ -54,12 +55,12 @@ describe("ep_script_elements - shortcuts", function() {
       });
     });
 
-    context("and caret is on line of second scene heading", function() {
-      beforeEach(function(cb) {
-        utils.placeCaretOnLine(SECOND_SCENE, cb);
+    context('and caret is on line of second scene heading', function() {
+      beforeEach(function(done) {
+        utils.placeCaretOnLine(SECOND_SCENE, done);
       });
 
-      it("moves caret to heading of third scene when Cmd+] is pressed", function(done) {
+      it('moves caret to heading of third scene when Cmd+] is pressed', function(done) {
         pressShortcutToNextScene();
 
         // wait for caret to be moved to correct scene
@@ -72,7 +73,7 @@ describe("ep_script_elements - shortcuts", function() {
         }).done(done);
       });
 
-      it("moves caret to heading of first scene when Cmd+[ is pressed", function(done) {
+      it('moves caret to heading of first scene when Cmd+[ is pressed', function(done) {
         pressShortcutToPreviousScene();
 
         // wait for caret to be moved to correct scene
@@ -85,17 +86,17 @@ describe("ep_script_elements - shortcuts", function() {
         }).done(done);
       });
 
-      context("and there is no content before first scene", function() {
-        beforeEach(function(cb) {
+      context('and there is no content before first scene', function() {
+        beforeEach(function(done) {
           var inner$ = helper.padInner$;
 
           // remove first line
           inner$("div").first().remove();
 
-          cb();
+          done();
         });
 
-        it("moves caret to heading of first scene when Cmd+[ is pressed", function(done) {
+        it('moves caret to heading of first scene when Cmd+[ is pressed', function(done) {
           pressShortcutToPreviousScene();
 
           // wait for caret to be moved to correct scene
@@ -112,12 +113,12 @@ describe("ep_script_elements - shortcuts", function() {
       });
     });
 
-    context("and caret is on line after the last scene heading", function() {
-      beforeEach(function(cb) {
-        utils.placeCaretOnLine(FIRST_ACTION_OF_LAST_SCENE, cb);
+    context('and caret is on line after the last scene heading', function() {
+      beforeEach(function(done) {
+        utils.placeCaretOnLine(FIRST_ACTION_OF_LAST_SCENE, done);
       });
 
-      it("does not move caret when Cmd+] is pressed", function(done) {
+      it('does not move caret when Cmd+] is pressed', function(done) {
         pressShortcutToNextScene();
 
         helper.waitFor(function() {
@@ -129,7 +130,7 @@ describe("ep_script_elements - shortcuts", function() {
         }).done(done);
       });
 
-      it("moves caret to heading of last scene when Cmd+[ is pressed", function(done) {
+      it('moves caret to heading of last scene when Cmd+[ is pressed', function(done) {
         pressShortcutToPreviousScene();
 
         // wait for caret to be moved to correct scene
@@ -145,16 +146,16 @@ describe("ep_script_elements - shortcuts", function() {
 
   });
 
-  context("when script has no scene", function() {
+  context('when script has no scene', function() {
     var ACTION_IN_THE_MIDDLE = 1;
 
-    beforeEach(function(cb) {
+    beforeEach(function(done) {
       ep_script_elements_test_helper.shortcuts.createScriptWithNoScene(function() {
-        utils.placeCaretOnLine(ACTION_IN_THE_MIDDLE, cb);
+        utils.placeCaretOnLine(ACTION_IN_THE_MIDDLE, done);
       });
     });
 
-    it("does not move caret when Cmd+] is pressed", function(done) {
+    it('does not move caret when Cmd+] is pressed', function(done) {
       pressShortcutToNextScene();
 
       helper.waitFor(function() {
@@ -166,7 +167,7 @@ describe("ep_script_elements - shortcuts", function() {
       }).done(done);
     });
 
-    it("does not move caret when Cmd+[ is pressed", function(done) {
+    it('does not move caret when Cmd+[ is pressed', function(done) {
       pressShortcutToPreviousScene();
 
       helper.waitFor(function() {
@@ -176,6 +177,51 @@ describe("ep_script_elements - shortcuts", function() {
         // we need to compare DOM elements instead of jQuery ones
         return $lineWhereCaretIs.get(0) === $originalLine.get(0);
       }).done(done);
+    });
+  });
+
+  context('when user presses the strikethrough shortcut', function() {
+    before(function(done) {
+      ep_script_elements_test_helper.shortcuts.createScriptWithNoScene(function() {
+        utils.placeCaretOnLine(0, function() {
+          // etherpad needs some time to detect the caret has changed the position
+          setTimeout(done, 1000);
+        });
+      });
+    });
+
+    it('applies strikethrough to selected text', function(done) {
+      pressShortcutToToggleStrikethrough();
+
+      helper.waitFor(function() {
+        var $linesWithStrikethrough = helper.padInner$('s');
+        return $linesWithStrikethrough.length === 1;
+      })
+        .done(done)
+        .fail(function() {
+          expect().fail(function() {
+            return 'expected to find 1 <s> but 0 was found';
+          });
+        });
+    });
+
+    context('when user performs undo', function() {
+      before(function() {
+        utils.undo();
+      });
+
+      it('removes the strikethrough from selected text', function(done) {
+        helper.waitFor(function() {
+          var $linesWithStrikethrough = helper.padInner$('s');
+          return $linesWithStrikethrough.length === 0;
+        })
+          .done(done)
+          .fail(function() {
+            expect().fail(function() {
+              return 'expected to found 0 <s> but 1 was found';
+            });
+          });
+      });
     });
   });
 });
@@ -212,6 +258,10 @@ ep_script_elements_test_helper.shortcuts = {
     var mac  = ep_script_elements_test_helper.shortcuts.isMac();
     var previousScene = mac ? 219 : 221;
     ep_script_elements_test_helper.shortcuts.buildShortcut(previousScene); // Cmd+[
+  },
+  pressShortcutToToggleStrikethrough: function() {
+    var strikethrough = 75;
+    ep_script_elements_test_helper.shortcuts.buildShortcut(strikethrough); // Cmd+k
   },
   buildShortcut: function(keyCode) {
     var inner$ = helper.padInner$;

@@ -1,8 +1,10 @@
 var utils = require("./utils");
+var formattingStyleOfSelection = require('./formattingStyleOfSelection');
 
 // mac has different keycodes in the 'cmd + []' from windows and linux
 var TO_NEXT_SCENE = browser.mac ? 221 : 220;
 var TO_PREVIOUS_SCENE = browser.mac ? 219 : 221;
+var STRIKETHROUGH = 75;
 
 // Setup handlers for shortcuts
 var SHORTCUT_HANDLERS = {};
@@ -14,6 +16,10 @@ SHORTCUT_HANDLERS[TO_NEXT_SCENE] = function(context) {
 SHORTCUT_HANDLERS[TO_PREVIOUS_SCENE] = function(context) {
   moveCaretToAdjacentScene(context, backward);
 };
+// Cmd+k
+SHORTCUT_HANDLERS[STRIKETHROUGH] = function(context) {
+  formattingStyleOfSelection.applyStrikethrough(context);
+}
 
 exports.findHandlerFor = function(evt) {
   var type               = evt.type;

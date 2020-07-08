@@ -12,7 +12,7 @@ describe('ep_script_elements - API - handle of formatting button', function () {
   });
 
   context('when API receives a message that formatting button was pressed', function() {
-    ['bold', 'italic', 'underline'].forEach(function(buttonName){
+    ['bold', 'italic', 'underline', 'strikethrough'].forEach(function(buttonName){
       context('and button pressed is ' + buttonName, function() {
         before(function (done) {
           var $firstElement = helper.padInner$('div').eq(0);
@@ -46,6 +46,7 @@ ep_script_elements_test_helper.formattingButtonHandle = {
     bold: 'b',
     italic: 'i',
     underline: 'u',
+    strikethrough: 's',
   },
   createPadWithSE: function(done) {
     var utils = ep_script_elements_test_helper.utils;
