@@ -60,9 +60,14 @@ heading, action, character, parenthetical, dialogue, transition, shot {
   font-family: courier, monospace;
 }
 
+heading {
+  width: 61ch;
+}
+
 /* Dimensions of script elements*/
 action {
   margin-top: 16px;
+  width: 61ch;
 }
 
 character {
@@ -90,4 +95,5 @@ transition {
 
 shot {
   margin-top: 32px;
+  width: 61ch;
 }
