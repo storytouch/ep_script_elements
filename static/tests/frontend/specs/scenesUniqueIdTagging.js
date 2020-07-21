@@ -37,6 +37,7 @@ describe('ep_script_elements - scenes unique id tagging', function() {
       var padSceneIdsAfterReload;
 
       before(function(done) {
+        this.timeout(4000);
         helperFunctions.reloadPad(padId, function() {
           helperFunctions.getSceneIds(function(sceneIds) {
             padSceneIdsAfterReload = sceneIds;
