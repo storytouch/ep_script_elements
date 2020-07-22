@@ -72,8 +72,9 @@ action {
 
 character {
   width: 38ch;
-  margin: auto;
   margin-top: 16px;
+  margin-left: 38%;
+  text-align: left;
 }
 
 parenthetical {
