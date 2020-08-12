@@ -1,15 +1,15 @@
-var _ = require('ep_etherpad-lite/static/js/underscore');
+var epSEDShared = require('ep_script_dimensions/static/js/shared');
+var epSEDUtils = require('ep_script_dimensions/static/js/utils');
 
-var shared = require('./shared');
 var utils = require('./utils');
-var getMetric = require('./getMetric');
 
 var calculateSceneLength = function(attributeManager, rep, editorInfo) {
   this.attributeManager = attributeManager;
   this.rep = rep;
   this.editorInfo = editorInfo;
   this.thisPlugin = utils.getThisPluginProps();
-  this.calculateSceneEdgesLength = this.thisPlugin.calculateSceneEdgesLength;
+  this.userLines = [];
+  this._listenToUserLinesChanged();
 };
 
 calculateSceneLength.prototype.run = function(forceCalculateScenesLength) {
@@ -22,54 +22,67 @@ calculateSceneLength.prototype.run = function(forceCalculateScenesLength) {
     return;
   }
 
-  var lineDefaultSize = utils.getLineDefaultSize();
-  var $headings = utils.getPadInner().find('div:has(heading)');
+  if (forceCalculateScenesLength) {
+    this.userLines = pad.plugins.ep_script_dimensions.calculateUserLines.getUserLines();
+  }
 
-  var $sceneIntervals = this._getSceneIntervals($headings);
-  var scenesLength = _.map($sceneIntervals, function($sceneInterval) {
-    var sceneLength = this._getSceneLength($sceneInterval, lineDefaultSize);
-    return sceneLength;
+  var headings = this._getScenesUserLines();
+  var scenesLength = headings.map(function(heading) {
+    return this._getSceneHeight(heading);
   }, this);
 
-  this.thisPlugin.scenesLength.setScenesLength(scenesLength, true);
+  this.thisPlugin.scenesLength.setScenesLength(scenesLength);
 };
 
-calculateSceneLength.prototype._getSceneIntervals = function($headings) {
-  return $headings.map(function(){
-    return $(this).nextUntil('.sceneMark').addBack();
+calculateSceneLength.prototype._listenToUserLinesChanged = function() {
+  var $innerDoc = utils.getPadInner().find('#innerdocbody');
+  var self = this;
+  $innerDoc.on(epSEDShared.USERS_LINES_CHANGED, function(event, data) {
+    self.userLines = data.userLines;
+    self.run();
   });
 };
 
-calculateSceneLength.prototype._getSceneLength = function($interval, lineDefaultSize) {
-  var firstElementOfScene = $interval.first().children().get(0); // always a heading
-  var lastElementOfScene = $interval.last().children().get(0);
+// get all user lines of a scene
+calculateSceneLength.prototype._getScenesUserLines = function() {
+  var scenes = [];
+  var sceneLinesBuffer = [];
+  var lastHeadingParentIndex = -1;
 
-  // when we get the first element top we only get its height without
-  // considering the space that exists between it and the previous element.
-  // Because of that, we add the 2 lines to it
-  var additionalHeadingMargin = (2 * lineDefaultSize);
-  var firstElementTop = this.calculateSceneEdgesLength.getElementBoundingClientRect(firstElementOfScene).top - additionalHeadingMargin;
+  this.userLines.forEach(function(userLine) {
+    // we do not process scene marks
+    if (epSEDUtils.isLineTypeASceneMark(userLine.type)) return;
 
-  var lastElementBottom = this.calculateSceneEdgesLength.getElementBoundingClientRect(lastElementOfScene).bottom;
-  return lastElementBottom - firstElementTop;
+    var isHeading = epSEDUtils.isLineTypeAHeading(userLine.type);
+    var isNewHeading = isHeading && userLine.parentIndex !== lastHeadingParentIndex;
+
+    if (isNewHeading) {
+      if (sceneLinesBuffer.length) scenes.push(sceneLinesBuffer);
+      sceneLinesBuffer = [];
+      lastHeadingParentIndex = userLine.parentIndex;
+    }
+
+    sceneLinesBuffer.push(userLine);
+  });
+
+  // last iteration
+  if (sceneLinesBuffer.length) {
+    scenes.push(sceneLinesBuffer);
+  }
+
+  return scenes;
 };
 
-calculateSceneLength.prototype.getSumOfAllScenesUntilScene = function($heading) {
-  var $allHeadingsUntilSceneTarget = this._getScenesTarget($heading);
-  var sumOfAllSceneUntilSceneTarget = _.reduce($allHeadingsUntilSceneTarget, function(sumOfSceneLength, div) {
-    var element = $(div).children().get(0);
-    var getEighth = getMetric.GET_METRIC['eighth'];
-    var sceneLength = getEighth(element);
-    return sumOfSceneLength + sceneLength;
+calculateSceneLength.prototype._getSceneHeight = function(headingUserLines) {
+  return headingUserLines.reduce(function(sum, userLine) {
+    // Headings have double spacing, but when SceneMarks are visible,
+    // this margin is different. As we do not consider SceneMarks is
+    // this calculation, we need to force the double spacing on headings.
+    var isHeading = epSEDUtils.isLineTypeAHeading(userLine.type) ;
+    var marginTop = isHeading ? epSEDShared.DOUBLE_LINE_SPACING : userLine.marginTop;
+    return sum + userLine.height + marginTop + userLine.marginBottom;
   }, 0);
-  return sumOfAllSceneUntilSceneTarget;
-}
-
-calculateSceneLength.prototype._getScenesTarget = function($heading) {
-  var $allHeadings = utils.getPadInner().find('div:has(heading)');
-  var indexOfHeadingTarget = $allHeadings.index($heading);
-  return $allHeadings.slice(0, indexOfHeadingTarget);
-}
+};
 
 exports.init = function() {
   var context = this;

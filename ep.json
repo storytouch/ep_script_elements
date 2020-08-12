@@ -9,7 +9,7 @@
     },
     {
       "name": "main",
-      "pre": ["ep_script_elements/preLoader", "ep_font_color/main", "ep_comments_page/comments_page"],
+      "pre": ["ep_script_elements/preLoader", "ep_script_dimensions/script_dimensions", "ep_font_color/main", "ep_comments_page/comments_page"],
       "client_hooks": {
         "aceEditorCSS": "ep_script_elements/static/js/aceEditorCSS",
         "aceSelectionChanged": "ep_script_elements/static/js/index",

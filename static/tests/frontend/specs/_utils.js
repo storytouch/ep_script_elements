@@ -361,23 +361,17 @@ ep_script_elements_test_helper.utils = {
 
   // don't wait for any idleWorkTimer event to run the scene length calculation
   speedUpTests: function() {
-    this._setIdleWorkCounterInactivityThreshold(0);
+    var epSEDUtils = ep_script_dimensions_test_helper.utils;
+    epSEDUtils.speedUpTests();
   },
 
   resetIdleWorkCounterInactivityThreshold: function() {
-    this._setIdleWorkCounterInactivityThreshold(2);
+    var epSEDUtils = ep_script_dimensions_test_helper.utils;
+    epSEDUtils.resetIdleWorkCounterInactivityThreshold();
   },
 
   thisPlugin: function() {
     return helper.padChrome$.window.pad.plugins.ep_script_elements;
-  },
-
-  _setIdleWorkCounterInactivityThreshold: function(value) {
-    this.thisPlugin().updateSceneLengthSchedule._idleWorkCounterInactivityThreshold = value;
-  },
-
-  speedUpCleanDimensionsSchedule: function() {
-    this.thisPlugin().calculateSceneEdgesLength._timeoutToCleanDimensions = 0;
   },
 
   // padTypes

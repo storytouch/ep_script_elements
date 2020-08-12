@@ -18,7 +18,6 @@ var changeElementOnDropdownChange = require('./changeElementOnDropdownChange');
 var scheduler                     = require('./scheduler');
 var scriptActivatedState          = require('./scriptActivatedState');
 var calculateSceneLength          = require('./calculateSceneLength');
-var calculateSceneEdgesLength     = require('./calculateSceneEdgesLength');
 var sceneDuration                 = require('./sceneDuration');
 var scenesLength                  = require('./scenesLength');
 var sceneUniqueIdTagging          = require('./scenesUniqueIdTagging');
@@ -27,12 +26,10 @@ var tags = shared.tags;
 var sceneTag = shared.sceneTag;
 
 var ace_calculateSceneLength;
-var caretElementChangeSchedule, updateSceneLengthSchedule;
+var caretElementChangeSchedule;
 
 var SM_AND_HEADING = _.union(utils.SCENE_MARK_SELECTOR, ['heading']);
 var TIME_TO_UPDATE_CARET_ELEMENT = 900;
-var TIME_TO_CALCULATE_SCENE_LENGTH = 1200;
-var IDLE_WORK_COUNTER_INACTIVITY_THRESHOLD = 2;
 
 var pluginHasInitialized = false;
 var isFirstTimeSceneLengthCalculationRunAfterLoading = true;
@@ -56,16 +53,11 @@ exports.aceEditEvent = function(hook, context) {
     caretElementChange.sendMessageCaretElementChanged(context);
   }
 
-  if (updateSceneLengthSchedule) {
-    updateSceneLengthSchedule.processAceEditEvent(eventType);
-  }
-
   // when we import a script Etherpad does not trigger any event that makes
   // isAChangeOnPadContent change to true. So to avoid not running the
   // calculation of the scene length, we force run it as soon the pad loads
   if (padHasLoadedCompletely && (isFirstTimeSceneLengthCalculationRunAfterLoading || isAChangeOnPadContent(eventType, callstack) )) {
     isFirstTimeSceneLengthCalculationRunAfterLoading = false;
-    updateSceneLengthSchedule.schedule();
 
     // mark scenes ids after loading script
     utils.getThisPluginProps().sceneUniqueIdTagging.markScenesWithUniqueId();
@@ -97,15 +89,13 @@ var eventMightBeAnUndo = function(callstack) {
 exports.postAceInit = function(hook, context) {
   var ace = context.ace;
   var thisPlugin = utils.getThisPluginProps();
-  thisPlugin.calculateSceneEdgesLength = calculateSceneEdgesLength.init();
-  thisPlugin.scenesLength = scenesLength.init();
-
-  thisPlugin.sceneUniqueIdTagging = ace_sceneUniqueIdTagging();
 
   // provide access to other plugins
+  thisPlugin.scenesLength = scenesLength.init();
+  thisPlugin.sceneUniqueIdTagging = ace_sceneUniqueIdTagging();
   thisPlugin.calculateSceneLength = ace_calculateSceneLength();
-  thisPlugin.calculateSceneLength.run(true);
 
+  thisPlugin.calculateSceneLength.run(true);
   scriptActivatedState.init();
   preventMultilineDeletion.init();
   api.init(ace);
@@ -120,16 +110,6 @@ exports.postAceInit = function(hook, context) {
     caretElementChangeSendMessageBound,
     TIME_TO_UPDATE_CARET_ELEMENT
   );
-
-  var thisCalculateSceneLength = utils.getThisPluginProps().calculateSceneLength;
-  updateSceneLengthSchedule = scheduler.init(
-    thisCalculateSceneLength.run.bind(thisCalculateSceneLength),
-    TIME_TO_CALCULATE_SCENE_LENGTH,
-    IDLE_WORK_COUNTER_INACTIVITY_THRESHOLD
-  );
-
-  // expose it to be able to override inner variables on tests
-  thisPlugin.updateSceneLengthSchedule = updateSceneLengthSchedule;
 
   pluginHasInitialized = true;
 
