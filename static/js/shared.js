@@ -1,5 +1,7 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 
+var SCRIPT_ELEMENTS_ATTRIBUTE_NAME = 'script_element';
+
 // pad types
 var BACKUP_DOCUMENT_TYPE = 'BackupDocument';
 var SCRIPT_DOCUMENT_TYPE = 'ScriptDocument';
@@ -29,7 +31,7 @@ var collectContentPre = function(hook, context){
   }
 
   if (isScriptElement(tname)) {
-    lineAttributes['script_element'] = tname;
+    lineAttributes[SCRIPT_ELEMENTS_ATTRIBUTE_NAME] = tname;
 
     // collect scene id
     var sceneId = SCENE_ID_REGEXP.exec(context.cls);
@@ -63,7 +65,7 @@ var collectContentPost = function(hook, context){
 };
 
 var resetLineAttributes = function(lineAttributes) {
-  var usedLineAttributes = _.union(sceneTag, ['script_element', SCENE_DURATION_ATTRIB_NAME, SCENE_ID_KEY_ATTRIB])
+  var usedLineAttributes = _.union(sceneTag, [SCRIPT_ELEMENTS_ATTRIBUTE_NAME, SCENE_DURATION_ATTRIB_NAME, SCENE_ID_KEY_ATTRIB])
   for (var i = 0; i < usedLineAttributes.length ; i++) {
     delete lineAttributes[usedLineAttributes[i]];
   }
@@ -80,6 +82,7 @@ exports.collectContentPre = collectContentPre;
 exports.collectContentPost = collectContentPost;
 exports.tags = tags;
 exports.sceneTag = sceneTag;
+exports.SCRIPT_ELEMENTS_ATTRIBUTE_NAME = SCRIPT_ELEMENTS_ATTRIBUTE_NAME;
 exports.SCRIPT_DOCUMENT_TYPE = SCRIPT_DOCUMENT_TYPE;
 exports.BACKUP_DOCUMENT_TYPE = BACKUP_DOCUMENT_TYPE;
 exports.TITLE_PAGE_DOCUMENT_TYPE = TITLE_PAGE_DOCUMENT_TYPE;
