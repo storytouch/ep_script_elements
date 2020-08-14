@@ -13,8 +13,7 @@ heading:before {
   float: left;
   text-align: left;
   display: block;
-  width: 40px;
-  margin-left: -64px; /*aligned with scene mark vertical bottom border*/
+  margin-left: -81px; /*aligned with scene mark vertical bottom border*/
 
   /*make the number below the act/seq icon*/
   position: relative;
@@ -66,35 +65,35 @@ heading {
 
 /* Dimensions of script elements*/
 action {
-  margin-top: 16px;
+  margin-top: 20px;
   width: 61ch;
 }
 
 character {
   width: 38ch;
-  margin-top: 16px;
-  margin-left: 38%;
+  margin-top: 20px;
+  margin-left: 185px;
   text-align: left;
 }
 
 parenthetical {
   width: 26ch;
-  margin: auto;
+  margin-left: 137px;
 }
 
 dialogue {
   width: 35ch;
-  margin: auto;
+  margin-left: 94px;
 }
 
 transition {
   width: 16ch;
-  margin: auto;
-  margin-right: 0;
-  margin-top: 16px;
+  float: right;
+  margin-left: 24px;
+  margin-top: 20px;
 }
 
 shot {
-  margin-top: 32px;
+  margin-top: 40px;
   width: 61ch;
 }
