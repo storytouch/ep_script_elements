@@ -59,40 +59,95 @@ heading, action, character, parenthetical, dialogue, transition, shot {
   font-family: courier, monospace;
 }
 
-heading {
-  width: 61ch;
-}
 
-/* Dimensions of script elements*/
+/*
+ *  ===================================================================================
+ *                        DIMENSIONS OF SCRIPT ELEMENTS
+ *  ===================================================================================
+ *
+ * The script elements width is defined by a max number of characters
+ * per line, that depends on the type of each script element. The values are:
+ *
+ *  TYPE          | MAX NUMBER OF CHARACTERS PER LINE
+ *  -------------------------------------------------
+ *  action        | 61
+ *  character     | 38
+ *  dialogue      | 35
+ *  general       | 61
+ *  heading       | 61
+ *  parenthetical | 26
+ *  shot          | 61
+ *  transition    | 16
+ *
+ *  CSS has the `ch` unit to define the width/height of a HTML element,
+ *  but this approach causes bugs on the caret (see: https://trello.com/c/ja8UswWx).
+ *  So, we need to use the `px` unit. To do so, we need to convert `ch`  to` px`,
+ *  multiplying the width of the character" 0 "(in the desired font) by
+ *  the desired number of characters.
+ *
+ *    WIDTH ON CHROME:
+ *      widthInPixels = width("0") * numberOfCharactersPerLine
+ *
+ *  The `width("0")` using `font-size: 15px; font-family: courier, monospace;"`
+ *  is 9.00146484375px.
+ *
+ *  The decimal part is very important for user lines calculation
+ *  by the ep_script_dimensions plugin. Following the CSS specs found
+ *  in https://www.w3.org/TR/cssom-1/#serializing-css-values, we will
+ *  use 6 decimals.
+ *
+ *  TYPE          | WIDTH ON CHROME (px)
+ *  -------------------------------------------------
+ *  action        | 549.089355
+ *  character     | 342.055664
+ *  dialogue      | 315.051269
+ *  general       | 549.089355
+ *  heading       | 549.089355
+ *  parenthetical | 234.038086
+ *  shot          | 549.089355
+ *  transition    | 144.023437
+ *
+ *  ===================================================================================
+ *                                WARNING
+ *  ===================================================================================
+ *
+ *  Any changes on font-style, such as font-size, font-family, etc, may change the
+ *  width of these elements.
+ */
+
 action {
   margin-top: 20px;
-  width: 61ch;
+  width: 549.089355px;
 }
 
 character {
-  width: 38ch;
+  width: 342.055664px;
   margin-top: 20px;
   margin-left: 185px;
   text-align: left;
 }
 
-parenthetical {
-  width: 26ch;
-  margin-left: 137px;
-}
-
 dialogue {
-  width: 35ch;
+  width: 315.051269px;
   margin-left: 94px;
 }
 
-transition {
-  width: 16ch;
-  margin-left: 375px;
-  margin-top: 20px;
+heading {
+  width: 549.089355px;
+}
+
+parenthetical {
+  width: 234.038086px;
+  margin-left: 137px;
 }
 
 shot {
   margin-top: 40px;
-  width: 61ch;
+  width: 549.089355px;
+}
+
+transition {
+  width: 144.023437px;
+  margin-left: 375px;
+  margin-top: 20px;
 }
