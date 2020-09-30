@@ -91,21 +91,18 @@ heading, action, character, parenthetical, dialogue, transition, shot {
  *  The `width("0")` using `font-size: 15px; font-family: courier, monospace;"`
  *  is 9.00146484375px.
  *
- *  The decimal part is very important for user lines calculation
- *  by the ep_script_dimensions plugin. Following the CSS specs found
- *  in https://www.w3.org/TR/cssom-1/#serializing-css-values, we will
- *  use 6 decimals.
+ *  We round the width value with Math.ceil().
  *
  *  TYPE          | WIDTH ON CHROME (px)
  *  -------------------------------------------------
- *  action        | 549.089355
- *  character     | 342.055664
- *  dialogue      | 315.051269
- *  general       | 549.089355
- *  heading       | 549.089355
- *  parenthetical | 234.038086
- *  shot          | 549.089355
- *  transition    | 144.023437
+ *  action        | 550
+ *  character     | 343
+ *  dialogue      | 316
+ *  general       | 550
+ *  heading       | 550
+ *  parenthetical | 235
+ *  shot          | 550
+ *  transition    | 145
  *
  *  ===================================================================================
  *                                WARNING
@@ -117,37 +114,37 @@ heading, action, character, parenthetical, dialogue, transition, shot {
 
 action {
   margin-top: 20px;
-  width: 549.089355px;
+  width: 550px;
 }
 
 character {
-  width: 342.055664px;
+  width: 343px;
   margin-top: 20px;
   margin-left: 185px;
   text-align: left;
 }
 
 dialogue {
-  width: 315.051269px;
+  width: 316px;
   margin-left: 94px;
 }
 
 heading {
-  width: 549.089355px;
+  width: 550px;
 }
 
 parenthetical {
-  width: 234.038086px;
+  width: 235px;
   margin-left: 137px;
 }
 
 shot {
   margin-top: 40px;
-  width: 549.089355px;
+  width: 550px;
 }
 
 transition {
-  width: 144.023437px;
+  width: 145px;
   margin-left: 375px;
   margin-top: 20px;
 }
