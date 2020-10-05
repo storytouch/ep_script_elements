@@ -144,7 +144,7 @@ exports.aceKeyEvent = function(hook, context) {
   var handleShortcut = shortcuts.findHandlerFor(evt);
   var handleMerge    = mergeLines.findHandlerFor(context);
 
-  // Cmd+[ or Cmd+]
+  // Cmd+Shift+. or Cmd+Shift+,
   if (handleShortcut) {
     evt.preventDefault();
     handleShortcut(context);

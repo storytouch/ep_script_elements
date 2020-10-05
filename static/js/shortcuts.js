@@ -1,18 +1,17 @@
 var utils = require("./utils");
 var formattingStyleOfSelection = require('./formattingStyleOfSelection');
 
-// mac has different keycodes in the 'cmd + []' from windows and linux
-var TO_NEXT_SCENE = browser.mac ? 221 : 220;
-var TO_PREVIOUS_SCENE = browser.mac ? 219 : 221;
 var STRIKETHROUGH = 75;
+var TO_NEXT_SCENE = 190; // .
+var TO_PREVIOUS_SCENE = 188; // ,
 
 // Setup handlers for shortcuts
 var SHORTCUT_HANDLERS = {};
-// Cmd+]
+// Cmd+Shift+.
 SHORTCUT_HANDLERS[TO_NEXT_SCENE] = function(context) {
   moveCaretToAdjacentScene(context, forward);
 };
-// Cmd+[
+// Cmd+Shift+,
 SHORTCUT_HANDLERS[TO_PREVIOUS_SCENE] = function(context) {
   moveCaretToAdjacentScene(context, backward);
 };
@@ -25,7 +24,7 @@ exports.findHandlerFor = function(evt) {
   var type               = evt.type;
   var isTypeForCmdKey    = ((browser.msie || browser.safari || browser.chrome) ? (type == "keydown") : (type == "keypress"));
   // Cmd was pressed?
-  var shortcutWasPressed = (isTypeForCmdKey && (evt.metaKey || evt.ctrlKey));
+  var shortcutWasPressed = (isTypeForCmdKey && (evt.metaKey || evt.ctrlKey) && evt.shiftKey);
 
   if (shortcutWasPressed) {
     return SHORTCUT_HANDLERS[evt.keyCode];
