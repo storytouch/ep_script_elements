@@ -24,7 +24,7 @@ exports.findHandlerFor = function(evt) {
   var type               = evt.type;
   var isTypeForCmdKey    = ((browser.msie || browser.safari || browser.chrome) ? (type == "keydown") : (type == "keypress"));
   // Cmd was pressed?
-  var shortcutWasPressed = (isTypeForCmdKey && (evt.metaKey || evt.ctrlKey) && evt.shiftKey);
+  var shortcutWasPressed = (isTypeForCmdKey && (evt.metaKey || evt.ctrlKey));
 
   if (shortcutWasPressed) {
     return SHORTCUT_HANDLERS[evt.keyCode];

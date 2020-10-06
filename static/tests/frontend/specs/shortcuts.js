@@ -145,7 +145,6 @@ describe('ep_script_elements - shortcuts', function() {
         }).done(done);
       });
     });
-
   });
 
   context('when script has no scene', function() {
@@ -183,7 +182,7 @@ describe('ep_script_elements - shortcuts', function() {
   });
 
   context('when user presses the strikethrough shortcut', function() {
-    before(function(done) {
+    beforeEach(function(done) {
       ep_script_elements_test_helper.shortcuts.createScriptWithNoScene(function() {
         utils.placeCaretOnLine(0, function() {
           // etherpad needs some time to detect the caret has changed the position
@@ -209,6 +208,7 @@ describe('ep_script_elements - shortcuts', function() {
 
     context('when user performs undo', function() {
       before(function() {
+        pressShortcutToToggleStrikethrough();
         utils.undo();
       });
 
@@ -253,17 +253,17 @@ ep_script_elements_test_helper.shortcuts = {
 
   pressShortcutToNextScene: function() {
     var nextScene = 190;
-    ep_script_elements_test_helper.shortcuts.buildShortcut(nextScene); // Cmd+Shift+.
+    ep_script_elements_test_helper.shortcuts.buildShortcut(nextScene, true); // Cmd+Shift+.
   },
   pressShortcutToPreviousScene: function() {
     var previousScene = 188;
-    ep_script_elements_test_helper.shortcuts.buildShortcut(previousScene); // Cmd+Shift+,
+    ep_script_elements_test_helper.shortcuts.buildShortcut(previousScene, true); // Cmd+Shift+,
   },
   pressShortcutToToggleStrikethrough: function() {
     var strikethrough = 75;
-    ep_script_elements_test_helper.shortcuts.buildShortcut(strikethrough); // Cmd+k
+    ep_script_elements_test_helper.shortcuts.buildShortcut(strikethrough, false); // Cmd+k
   },
-  buildShortcut: function(keyCode) {
+  buildShortcut: function(keyCode, useShift) {
     var inner$ = helper.padInner$;
     if(inner$(window)[0].bowser.firefox || inner$(window)[0].bowser.modernIE){ // if it's a mozilla or IE
       var evtType = "keypress";
@@ -272,7 +272,7 @@ ep_script_elements_test_helper.shortcuts = {
     }
     var e = inner$.Event(evtType);
     e.ctrlKey = true;
-    e.shiftKey = true;
+    e.shiftKey = useShift;
     e.keyCode = keyCode;
     inner$("#innerdocbody").trigger(e);
   },
