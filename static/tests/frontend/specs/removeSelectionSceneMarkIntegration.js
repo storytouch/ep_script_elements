@@ -146,9 +146,29 @@ describe('ep_script_elements - remove selection - ep_script_scene_marks integrat
         this.timeout(60000);
       });
 
-      it('removes the scene marks of this heading and removes the rest selected', function(done){
-        utils.validateLineTextAndType(9, 'shot', 'shot');
-        utils.validateLineTextAndType(10, 'action', 'action');
+      // this behaviour has changed because of
+      // https://trello.com/c/EcJTg02E/2233-p3-selecionar-digitar-n%C3%A3o-substitui-trecho
+      it('only removes the text of the heading', function(done){
+        utils.validateLineTextAndType(0  , 'first scene'  , 'act_name');
+        utils.validateLineTextAndType(1  , 'first scene'  , 'act_summary');
+        utils.validateLineTextAndType(2  , 'first scene'  , 'act_summary');
+        utils.validateLineTextAndType(3  , 'first scene'  , 'sequence_name');
+        utils.validateLineTextAndType(4  , 'first scene'  , 'sequence_summary');
+        utils.validateLineTextAndType(5  , '1.1 seq sum'  , 'sequence_summary');
+        utils.validateLineTextAndType(6  , 'first scene'  , 'scene_name');
+        utils.validateLineTextAndType(7  , 'first scene'  , 'scene_summary');
+        utils.validateLineTextAndType(8  , 'first scene'  , 'heading');
+        utils.validateLineTextAndType(9  , 'shot'         , 'shot');
+        utils.validateLineTextAndType(10 , 'second scene' , 'act_name');
+        utils.validateLineTextAndType(11 , 'second scene' , 'act_summary');
+        utils.validateLineTextAndType(12 , 'second scene' , 'act_summary');
+        utils.validateLineTextAndType(13 , 'second scene' , 'sequence_name');
+        utils.validateLineTextAndType(14 , 'second scene' , 'sequence_summary');
+        utils.validateLineTextAndType(15 , '2.1 seq sum'  , 'sequence_summary');
+        utils.validateLineTextAndType(16 , 'second scene' , 'scene_name');
+        utils.validateLineTextAndType(17 , 'second scene' , 'scene_summary');
+        utils.validateLineTextAndType(18 , '' , 'heading');
+        utils.validateLineTextAndType(19 , 'action'       , 'action');
         done();
       });
 
@@ -167,12 +187,12 @@ ep_script_elements_test_helper.removeSelectionSceneMarkIntegration = {
       var secondSceneText = 'second scene';
 
       var firstScene  = utils.act(firstSceneText) + utils.actSummary(firstSceneText) +
-                        utils.sequence(firstSceneText) + utils.sequenceSummary('1.1 seq sum') +
-                        utils.synopsis(firstSceneText) + utils.heading(firstSceneText);
+        utils.sequence(firstSceneText) + utils.sequenceSummary('1.1 seq sum') +
+        utils.synopsis(firstSceneText) + utils.heading(firstSceneText);
       var shot        = utils.shot('shot');
       var secondScene = utils.act(secondSceneText) + utils.actSummary(secondSceneText) +
-                        utils.sequence(secondSceneText) + utils.sequenceSummary('2.1 seq sum') +
-                        utils.synopsis(secondSceneText) + utils.heading(secondSceneText);
+        utils.sequence(secondSceneText) + utils.sequenceSummary('2.1 seq sum') +
+        utils.synopsis(secondSceneText) + utils.heading(secondSceneText);
       var action      = utils.action(lastLineOfText);
 
       var script      = firstScene + shot + secondScene + action;
