@@ -50,7 +50,7 @@ var getLastLine = function(firstLine, rep) {
   var lastLineSelected = rep.selEnd[0];
 
   if (lastLineSelected > firstLine) {
-    // Ignore last line if the selected text of it it is empty
+    // Ignore last line if it's selected text is empty
     if(lastLineSelectedIsEmpty(rep, lastLineSelected)) {
       lastLineSelected--;
     }

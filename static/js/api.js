@@ -1,6 +1,7 @@
 var changeElementOnDropdownChange = require('./changeElementOnDropdownChange');
 var formattingStyleOfSelection    = require('./formattingStyleOfSelection');
 var sceneDuration                 = require('./sceneDuration');
+var elementContentSelector        = require('./elementContentSelector');
 
 var CHANGE_CARET_ELEMENT_MESSAGE_TYPE = 'dropdown_caret_element_changed';
 var CHANGE_SM_SET_MESSAGE_TYPE        = 'scene_mark_set_element_changed';
@@ -41,6 +42,7 @@ var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
   var type = e.data.type;
   if (type === DROPDOWN_ELEMENT_CHANGED) {
     changeElementOnDropdownChange.updateElementOfSelection(ace, e.data.element);
+    elementContentSelector.selectNextElement(ace);
   } else if (type === FORMATTING_BUTTON_PRESSED) {
     formattingStyleOfSelection.clickButton(e.data.buttonName);
   } else if (type === UPDATE_SCENE_DURATION) {
