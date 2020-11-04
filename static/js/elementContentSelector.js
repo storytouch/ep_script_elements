@@ -6,6 +6,12 @@ exports.selectNextElement = function(ace) {
   });
 }
 
+exports.selectPreviousElement = function(ace) {
+  ace.callWithAce(function(ace) {
+    ace.ace_doSelectPreviousElement();
+  });
+}
+
 exports.doSelectNextElement = function() {
   var rep = this.rep;
   var editorInfo = this.editorInfo;
@@ -18,6 +24,18 @@ exports.doSelectNextElement = function() {
   selectContentOfLine($nextVisibleLine, editorInfo, rep);
 }
 
+exports.doSelectPreviousElement = function() {
+  var rep = this.rep;
+  var editorInfo = this.editorInfo;
+
+  var $line = getCurrentLine(editorInfo);
+  var $previousVisibleLine = getFirstVisibleLineBefore($line);
+
+  if ($previousVisibleLine.length === 0) return;
+
+  selectContentOfLine($previousVisibleLine, editorInfo, rep);
+}
+
 var getCurrentLine = function(editorInfo) {
   var currentLine = editorInfo.ace_caretLine()
   var $line = utils.getPadInner().find("div").eq(currentLine);
@@ -25,8 +43,19 @@ var getCurrentLine = function(editorInfo) {
 }
 
 var getFirstVisibleLineAfter = function($targetLine) {
-  var $lastHiddenLineAfterTargetLine = $targetLine.nextUntil(':not(.hidden)').addBack().last();
-  return $lastHiddenLineAfterTargetLine.next();
+  var $nextLines = $targetLine.nextAll('div.ace-line + :not(.hidden)');
+  var nextLineIsTheLastLine = $nextLines.length === 0;
+  return nextLineIsTheLastLine ?
+    $targetLine.next() :
+    $nextLines.first();
+}
+
+var getFirstVisibleLineBefore = function($targetLine) {
+  var $previousLines = $targetLine.prevAll('div.ace-line + :not(.hidden)');
+  var previousLineIsTheFirstLine = $previousLines.length === 0;
+  return previousLineIsTheFirstLine ?
+    $targetLine.prev() :
+    $previousLines.first();
 }
 
 var selectContentOfLine = function($line, editorInfo, rep) {

@@ -280,6 +280,7 @@ exports.aceInitialized = function(hook, context) {
   editorInfo.ace_addSceneDurationAttribute = _(sceneDuration.addSceneDurationAttribute).bind(context);
   editorInfo.ace_caretElementChangeSendMessage = _(caretElementChange.sendMessageCaretElementChanged).bind(context);
   editorInfo.ace_doSelectNextElement = _(elementContentSelector.doSelectNextElement).bind(context);
+  editorInfo.ace_doSelectPreviousElement = _(elementContentSelector.doSelectPreviousElement).bind(context);
 
   pasteUtils.markStylesToBeDisabledOnPaste(CSS_TO_BE_DISABLED_ON_PASTE);
 }

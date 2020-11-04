@@ -8,6 +8,8 @@ var CHANGE_SM_SET_MESSAGE_TYPE        = 'scene_mark_set_element_changed';
 var DROPDOWN_ELEMENT_CHANGED          = 'dropdown_element_changed';
 var FORMATTING_BUTTON_PRESSED         = 'formatting_button_pressed';
 var UPDATE_SCENE_DURATION             = 'UPDATE_SCENE_DURATION';
+var SELECT_NEXT_ELEMENT               = 'select_next_element';
+var SELECT_PREVIOUS_ELEMENT           = 'select_previous_element';
 
 exports.init = function(ace) {
   // listen to outbound calls of this API
@@ -40,14 +42,32 @@ var _triggerEvent = function _triggerEvent(message) {
 
 var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
   var type = e.data.type;
-  if (type === DROPDOWN_ELEMENT_CHANGED) {
-    changeElementOnDropdownChange.updateElementOfSelection(ace, e.data.element);
-    elementContentSelector.selectNextElement(ace);
-  } else if (type === FORMATTING_BUTTON_PRESSED) {
-    formattingStyleOfSelection.clickButton(e.data.buttonName);
-  } else if (type === UPDATE_SCENE_DURATION) {
-    var duration = e.data.duration;
-    var lineId = e.data.scene.lineId;
-    sceneDuration.setSceneDuration(ace, lineId, duration);
+  switch (type) {
+    case DROPDOWN_ELEMENT_CHANGED: {
+      changeElementOnDropdownChange.updateElementOfSelection(ace, e.data.element);
+      elementContentSelector.selectNextElement(ace);
+      break;
+    }
+    case UPDATE_SCENE_DURATION: {
+      var duration = e.data.duration;
+      var lineId = e.data.scene.lineId;
+      sceneDuration.setSceneDuration(ace, lineId, duration);
+      break;
+    }
+    case FORMATTING_BUTTON_PRESSED: {
+      formattingStyleOfSelection.clickButton(e.data.buttonName);
+      break;
+    }
+    case SELECT_NEXT_ELEMENT: {
+      elementContentSelector.selectNextElement(ace);
+      break;
+    }
+    case SELECT_PREVIOUS_ELEMENT: {
+      elementContentSelector.selectPreviousElement(ace);
+      break;
+    }
+    default: {
+      return;
+    }
   }
 }

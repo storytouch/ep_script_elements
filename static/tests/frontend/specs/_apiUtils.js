@@ -6,6 +6,8 @@ ep_script_elements_test_helper.apiUtils = {
   FORMATTING_BUTTON_PRESSED: 'formatting_button_pressed',
   UPDATE_SCENE_DURATION: 'UPDATE_SCENE_DURATION',
   CHANGE_SM_SET_MESSAGE_TYPE: 'scene_mark_set_element_changed',
+  SELECT_NEXT_ELEMENT: 'select_next_element',
+  SELECT_PREVIOUS_ELEMENT: 'select_previous_element',
   lastDataSent: {},
 
   startListeningToApiEvents: function() {
@@ -90,6 +92,34 @@ ep_script_elements_test_helper.apiUtils = {
       scene: {
         lineId: sceneId,
       },
+    };
+
+    var inboundApiEventsTarget = helper.padChrome$.window;
+    inboundApiEventsTarget.postMessage(message, '*');
+  },
+  /**** SELECT_NEXT_ELEMENT ****/
+  /*
+    message: {
+      type: 'select_next_element'
+    }
+  */
+  simulateTriggerOfSelectNextElement: function() {
+    var message = {
+      type: this.SELECT_NEXT_ELEMENT,
+    };
+
+    var inboundApiEventsTarget = helper.padChrome$.window;
+    inboundApiEventsTarget.postMessage(message, '*');
+  },
+  /**** SELECT_PREVIOUS_ELEMENT ****/
+  /*
+    message: {
+      type: 'select_previous_element'
+    }
+  */
+  simulateTriggerOfSelectPreviousElement: function() {
+    var message = {
+      type: this.SELECT_PREVIOUS_ELEMENT,
     };
 
     var inboundApiEventsTarget = helper.padChrome$.window;
