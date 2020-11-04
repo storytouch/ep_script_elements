@@ -20,24 +20,18 @@ describe('ep_script_elements - API - dropdown caret element changed', function()
   context('when API receives a message that line type has changed', function() {
     var inner$;
     var $firstTextElement;
-    var textOfSecondLine = 'line 2';
 
-    before(function(done) {
+    before(function() {
       this.timeout(6000);
       inner$ = helper.padInner$;
 
-      var lastLineText = textOfSecondLine;
-      var general1 = utils.general('line 1');
-      var general2 = utils.general(textOfSecondLine);
+      $firstTextElement = inner$('div').first();
+      $firstTextElement.sendkeys('First Line!');
 
-      var script = general1 + general2;
-      utils.createScriptWith(script, lastLineText, function() {
-        apiUtils.resetLastDataSent();
+      apiUtils.resetLastDataSent();
 
-        // sets first line to action
-        apiUtils.simulateTriggerOfDropdownChanged(utils.ACTION);
-        done();
-      });
+      // sets first line to action
+      apiUtils.simulateTriggerOfDropdownChanged(utils.ACTION);
     })
 
     it('changes the line type', function(done) {
@@ -45,14 +39,6 @@ describe('ep_script_elements - API - dropdown caret element changed', function()
         // wait for element to be processed and changed
         $firstTextElement = inner$('div').first(); // need to get it again because line is changed by Content Collector
         return $firstTextElement.find('action').length === 1;
-      }, 4000).done(done);
-    });
-
-    // test text selection
-    it('selects the text of next visible element', function(done) {
-      helper.waitFor(function() {
-        var selectedText = inner$.document.getSelection().toString()
-        return selectedText === textOfSecondLine;
       }, 4000).done(done);
     });
 

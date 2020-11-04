@@ -1,13 +1,14 @@
 var changeElementOnDropdownChange = require('./changeElementOnDropdownChange');
 var formattingStyleOfSelection    = require('./formattingStyleOfSelection');
 var sceneDuration                 = require('./sceneDuration');
-var elementContentSelector        = require('./elementContentSelector');
+var utils                         = require('./utils');
 
 var CHANGE_CARET_ELEMENT_MESSAGE_TYPE = 'dropdown_caret_element_changed';
 var CHANGE_SM_SET_MESSAGE_TYPE        = 'scene_mark_set_element_changed';
 var DROPDOWN_ELEMENT_CHANGED          = 'dropdown_element_changed';
 var FORMATTING_BUTTON_PRESSED         = 'formatting_button_pressed';
 var UPDATE_SCENE_DURATION             = 'UPDATE_SCENE_DURATION';
+var CHANGE_ELEMENT_TYPE               = 'change_element_type';
 var SELECT_NEXT_ELEMENT               = 'select_next_element';
 var SELECT_PREVIOUS_ELEMENT           = 'select_previous_element';
 
@@ -45,7 +46,6 @@ var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
   switch (type) {
     case DROPDOWN_ELEMENT_CHANGED: {
       changeElementOnDropdownChange.updateElementOfSelection(ace, e.data.element);
-      elementContentSelector.selectNextElement(ace);
       break;
     }
     case UPDATE_SCENE_DURATION: {
@@ -58,12 +58,20 @@ var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
       formattingStyleOfSelection.clickButton(e.data.buttonName);
       break;
     }
+    case CHANGE_ELEMENT_TYPE: {
+      var thisPlugin = utils.getThisPluginProps();
+      changeElementOnDropdownChange.updateElementOfSelection(ace, e.data.element);
+      thisPlugin.elementContentSelector.selectNextElement();
+      break;
+    }
     case SELECT_NEXT_ELEMENT: {
-      elementContentSelector.selectNextElement(ace);
+      var thisPlugin = utils.getThisPluginProps();
+      thisPlugin.elementContentSelector.selectNextElement();
       break;
     }
     case SELECT_PREVIOUS_ELEMENT: {
-      elementContentSelector.selectPreviousElement(ace);
+      var thisPlugin = utils.getThisPluginProps();
+      thisPlugin.elementContentSelector.selectPreviousElement();
       break;
     }
     default: {
