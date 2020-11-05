@@ -66,12 +66,14 @@ var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
     }
     case SELECT_NEXT_ELEMENT: {
       var thisPlugin = utils.getThisPluginProps();
-      thisPlugin.elementContentSelector.selectNextElement();
+      var userLines = pad.plugins.ep_script_dimensions.calculateUserLines.getUserLines();
+      thisPlugin.elementContentSelector.selectNextElement(userLines);
       break;
     }
     case SELECT_PREVIOUS_ELEMENT: {
       var thisPlugin = utils.getThisPluginProps();
-      thisPlugin.elementContentSelector.selectPreviousElement();
+      var userLines = pad.plugins.ep_script_dimensions.calculateUserLines.getUserLines();
+      thisPlugin.elementContentSelector.selectPreviousElement(userLines);
       break;
     }
     default: {

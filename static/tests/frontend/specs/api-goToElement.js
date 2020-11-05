@@ -37,7 +37,7 @@ describe('ep_script_elements - API - go to element', function() {
       apiUtils.simulateTriggerOfSelectPreviousElement();
     });
 
-    it('selects the next element', (done) => {
+    it('selects the previous element', (done) => {
       helper.waitFor(function() {
         var selectedText = helper.padInner$.document.getSelection().toString().replace('\n', '');
         return selectedText === textOfFirstLine;
