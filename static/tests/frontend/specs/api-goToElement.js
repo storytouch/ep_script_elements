@@ -4,7 +4,7 @@ describe('ep_script_elements - API - go to element', function() {
   var textOfSecondLine = 'line 2';
 
   before(function(cb) {
-    this.timeout(6000);
+    this.timeout(10000);
     utils = ep_script_elements_test_helper.utils;
     apiUtils = ep_script_elements_test_helper.apiUtils;
 
@@ -14,7 +14,10 @@ describe('ep_script_elements - API - go to element', function() {
 
     var script = general1 + general2;
     utils.newPad(function() {
-      utils.createScriptWith(script, lastLineText, cb);
+      utils.createScriptWith(script, lastLineText, function() {
+        // wait for userLines to be calculated
+        setTimeout(cb, 3000);
+      });
     });
   });
 

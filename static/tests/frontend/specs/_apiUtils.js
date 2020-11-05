@@ -8,6 +8,7 @@ ep_script_elements_test_helper.apiUtils = {
   CHANGE_SM_SET_MESSAGE_TYPE: 'scene_mark_set_element_changed',
   SELECT_NEXT_ELEMENT: 'select_next_element',
   SELECT_PREVIOUS_ELEMENT: 'select_previous_element',
+  CHANGE_ELEMENT_TYPE: 'change_element_type',
   lastDataSent: {},
 
   startListeningToApiEvents: function() {
@@ -120,6 +121,21 @@ ep_script_elements_test_helper.apiUtils = {
   simulateTriggerOfSelectPreviousElement: function() {
     var message = {
       type: this.SELECT_PREVIOUS_ELEMENT,
+    };
+
+    var inboundApiEventsTarget = helper.padChrome$.window;
+    inboundApiEventsTarget.postMessage(message, '*');
+  },
+  /**** CHANGE_ELEMENT_TYPE ****/
+  /*
+    message: {
+      type: 'change_element_type'
+    }
+  */
+  simulateTriggerOfChangeElementType: function(newElementType) {
+    var message = {
+      type: this.CHANGE_ELEMENT_TYPE,
+      element: newElementType,
     };
 
     var inboundApiEventsTarget = helper.padChrome$.window;
