@@ -6,45 +6,25 @@ var elementContentSelector = function(editorInfo, rep) {
   this.rep = rep;
 }
 
-elementContentSelector.prototype.selectNextElement = function(userLines) {
-  var self = this;
-  var $line = this._getCurrentLine();
-  var $innerDoc = utils.getPadInner().find('#innerdocbody');
-
-  /*
-   * there are two ways to select next element:
-   *
-   * [1] - when the user just wants to select the next element. In this case
-   * we can use the available userLines in ep_script_dimensions;
-   *
-   * [2] - after the user changes the type of the current line (reformat).
-   * In this case we have to wait for the user lines to be updated.
-   */
-  if (userLines) { // [1]
-    var nextLineNumber = self._getFirstVisibleLineAfter($line, userLines)
-    if (nextLineNumber === undefined) return;
-    self._selectContentOfLine(nextLineNumber);
-  } else { // [2]
-    $innerDoc.one(epSDShared.USERS_LINES_CHANGED, function(event, data) {
-      var nextLineNumber = self._getFirstVisibleLineAfter($line, data.userLines)
-      if (nextLineNumber === undefined) return;
-      self._selectContentOfLine(nextLineNumber);
-    });
-  }
+var iterators = {
+  previousLine: function($line) { return $line.prev() },
+  nextLine: function($line) { return $line.next() },
 }
 
-elementContentSelector.prototype.selectPreviousElement = function(userLines) {
-  var self = this;
-  var $line = this._getCurrentLine();
+elementContentSelector.prototype.selectNextElement = function() {
+  this._selectLine(iterators.nextLine);
+}
 
-  /*
-   * we don't need to listen to USERS_LINES_CHANGED event here, because
-   * unlike the selectNextElement, this function does not preceeds a
-   * function that changes the user lines.
-   */
-  var previousLineNumber = self._getFirstVisibleLineBefore($line, userLines)
-  if (previousLineNumber === undefined) return;
-  self._selectContentOfLine(previousLineNumber);
+elementContentSelector.prototype.selectPreviousElement = function() {
+  this._selectLine(iterators.previousLine);
+}
+
+// select a non sceneMark line according to iterator function
+elementContentSelector.prototype._selectLine = function(iterator) {
+  var $line = this._getCurrentLine();
+  var $previousLine = this._getNonSceneMarkLine($line, iterator);
+  if ($previousLine === undefined) return;
+  this._selectContentOfLine($previousLine);
 }
 
 elementContentSelector.prototype._getCurrentLine = function() {
@@ -53,35 +33,26 @@ elementContentSelector.prototype._getCurrentLine = function() {
   return $line;
 }
 
-elementContentSelector.prototype._getFirstVisibleLineAfter = function($targetLine, userLines) {
-  var lineNumber = utils.getLineNumberFromDOMLine($targetLine, this.rep);
-  var nextVisibleUserLine = userLines.find(function(userLine) {
-    return userLine.parentIndex > lineNumber && userLine.visible;
-  });
-  return nextVisibleUserLine ? nextVisibleUserLine.parentIndex : undefined;
-}
-
-elementContentSelector.prototype._getFirstVisibleLineBefore = function($targetLine, userLines) {
-  var lineNumber = utils.getLineNumberFromDOMLine($targetLine, this.rep);
-  if (lineNumber === 0) { return undefined; }
-
-  var previousVisibleUserLine;
-  for (var i = 0; i < userLines.length; i++) {
-    if (userLines[i].parentIndex === lineNumber) { break; }
-    if (userLines[i].visible) { previousVisibleUserLine = userLines[i]; }
+elementContentSelector.prototype._getNonSceneMarkLine = function($line, iterator) {
+  var $targetLine = iterator($line);
+  if (!$targetLine.length) return undefined;
+  if ($targetLine.hasClass('sceneMark')) {
+    return this._getNonSceneMarkLine($targetLine, iterator);
   }
-  return previousVisibleUserLine ? previousVisibleUserLine.parentIndex : undefined;
+  return $targetLine;
 }
 
-elementContentSelector.prototype._selectContentOfLine = function(lineNumber) {
+elementContentSelector.prototype._selectContentOfLine = function($line) {
   var self = this;
-  var textLength = utils.getPadInner().find('div').eq(lineNumber).text().length + 1;
-  var beginingOfSelection = [lineNumber, 0];
-  var endOfSelection = [lineNumber, textLength];
-  self.editorInfo.ace_inCallStackIfNecessary('selectNextLine', function(){
+  var lineId = $line.attr('id');
+  var targetLineNumber = this.rep.lines.indexOfKey(lineId);
+  var lineLength = this.rep.lines.atIndex(targetLineNumber).width;
+  var beginingOfSelection = [targetLineNumber, 0];
+  var endOfSelection = [targetLineNumber, lineLength];
+  this.editorInfo.ace_inCallStackIfNecessary('selectNextLine', function(){
     self.editorInfo.ace_performSelectionChange(beginingOfSelection, endOfSelection, true);
     self.editorInfo.ace_updateBrowserSelectionFromRep();
-  })
+  });
 }
 
 exports.init = function(editorInfo, rep) {

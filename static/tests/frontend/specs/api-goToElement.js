@@ -1,22 +1,23 @@
 describe('ep_script_elements - API - go to element', function() {
-  var utils, apiUtils;
-  var textOfFirstLine = 'line 1';
-  var textOfSecondLine = 'line 2';
+  var utils = ep_script_elements_test_helper.utils;
+  var apiUtils, eascUtils;
+  var firstLineText = 'line 1';
+  var lastLineText = 'HEADING';
 
-  before(function(cb) {
+  before(function(done) {
     this.timeout(10000);
-    utils = ep_script_elements_test_helper.utils;
-    apiUtils = ep_script_elements_test_helper.apiUtils;
-
-    var lastLineText = textOfSecondLine;
-    var general1 = utils.general(textOfFirstLine);
-    var general2 = utils.general(textOfSecondLine);
-
-    var script = general1 + general2;
     utils.newPad(function() {
+      var smUtils = ep_script_scene_marks_test_helper.utils;
+      apiUtils = ep_script_elements_test_helper.apiUtils;
+      eascUtils = ep_script_toggle_view_test_helper.utils;
+
+      var general = utils.general(firstLineText);
+      var synopsis = smUtils.createSynopsis(lastLineText)
+      var script = general + synopsis;
+
       utils.createScriptWith(script, lastLineText, function() {
-        // wait for userLines to be calculated
-        setTimeout(cb, 3000);
+        eascUtils.setEascMode(['scene', 'script']);
+        done();
       });
     });
   });
@@ -29,7 +30,7 @@ describe('ep_script_elements - API - go to element', function() {
     it('selects the next element', (done) => {
       helper.waitFor(function() {
         var selectedText = helper.padInner$.document.getSelection().toString()
-        return selectedText === textOfSecondLine;
+        return selectedText === lastLineText;
       }, 4000).done(done);
     });
   });
@@ -43,7 +44,7 @@ describe('ep_script_elements - API - go to element', function() {
     it('selects the previous element', (done) => {
       helper.waitFor(function() {
         var selectedText = helper.padInner$.document.getSelection().toString().replace('\n', '');
-        return selectedText === textOfFirstLine;
+        return selectedText === firstLineText;
       }, 4000).done(done);
     });
   });
