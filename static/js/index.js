@@ -22,6 +22,7 @@ var sceneDuration                 = require('./sceneDuration');
 var scenesLength                  = require('./scenesLength');
 var sceneUniqueIdTagging          = require('./scenesUniqueIdTagging');
 var elementContentSelector        = require('./elementContentSelector');
+var elementContentCleaner         = require('./elementContentCleaner');
 
 var tags = shared.tags;
 var sceneTag = shared.sceneTag;
@@ -273,6 +274,7 @@ var processUndoFixAttribute = function(cls) {
 exports.aceInitialized = function(hook, context) {
   var editorInfo = context.editorInfo;
   var rep = context.rep;
+  var documentAttributeManager = context.documentAttributeManager;
   var thisPlugin = utils.getThisPluginProps();
 
   ace_calculateSceneLength = _(calculateSceneLength.init).bind(context);
@@ -282,6 +284,7 @@ exports.aceInitialized = function(hook, context) {
   editorInfo.ace_addSceneDurationAttribute = _(sceneDuration.addSceneDurationAttribute).bind(context);
   editorInfo.ace_caretElementChangeSendMessage = _(caretElementChange.sendMessageCaretElementChanged).bind(context);
   thisPlugin.elementContentSelector = elementContentSelector.init(editorInfo, rep);
+  thisPlugin.elementContentCleaner = elementContentCleaner.init(editorInfo, rep, documentAttributeManager);
 
   pasteUtils.markStylesToBeDisabledOnPaste(CSS_TO_BE_DISABLED_ON_PASTE);
 }

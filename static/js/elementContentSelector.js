@@ -1,5 +1,4 @@
 var utils = require('./utils');
-var epSDShared = require('ep_script_dimensions/static/js/shared');
 
 var elementContentSelector = function(editorInfo, rep) {
   this.editorInfo = editorInfo;

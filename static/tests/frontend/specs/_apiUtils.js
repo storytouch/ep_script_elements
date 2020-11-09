@@ -9,6 +9,7 @@ ep_script_elements_test_helper.apiUtils = {
   SELECT_NEXT_ELEMENT: 'select_next_element',
   SELECT_PREVIOUS_ELEMENT: 'select_previous_element',
   CHANGE_ELEMENT_TYPE: 'change_element_type',
+  DELETE_ELEMENT: 'delete_element',
   lastDataSent: {},
 
   startListeningToApiEvents: function() {
@@ -136,6 +137,20 @@ ep_script_elements_test_helper.apiUtils = {
     var message = {
       type: this.CHANGE_ELEMENT_TYPE,
       element: newElementType,
+    };
+
+    var inboundApiEventsTarget = helper.padChrome$.window;
+    inboundApiEventsTarget.postMessage(message, '*');
+  },
+  /**** DELETE_ELEMENT ****/
+  /*
+    message: {
+      type: 'delete_element'
+    }
+  */
+  simulateTriggerOfDeleteElement: function() {
+    var message = {
+      type: this.DELETE_ELEMENT,
     };
 
     var inboundApiEventsTarget = helper.padChrome$.window;

@@ -11,6 +11,7 @@ var UPDATE_SCENE_DURATION             = 'UPDATE_SCENE_DURATION';
 var CHANGE_ELEMENT_TYPE               = 'change_element_type';
 var SELECT_NEXT_ELEMENT               = 'select_next_element';
 var SELECT_PREVIOUS_ELEMENT           = 'select_previous_element';
+var DELETE_ELEMENT                    = 'delete_element';
 
 exports.init = function(ace) {
   // listen to outbound calls of this API
@@ -73,6 +74,10 @@ var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
       var thisPlugin = utils.getThisPluginProps();
       thisPlugin.elementContentSelector.selectPreviousElement();
       break;
+    }
+    case DELETE_ELEMENT: {
+      var thisPlugin = utils.getThisPluginProps();
+      thisPlugin.elementContentCleaner.deleteElement();
     }
     default: {
       return;
