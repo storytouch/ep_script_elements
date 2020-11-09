@@ -10,15 +10,14 @@ var elementContentCleaner = function(editorInfo, rep, documentAttributeManager) 
 elementContentCleaner.prototype.deleteElement = function() {
   var self = this;
   var currentLine = this.editorInfo.ace_caretLine();
-  var lineIsHeading = utils.lineIsHeading(currentLine, this.attributeManager);
-  var lineIsSceneMark = !utils.lineIsScriptElement(currentLine);
 
+  var lineIsSceneMark = !utils.lineIsScriptElement(currentLine);
+  if (lineIsSceneMark) return;
+
+  var lineIsHeading = utils.lineIsHeading(currentLine, this.attributeManager);
   if (lineIsHeading) {
     var $lineToDelete = this._getParentSMOfHeading(currentLine);
     var sceneMarkLineId = $lineToDelete.attr('id');
-    removeSceneMark(sceneMarkLineId);
-  } else if (lineIsSceneMark) {
-    var sceneMarkLineId = utils.getPadInner().find('div').eq(currentLine).attr('id');
     removeSceneMark(sceneMarkLineId);
   } else {
     this._removeScriptElement(currentLine);

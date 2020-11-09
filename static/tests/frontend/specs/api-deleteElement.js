@@ -5,7 +5,6 @@ describe('ep_script_elements - API - delete element', function() {
   var actionLineNumber = 0;
   var headingLineNumber = 2;
   var titleLineNumber = 1;
-  var $firstElement;
   var inner$;
   var initialNumberOfElements;
 
@@ -34,7 +33,7 @@ describe('ep_script_elements - API - delete element', function() {
   context('when the current line is a non scene mark line', function() {
     before(function(done) {
       this.timeout(4000);
-      initialNumberOfElements = inner$('action').length;
+      initialNumberOfElements = inner$('div').length;
       utils.placeCaretInTheBeginningOfLine(actionLineNumber, function() {
         setTimeout(function() {
           apiUtils.simulateTriggerOfDeleteElement();
@@ -45,7 +44,7 @@ describe('ep_script_elements - API - delete element', function() {
 
     it('deletes the current element', (done) => {
       helper.waitFor(function() {
-        var currentNumberOfHeadings = inner$('action').length;
+        var currentNumberOfHeadings = inner$('div').length;
         return currentNumberOfHeadings === initialNumberOfElements - 1;
       }, 4000).done(done);
     });
@@ -54,7 +53,7 @@ describe('ep_script_elements - API - delete element', function() {
   context('when the current line is a heading', function() {
     before(function(done) {
       this.timeout(4000);
-      initialNumberOfElements = inner$('scene_name').length;
+      initialNumberOfElements = inner$('div').length;
       utils.placeCaretInTheBeginningOfLine(headingLineNumber, function() {
         setTimeout(function() {
           apiUtils.simulateTriggerOfDeleteElement();
@@ -65,8 +64,8 @@ describe('ep_script_elements - API - delete element', function() {
 
     it('deletes the current element', (done) => {
       helper.waitFor(function() {
-        var currentNumberOfHeadings = inner$('scene_name').length;
-        return currentNumberOfHeadings === initialNumberOfElements - 1;
+        var currentNumberOfHeadings = inner$('div').length;
+        return currentNumberOfHeadings === initialNumberOfElements - 3;
       }, 4000).done(done);
     });
   });
@@ -74,7 +73,7 @@ describe('ep_script_elements - API - delete element', function() {
   context('when the current line is a title', function() {
     before(function(done) {
       this.timeout(4000);
-      initialNumberOfElements = inner$('scene_name').length;
+      initialNumberOfElements = inner$('div').length;
       utils.placeCaretInTheBeginningOfLine(titleLineNumber, function() {
         setTimeout(function() {
           apiUtils.simulateTriggerOfDeleteElement();
@@ -83,11 +82,17 @@ describe('ep_script_elements - API - delete element', function() {
       })
     });
 
-    it('deletes the current element', (done) => {
+    it('does not delete the scene mark', (done) => {
       helper.waitFor(function() {
-        var currentNumberOfHeadings = inner$('scene_name').length;
-        return currentNumberOfHeadings === initialNumberOfElements - 1;
-      }, 4000).done(done);
+        var currentNumberOfHeadings = inner$('div').length;
+        return currentNumberOfHeadings < initialNumberOfElements;
+      })
+      .done(function() {
+        expect().fail(function() { return 'scene mark should not be deleted' });
+      })
+      .fail(function() {
+        done();
+      });
     });
   });
 });
