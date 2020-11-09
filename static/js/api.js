@@ -77,7 +77,8 @@ var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
     }
     case DELETE_ELEMENT: {
       var thisPlugin = utils.getThisPluginProps();
-      thisPlugin.elementContentCleaner.deleteElement();
+      var lineToSelect = thisPlugin.elementContentCleaner.deleteElement();
+      thisPlugin.elementContentSelector.selectElement(lineToSelect);
     }
     default: {
       return;

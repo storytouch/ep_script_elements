@@ -1,10 +1,11 @@
 describe('ep_script_elements - API - delete element', function() {
   var utils = ep_script_elements_test_helper.utils;
   var apiUtils, eascUtils;
-  var lastLineText = 'action';
+  var lastLineText = 'action 3';
   var actionLineNumber = 0;
-  var headingLineNumber = 2;
-  var titleLineNumber = 1;
+  var headingLineNumber = 3;
+  var titleLineNumber = 5;
+  var lastActionLineNumber = 8;
   var inner$;
   var initialNumberOfElements;
 
@@ -16,12 +17,11 @@ describe('ep_script_elements - API - delete element', function() {
       eascUtils = ep_script_toggle_view_test_helper.utils;
       inner$ = helper.padInner$;
 
-      var action = utils.action('action');
       var synopsis1 = smUtils.createSynopsis('first heading')
       var synopsis2 = smUtils.createSynopsis('second heading')
-      var script = action +
-        synopsis1 + action +
-        synopsis2 + action;
+      var script = utils.action('action 1') +
+        synopsis1 + utils.action('action 2') +
+        synopsis2 + utils.action('action 3');
 
       utils.createScriptWith(script, lastLineText, function() {
         eascUtils.setEascMode(['scene', 'script']);
@@ -44,9 +44,29 @@ describe('ep_script_elements - API - delete element', function() {
 
     it('deletes the current element', (done) => {
       helper.waitFor(function() {
-        var currentNumberOfHeadings = inner$('div').length;
-        return currentNumberOfHeadings === initialNumberOfElements - 1;
-      }, 4000).done(done);
+        var currentNumberOfElements = inner$('div').length;
+        return currentNumberOfElements === initialNumberOfElements - 1;
+      }).done(done);
+    });
+
+    it('selects the text of next visible element', function(done) {
+      helper.waitFor(function() {
+        var selectedText = inner$.document.getSelection().toString().replace('\n', '');
+        return selectedText === 'FIRST HEADING';
+      }).done(done);
+    });
+
+    context('when the user performs undo', function() {
+      before(function() {
+        utils.undo();
+      });
+
+      it('restores the deleted element', (done) => {
+        helper.waitFor(function() {
+          var currentNumberOfElements = inner$('div').length;
+          return currentNumberOfElements === initialNumberOfElements;
+        }).done(done);
+      });
     });
   });
 
@@ -64,9 +84,30 @@ describe('ep_script_elements - API - delete element', function() {
 
     it('deletes the current element', (done) => {
       helper.waitFor(function() {
-        var currentNumberOfHeadings = inner$('div').length;
-        return currentNumberOfHeadings === initialNumberOfElements - 3;
+        var currentNumberOfElements = inner$('div').length;
+        // it deletes the scene_name, the scene_summary and the heading
+        return currentNumberOfElements === initialNumberOfElements - 3;
       }, 4000).done(done);
+    });
+
+    it('selects the text of next visible element', function(done) {
+      helper.waitFor(function() {
+        var selectedText = inner$.document.getSelection().toString().replace('\n', '');
+        return selectedText === 'SECOND HEADING';
+      }, 4000).done(done);
+    });
+
+    context('when the user performs undo', function() {
+      before(function() {
+        utils.undo();
+      });
+
+      it('restores the deleted element', (done) => {
+        helper.waitFor(function() {
+          var currentNumberOfElements = inner$('div').length;
+          return currentNumberOfElements === initialNumberOfElements;
+        }).done(done);
+      });
     });
   });
 
@@ -84,14 +125,57 @@ describe('ep_script_elements - API - delete element', function() {
 
     it('does not delete the scene mark', (done) => {
       helper.waitFor(function() {
-        var currentNumberOfHeadings = inner$('div').length;
-        return currentNumberOfHeadings < initialNumberOfElements;
+        var currentNumberOfElements = inner$('div').length;
+        return currentNumberOfElements < initialNumberOfElements;
       })
       .done(function() {
         expect().fail(function() { return 'scene mark should not be deleted' });
       })
       .fail(function() {
         done();
+      });
+    });
+  });
+
+  context('when the current line is the last line on document', () => {
+    before(function(done) {
+      this.timeout(4000);
+      // the last line is not deleted, but its content is;
+      // so we have to count the "action" elements, which
+      // is the element being deleted here.
+      initialNumberOfElements = inner$('action').length;
+      utils.placeCaretInTheBeginningOfLine(lastActionLineNumber, function() {
+        setTimeout(function() {
+          apiUtils.simulateTriggerOfDeleteElement();
+          done();
+        }, 2000);
+      })
+    });
+
+    it('deletes the current element', (done) => {
+      helper.waitFor(function() {
+        var currentNumberOfElements = inner$('action').length;
+        return currentNumberOfElements === initialNumberOfElements - 1;
+      }).done(done);
+    });
+
+    it('does not select any text', function(done) {
+      helper.waitFor(function() {
+        var selectedText = inner$.document.getSelection().toString();
+        return selectedText === '';
+      }).done(done);
+    });
+
+    context('when the user performs undo', function() {
+      before(function() {
+        utils.undo();
+      });
+
+      it('restores the deleted element', (done) => {
+        helper.waitFor(function() {
+          var currentNumberOfElements = inner$('action').length;
+          return currentNumberOfElements === initialNumberOfElements;
+        }).done(done);
       });
     });
   });

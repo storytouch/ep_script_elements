@@ -22,21 +22,20 @@ elementContentCleaner.prototype.deleteElement = function() {
   } else {
     this._removeScriptElement(currentLine);
   }
+
+  // currentLine now is the number the line after the deleted element
+  return currentLine;
 }
 
 elementContentCleaner.prototype._removeScriptElement = function (lineNumberOfSE) {
   var self = this;
-  var nextLine = lineNumberOfSE + 1;
-  var intervalToRemove = {
-    start: [lineNumberOfSE, 0],
-    end: [nextLine, 0],
-  };
+  var intervalToRemove = this._getIntervalToRemove(lineNumberOfSE);
   this.editorInfo.ace_inCallStackIfNecessary('remove_element', function(){
     self.editorInfo.ace_performDocumentReplaceRange(intervalToRemove.start, intervalToRemove.end, '');
   });
 }
 
-elementContentCleaner.prototype._getParentSMOfHeading = function (headingLineNumber) {
+elementContentCleaner.prototype._getParentSMOfHeading = function(headingLineNumber) {
   var $heading = utils.getPadInner().find('div').eq(headingLineNumber);
   var $lastSceneMarkAboveHeading = $heading.prev();
   var keepLookingUpward = true;
@@ -53,6 +52,27 @@ elementContentCleaner.prototype._getParentSMOfHeading = function (headingLineNum
   }
 
   return $lastSceneMarkAboveHeading;
+}
+
+elementContentCleaner.prototype._isLastLine = function(lineNumber) {
+  var lastLine = utils.getPadInner().find('div').length - 1;
+  return lineNumber === lastLine;
+}
+
+elementContentCleaner.prototype._getIntervalToRemove = function(firstLineToRemove) {
+  var nextLine = firstLineToRemove + 1;
+  var currentLineIsLastLine = this._isLastLine(firstLineToRemove);
+  var intervalToRemove = {
+    start: [firstLineToRemove, 0],
+    end: [nextLine, 0],
+  };
+
+  if (currentLineIsLastLine) {
+    var lastLineLength = this.rep.lines.atIndex(firstLineToRemove).width - 1;
+    intervalToRemove.end = [firstLineToRemove, lastLineLength];
+  }
+
+  return intervalToRemove;
 }
 
 exports.init = function(editorInfo, rep, documentAttributeManager) {

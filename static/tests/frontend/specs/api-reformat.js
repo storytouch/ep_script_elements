@@ -42,7 +42,7 @@ describe('ep_script_elements - API - element type changed', function(){
     // test text selection
     it('selects the text of next visible element', function(done) {
       helper.waitFor(function() {
-        var selectedText = inner$.document.getSelection().toString()
+        var selectedText = inner$.document.getSelection().toString();
         return selectedText === textOfSecondLine;
       }, 4000).done(done);
     });

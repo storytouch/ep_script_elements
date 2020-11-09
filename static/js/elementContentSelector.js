@@ -18,12 +18,25 @@ elementContentSelector.prototype.selectPreviousElement = function() {
   this._selectLine(iterators.previousLine);
 }
 
+elementContentSelector.prototype.selectElement = function(lineNumber) {
+  var $line = utils.getPadInner().find('div').eq(lineNumber);
+  if ($line.length === 0) return;
+
+  var lineIsSceneMark = !utils.lineIsScriptElement(lineNumber);
+  if (lineIsSceneMark) {
+    lineNumber = this._getNonSceneMarkLineNumber($line, iterators.nextLine);
+    if (lineNumber === undefined) return;
+  }
+
+  this._selectContentOfLine(lineNumber);
+}
+
 // select a non sceneMark line according to iterator function
 elementContentSelector.prototype._selectLine = function(iterator) {
-  var $line = this._getCurrentLine();
-  var $previousLine = this._getNonSceneMarkLine($line, iterator);
-  if ($previousLine === undefined) return;
-  this._selectContentOfLine($previousLine);
+  var $currentLine = this._getCurrentLine();
+  var numberOfLineToSelect = this._getNonSceneMarkLineNumber($currentLine, iterator);
+  if (numberOfLineToSelect === undefined) return;
+  this._selectContentOfLine(numberOfLineToSelect);
 }
 
 elementContentSelector.prototype._getCurrentLine = function() {
@@ -32,19 +45,18 @@ elementContentSelector.prototype._getCurrentLine = function() {
   return $line;
 }
 
-elementContentSelector.prototype._getNonSceneMarkLine = function($line, iterator) {
+elementContentSelector.prototype._getNonSceneMarkLineNumber = function($line, iterator) {
   var $targetLine = iterator($line);
   if (!$targetLine.length) return undefined;
   if ($targetLine.hasClass('sceneMark')) {
-    return this._getNonSceneMarkLine($targetLine, iterator);
+    return this._getNonSceneMarkLineNumber($targetLine, iterator);
   }
-  return $targetLine;
+  var targetLineNumber = this.rep.lines.indexOfKey($targetLine.attr('id'));
+  return targetLineNumber;
 }
 
-elementContentSelector.prototype._selectContentOfLine = function($line) {
+elementContentSelector.prototype._selectContentOfLine = function(targetLineNumber) {
   var self = this;
-  var lineId = $line.attr('id');
-  var targetLineNumber = this.rep.lines.indexOfKey(lineId);
   var lineLength = this.rep.lines.atIndex(targetLineNumber).width;
   var beginingOfSelection = [targetLineNumber, 0];
   var endOfSelection = [targetLineNumber, lineLength];
