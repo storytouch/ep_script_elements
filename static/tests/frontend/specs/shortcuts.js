@@ -276,4 +276,9 @@ ep_script_elements_test_helper.shortcuts = {
     e.keyCode = keyCode;
     inner$("#innerdocbody").trigger(e);
   },
+  isMac: function() {
+    var inner$ = helper.padInner$;
+    var isMac = inner$(window)[0].bowser.mac ? true : false
+    return isMac;
+  },
 };
