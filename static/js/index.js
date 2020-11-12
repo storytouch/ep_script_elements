@@ -21,7 +21,9 @@ var scenesLength                  = require('./scenesLength');
 var sceneUniqueIdTagging          = require('./scenesUniqueIdTagging');
 var elementContentSelector        = require('./elementContentSelector');
 var elementContentCleaner         = require('./elementContentCleaner');
-var shortcutsAndMergeLinesHandler                = require('./shortcutsAndMergeLinesHandler');
+var shortcutsAndMergeLinesHandler = require('./shortcutsAndMergeLinesHandler');
+var reformatWindowState           = require('./reformatWindowState');
+var reformatEventListener         = require('./reformatEventListener');
 
 var tags = shared.tags;
 var sceneTag = shared.sceneTag;
@@ -100,6 +102,7 @@ exports.postAceInit = function(hook, context) {
   scriptActivatedState.init();
   preventMultilineDeletion.init();
   api.init(ace);
+  reformatEventListener.init(ace);
 
   var caretElementChangeSendMessageBound = function() {
     ace.callWithAce(function(ace) {
@@ -261,6 +264,7 @@ exports.aceInitialized = function(hook, context) {
   thisPlugin.elementContentSelector = elementContentSelector.init(editorInfo, rep);
   thisPlugin.elementContentCleaner = elementContentCleaner.init(editorInfo, rep, documentAttributeManager);
   thisPlugin.shortcutsAndMergeLinesHandler = shortcutsAndMergeLinesHandler.init();
+  thisPlugin.reformatWindowState = reformatWindowState.init();
 
   pasteUtils.markStylesToBeDisabledOnPaste(CSS_TO_BE_DISABLED_ON_PASTE);
 }

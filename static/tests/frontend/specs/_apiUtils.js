@@ -10,6 +10,8 @@ ep_script_elements_test_helper.apiUtils = {
   SELECT_PREVIOUS_ELEMENT: 'select_previous_element',
   CHANGE_ELEMENT_TYPE: 'change_element_type',
   DELETE_ELEMENT: 'delete_element',
+  REFORMAT_WINDOW_OPENED: 'reformat_window_opened',
+  REFORMAT_WINDOW_CLOSED: 'reformat_window_closed',
   lastDataSent: {},
 
   startListeningToApiEvents: function() {
@@ -26,6 +28,19 @@ ep_script_elements_test_helper.apiUtils = {
     helper.waitFor(function() {
       return self.lastDataSent[eventType];
     }, 2000).done(done);
+  },
+
+  waitForDataToNotBeSent: function(eventType, done) {
+    var self = this;
+    helper.waitFor(function() {
+      return self.lastDataSent[eventType];
+    }, 1000)
+      .done(function() {
+        expect().fail(function() { return `${eventType} should not be sent` })
+      })
+      .fail(function() {
+        done();
+      });
   },
 
   resetLastDataSent: function() {
@@ -151,6 +166,34 @@ ep_script_elements_test_helper.apiUtils = {
   simulateTriggerOfDeleteElement: function() {
     var message = {
       type: this.DELETE_ELEMENT,
+    };
+
+    var inboundApiEventsTarget = helper.padChrome$.window;
+    inboundApiEventsTarget.postMessage(message, '*');
+  },
+  /**** REFORMAT_WINDOW_OPENED ****/
+  /*
+    message: {
+      type: 'reformat_window_opened'
+    }
+  */
+  simulateTriggerOfReformatWindowOpened: function() {
+    var message = {
+      type: this.REFORMAT_WINDOW_OPENED,
+    };
+
+    var inboundApiEventsTarget = helper.padChrome$.window;
+    inboundApiEventsTarget.postMessage(message, '*');
+  },
+  /**** REFORMAT_WINDOW_CLOSED ****/
+  /*
+    message: {
+      type: 'reformat_window_closed'
+    }
+  */
+  simulateTriggerOfReformatWindowClosed: function() {
+    var message = {
+      type: this.REFORMAT_WINDOW_CLOSED,
     };
 
     var inboundApiEventsTarget = helper.padChrome$.window;

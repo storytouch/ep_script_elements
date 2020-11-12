@@ -1,11 +1,13 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 var shortcuts = require('./shortcuts');
 var mergeLines = require('./mergeLines');
+var reformatShortcuts = require('./reformatShortcuts');
 
 var shortcutsAndMergeLinesHandler = function() {
   this._handlers = [
     shortcuts,
     mergeLines,
+    reformatShortcuts,
   ];
 }
 

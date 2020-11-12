@@ -12,6 +12,8 @@ var CHANGE_ELEMENT_TYPE               = 'change_element_type';
 var SELECT_NEXT_ELEMENT               = 'select_next_element';
 var SELECT_PREVIOUS_ELEMENT           = 'select_previous_element';
 var DELETE_ELEMENT                    = 'delete_element';
+var REFORMAT_WINDOW_CLOSED            = 'reformat_window_closed';
+var REFORMAT_WINDOW_OPENED            = 'reformat_window_opened';
 
 exports.init = function(ace) {
   // listen to outbound calls of this API
@@ -41,6 +43,7 @@ var _triggerEvent = function _triggerEvent(message) {
   var target = window.parent ? window.parent : window;
   target.postMessage(message, '*');
 }
+exports.triggerEvent = _triggerEvent;
 
 var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
   var type = e.data.type;
@@ -79,6 +82,17 @@ var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
       var thisPlugin = utils.getThisPluginProps();
       var lineToSelect = thisPlugin.elementContentCleaner.deleteElement();
       thisPlugin.elementContentSelector.selectElement(lineToSelect);
+      break;
+    }
+    case REFORMAT_WINDOW_OPENED: {
+      var thisPlugin = utils.getThisPluginProps();
+      thisPlugin.reformatWindowState.setToOpened();
+      break;
+    }
+    case REFORMAT_WINDOW_CLOSED: {
+      var thisPlugin = utils.getThisPluginProps();
+      thisPlugin.reformatWindowState.setToClosed();
+      break;
     }
     default: {
       return;
