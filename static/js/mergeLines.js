@@ -15,13 +15,13 @@ exports.findHandlerFor = function(context) {
     // if there is no selection at all
     if (!textSelected(editorInfo)) {
       if (evt.isBackspace && evt.caretPosition.beginningOfLine && !evt.atFirstLineOfPad) {
-        return handleBackspace(context);
+        return handleBackspace;
       } else if (evt.isDelete && evt.caretPosition.endOfLine && !evt.atLastLineOfPad) {
-        return handleDelete(context);
+        return handleDelete;
       }
 
     }else if(utils.isMultipleLineSelected()){
-      return processTextSelected(context);
+      return processTextSelected;
     }
   }
 }
@@ -55,6 +55,11 @@ var handleBackspace = function(context) {
       linesWillBeMerged(lineToBeDeleted, context);
     }
 
+    /*
+     * by returning true, we tell the shortcutsAndMergeLinesHandler that
+     * this function DOES interrupt the key handling, as the operation
+     * the user is trying to do in invalid.
+     */
     blockBackspace = true;
   }
 

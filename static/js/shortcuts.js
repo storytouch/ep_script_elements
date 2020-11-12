@@ -10,17 +10,27 @@ var SHORTCUT_HANDLERS = {};
 // Cmd+Shift+.
 SHORTCUT_HANDLERS[TO_NEXT_SCENE] = function(context) {
   moveCaretToAdjacentScene(context, forward);
+  /*
+   * by returning false, we tell the shortcutsAndMergeLinesHandler that
+   * this function does NOT interrupt the key handling, as this function
+   * does not change the document content. It changes only the sytle.
+   * See "mergeLines" for an example where the execution must be interrupted.
+   */
+  return false;
 };
 // Cmd+Shift+,
 SHORTCUT_HANDLERS[TO_PREVIOUS_SCENE] = function(context) {
   moveCaretToAdjacentScene(context, backward);
+  return false;
 };
 // Cmd+k
 SHORTCUT_HANDLERS[STRIKETHROUGH] = function(context) {
   formattingStyleOfSelection.applyStrikethrough(context);
+  return false;
 }
 
-exports.findHandlerFor = function(evt) {
+exports.findHandlerFor = function(context) {
+  var evt                = context.evt;
   var type               = evt.type;
   var isTypeForCmdKey    = ((browser.msie || browser.safari || browser.chrome) ? (type == "keydown") : (type == "keypress"));
   // Cmd was pressed?

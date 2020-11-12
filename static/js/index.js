@@ -8,8 +8,6 @@ var shared                        = require('./shared');
 var utils                         = require('./utils');
 var SM_AND_HEADING                = _.union(utils.SCENE_MARK_SELECTOR, ['heading']);
 var aceEditorCSS                  = require('./aceEditorCSS');
-var shortcuts                     = require('./shortcuts');
-var mergeLines                    = require('./mergeLines');
 var undoPagination                = require('./undoPagination');
 var caretElementChange            = require('./caretElementChange');
 var preventMultilineDeletion      = require('./doNotAllowEnterAndKeysOnMultilineSelection');
@@ -23,6 +21,7 @@ var scenesLength                  = require('./scenesLength');
 var sceneUniqueIdTagging          = require('./scenesUniqueIdTagging');
 var elementContentSelector        = require('./elementContentSelector');
 var elementContentCleaner         = require('./elementContentCleaner');
+var shortcutsAndMergeLinesHandler                = require('./shortcutsAndMergeLinesHandler');
 
 var tags = shared.tags;
 var sceneTag = shared.sceneTag;
@@ -140,31 +139,7 @@ exports.aceKeyEvent = function(hook, context) {
   var isScriptDocumentPad = thisPlugin.padType.isScriptDocumentPad();
   if (!isScriptDocumentPad) return false;
 
-  var eventProcessed = false;
-  var evt = context.evt;
-
-  var handleShortcut = shortcuts.findHandlerFor(evt);
-  var handleMerge    = mergeLines.findHandlerFor(context);
-
-  // Cmd+Shift+. or Cmd+Shift+,
-  if (handleShortcut) {
-    evt.preventDefault();
-    handleShortcut(context);
-    eventProcessed = true;
-  }
-  // BACKSPACE or DELETE
-  else if (handleMerge) {
-    // call function that handles merge
-    var mergeShouldBeBlocked = handleMerge;
-
-    // cannot merge lines, so do not process keys
-    if (mergeShouldBeBlocked) {
-      evt.preventDefault();
-      eventProcessed = true;
-    }
-  }
-
-  return eventProcessed;
+  return thisPlugin.shortcutsAndMergeLinesHandler.handle(context);
 }
 
 // Our script element attribute will result in a script_element:heading... :transition class
@@ -285,6 +260,7 @@ exports.aceInitialized = function(hook, context) {
   editorInfo.ace_caretElementChangeSendMessage = _(caretElementChange.sendMessageCaretElementChanged).bind(context);
   thisPlugin.elementContentSelector = elementContentSelector.init(editorInfo, rep);
   thisPlugin.elementContentCleaner = elementContentCleaner.init(editorInfo, rep, documentAttributeManager);
+  thisPlugin.shortcutsAndMergeLinesHandler = shortcutsAndMergeLinesHandler.init();
 
   pasteUtils.markStylesToBeDisabledOnPaste(CSS_TO_BE_DISABLED_ON_PASTE);
 }
