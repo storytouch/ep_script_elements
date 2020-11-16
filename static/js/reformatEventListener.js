@@ -42,7 +42,6 @@ reformatEventListener.prototype._handleCall = function(data) {
       break;
     }
     case DELETE_ELEMENT: {
-      debugger;
       var thisPlugin = utils.getThisPluginProps();
       var lineToSelect = thisPlugin.elementContentCleaner.deleteElement();
       thisPlugin.elementContentSelector.selectElement(lineToSelect);

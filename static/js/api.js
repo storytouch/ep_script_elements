@@ -27,7 +27,7 @@ exports.triggerCaretElementChanged = function(elementType) {
     type: CHANGE_CARET_ELEMENT_MESSAGE_TYPE,
     elementType: elementType,
   };
-  _triggerEvent(message);
+  triggerEvent(message);
 }
 
 exports.triggerSMSetElementChanged = function(elementType) {
@@ -35,15 +35,15 @@ exports.triggerSMSetElementChanged = function(elementType) {
     type: CHANGE_SM_SET_MESSAGE_TYPE,
     elementType: elementType,
   };
-  _triggerEvent(message);
+  triggerEvent(message);
 }
 
-var _triggerEvent = function _triggerEvent(message) {
+var triggerEvent = function triggerEvent(message) {
   // if there's a wrapper to Etherpad, send data to it; otherwise use Etherpad own window
   var target = window.parent ? window.parent : window;
   target.postMessage(message, '*');
 }
-exports.triggerEvent = _triggerEvent;
+exports.triggerEvent = triggerEvent;
 
 var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
   var type = e.data.type;

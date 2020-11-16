@@ -58,7 +58,7 @@ var handleBackspace = function(context) {
     /*
      * by returning true, we tell the shortcutsAndMergeLinesHandler that
      * this function DOES interrupt the key handling, as the operation
-     * the user is trying to do in invalid.
+     * the user is trying to do is invalid.
      */
     blockBackspace = true;
   }

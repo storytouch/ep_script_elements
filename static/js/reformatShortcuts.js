@@ -3,14 +3,14 @@ var api   = require('./api');
 
 var OPEN_REFORMAT_WINDOW    = 82; // R
 var CLOSE_REFORMAT_WINDOW   = 27; // Esc
-var CHANGE_TO_GENERAL       = [48, 96]; // Digit0 and Numpad0
-var CHANGE_TO_HEADING       = [49, 97]; // Digit1 and Numpad1
-var CHANGE_TO_ACTION        = [50, 98]; // Digit2 and Numpad2
-var CHANGE_TO_CHARACTER     = [51, 99]; // Digit3 and Numpad3
-var CHANGE_TO_PARENTHETICAL = [52, 100]; // Digit4 and Numpad4
-var CHANGE_TO_DIALOGUE      = [53, 101]; // Digit5 and Numpad5
-var CHANGE_TO_TRANSITION    = [54, 102]; // Digit6 and Numpad6
-var CHANGE_TO_SHOT          = [55, 103]; // Digit7 and Numpad7
+var CHANGE_TO_GENERAL       = 48; // Digit0
+var CHANGE_TO_HEADING       = 49; // Digit1
+var CHANGE_TO_ACTION        = 50; // Digit2
+var CHANGE_TO_CHARACTER     = 51; // Digit3
+var CHANGE_TO_PARENTHETICAL = 52; // Digit4
+var CHANGE_TO_DIALOGUE      = 53; // Digit5
+var CHANGE_TO_TRANSITION    = 54; // Digit6
+var CHANGE_TO_SHOT          = 55; // Digit7
 var SELECT_NEXT_ELEMENT     = 39; // ArrowRight
 var SELECT_PREVIOUS_ELEMENT = 37; // ArrowLeft
 var DELETE_ELEMENT          = 46; // Del
@@ -34,7 +34,7 @@ var SHORTCUT_HANDLERS = {};
 SHORTCUT_HANDLERS[OPEN_REFORMAT_WINDOW] = function() {
   api.triggerEvent({ type: OPEN_REFORMAT_WINDOW_MESSAGE });
   /*
-   * NOTE #1: by returning false, we tell the shortcutsAndMergeLinesHandler that
+   * [1] by returning false, we tell the shortcutsAndMergeLinesHandler that
    * this function does NOT interrupt the key handling, as the action is always valid.
    * See "mergeLines" for an example where the execution must be interrupted.
    */
@@ -43,60 +43,45 @@ SHORTCUT_HANDLERS[OPEN_REFORMAT_WINDOW] = function() {
 
 SHORTCUT_HANDLERS[CLOSE_REFORMAT_WINDOW] = function() {
   api.triggerEvent({ type: CLOSE_REFORMAT_WINDOW_MESSAGE });
-  // see NOTE #1
-  return false;
+  return false; // [1]
 };
 
 SHORTCUT_HANDLERS[SELECT_NEXT_ELEMENT] = function() {
   triggerReformatEvent({ type: SELECT_NEXT_ELEMENT_MESSAGE });
-  // see NOTE #1
-  return false;
+  return false; // [1]
 }
 
 SHORTCUT_HANDLERS[SELECT_PREVIOUS_ELEMENT] = function() {
   triggerReformatEvent({ type: SELECT_PREVIOUS_ELEMENT_MESSAGE });
-  // see NOTE #1
-  return false;
+  return false; // [1]
 }
 
 SHORTCUT_HANDLERS[DELETE_ELEMENT] = function() {
   triggerReformatEvent({ type: DELETE_ELEMENT_MESSAGE });
-  // see NOTE #1
-  return false;
+  return false; // [1]
+}
+
+var convertNumpadToDigitIfNecessary = function(keyCode) {
+  var isNumpad = (keyCode >= 96 && keyCode <= 103) // 0 -7 (Numpad keys)
+  // does not return the numpad key but its number key relative
+  return isNumpad ? keyCode - 48 : keyCode;
 }
 
 var createFunctionToChangeElementType = function(newElementType) {
   return function() {
     triggerReformatEvent({ type: CHANGE_ELEMENT_TYPE_MESSAGE, element: newElementType });
-    // see NOTE #1
-    return false;
+    return false; // [1]
   }
 }
 
-// general
-SHORTCUT_HANDLERS[CHANGE_TO_GENERAL[0]] = createFunctionToChangeElementType('general');
-SHORTCUT_HANDLERS[CHANGE_TO_GENERAL[1]] = createFunctionToChangeElementType('general');
-// heading
-SHORTCUT_HANDLERS[CHANGE_TO_HEADING[0]] = createFunctionToChangeElementType('heading');
-SHORTCUT_HANDLERS[CHANGE_TO_HEADING[1]] = createFunctionToChangeElementType('heading');
-// action
-SHORTCUT_HANDLERS[CHANGE_TO_ACTION[0]] = createFunctionToChangeElementType('action');
-SHORTCUT_HANDLERS[CHANGE_TO_ACTION[1]] = createFunctionToChangeElementType('action');
-// character
-SHORTCUT_HANDLERS[CHANGE_TO_CHARACTER[0]] = createFunctionToChangeElementType('character');
-SHORTCUT_HANDLERS[CHANGE_TO_CHARACTER[1]] = createFunctionToChangeElementType('character');
-// parenthetical
-SHORTCUT_HANDLERS[CHANGE_TO_PARENTHETICAL[0]] = createFunctionToChangeElementType('parenthetical');
-SHORTCUT_HANDLERS[CHANGE_TO_PARENTHETICAL[1]] = createFunctionToChangeElementType('parenthetical');
-// dialogue
-SHORTCUT_HANDLERS[CHANGE_TO_DIALOGUE[0]] = createFunctionToChangeElementType('dialogue');
-SHORTCUT_HANDLERS[CHANGE_TO_DIALOGUE[1]] = createFunctionToChangeElementType('dialogue');
-// transition
-SHORTCUT_HANDLERS[CHANGE_TO_TRANSITION[0]] = createFunctionToChangeElementType('transition');
-SHORTCUT_HANDLERS[CHANGE_TO_TRANSITION[1]] = createFunctionToChangeElementType('transition');
-// shot
-SHORTCUT_HANDLERS[CHANGE_TO_SHOT[0]] = createFunctionToChangeElementType('shot');
-SHORTCUT_HANDLERS[CHANGE_TO_SHOT[1]] = createFunctionToChangeElementType('shot');
+SHORTCUT_HANDLERS[CHANGE_TO_GENERAL]       = createFunctionToChangeElementType('general');
+SHORTCUT_HANDLERS[CHANGE_TO_HEADING]       = createFunctionToChangeElementType('heading');
+SHORTCUT_HANDLERS[CHANGE_TO_ACTION]        = createFunctionToChangeElementType('action');
+SHORTCUT_HANDLERS[CHANGE_TO_CHARACTER]     = createFunctionToChangeElementType('character');
+SHORTCUT_HANDLERS[CHANGE_TO_PARENTHETICAL] = createFunctionToChangeElementType('parenthetical');
+SHORTCUT_HANDLERS[CHANGE_TO_DIALOGUE]      = createFunctionToChangeElementType('dialogue');
+SHORTCUT_HANDLERS[CHANGE_TO_TRANSITION]    = createFunctionToChangeElementType('transition');
+SHORTCUT_HANDLERS[CHANGE_TO_SHOT]          = createFunctionToChangeElementType('shot');
 
 exports.findHandlerFor = function(context) {
   var evt = context.evt;
@@ -107,7 +92,8 @@ exports.findHandlerFor = function(context) {
   if (!isTypeForCmdKey) return undefined;
 
   if (reformatWindowState.isOpened()) {
-    return SHORTCUT_HANDLERS[evt.keyCode];
+    var keyCode = convertNumpadToDigitIfNecessary(evt.keyCode);
+    return SHORTCUT_HANDLERS[keyCode];
   } else {
     // Cmd+Ctrl (mac) or Ctrl+Alt (windows)
     if ((evt.metaKey && evt.ctrlKey) || (evt.ctrlKey && evt.altKey)) {

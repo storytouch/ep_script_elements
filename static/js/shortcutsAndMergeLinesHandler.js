@@ -19,8 +19,10 @@ shortcutsAndMergeLinesHandler.prototype.handle = function(context) {
     var handlerFunction = handler.findHandlerFor(context);
 
     if (handlerFunction) {
-      context.evt.preventDefault();
       eventProcessed = handlerFunction(context);
+      if (eventProcessed) {
+        context.evt.preventDefault();
+      }
     }
 
     return eventProcessed;
