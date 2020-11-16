@@ -35,8 +35,7 @@ SHORTCUT_HANDLERS[OPEN_REFORMAT_WINDOW] = function() {
   api.triggerEvent({ type: OPEN_REFORMAT_WINDOW_MESSAGE });
   /*
    * [1] by returning false, we tell the shortcutsAndMergeLinesHandler that
-   * this function does NOT interrupt the key handling, as the action is always valid.
-   * See "mergeLines" for an example where the execution must be interrupted.
+   * the pressed key should NOT be canceled (preventDefault).
    */
   return false;
 };
@@ -48,12 +47,17 @@ SHORTCUT_HANDLERS[CLOSE_REFORMAT_WINDOW] = function() {
 
 SHORTCUT_HANDLERS[SELECT_NEXT_ELEMENT] = function() {
   triggerReformatEvent({ type: SELECT_NEXT_ELEMENT_MESSAGE });
-  return false; // [1]
+  /*
+   * [2] by returning true, we tell the shortcutsAndMergeLinesHandler that
+   * the pressed key MUST be canceled (preventDefault). Otherwise, the default
+   * behavior of that key will take effect.
+   */
+  return true;
 }
 
 SHORTCUT_HANDLERS[SELECT_PREVIOUS_ELEMENT] = function() {
   triggerReformatEvent({ type: SELECT_PREVIOUS_ELEMENT_MESSAGE });
-  return false; // [1]
+  return true; // [2]
 }
 
 SHORTCUT_HANDLERS[DELETE_ELEMENT] = function() {
@@ -70,7 +74,7 @@ var convertNumpadToDigitIfNecessary = function(keyCode) {
 var createFunctionToChangeElementType = function(newElementType) {
   return function() {
     triggerReformatEvent({ type: CHANGE_ELEMENT_TYPE_MESSAGE, element: newElementType });
-    return false; // [1]
+    return true; // [2]
   }
 }
 
