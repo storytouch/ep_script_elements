@@ -18,6 +18,11 @@ elementContentSelector.prototype.selectPreviousElement = function() {
   this._selectLine(iterators.previousLine);
 }
 
+elementContentSelector.prototype.selectCurrentElement = function() {
+  var currentLine = this.editorInfo.ace_caretLine()
+  this.selectElement(currentLine);
+}
+
 elementContentSelector.prototype.selectElement = function(lineNumber) {
   var $line = utils.getPadInner().find('div').eq(lineNumber);
   if ($line.length === 0) return;

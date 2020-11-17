@@ -87,6 +87,7 @@ var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
     case REFORMAT_WINDOW_OPENED: {
       var thisPlugin = utils.getThisPluginProps();
       thisPlugin.reformatWindowState.setToOpened();
+      thisPlugin.elementContentSelector.selectCurrentElement();
       break;
     }
     case REFORMAT_WINDOW_CLOSED: {
