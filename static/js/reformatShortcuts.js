@@ -15,54 +15,29 @@ var SELECT_NEXT_ELEMENT     = 39; // ArrowRight
 var SELECT_PREVIOUS_ELEMENT = 37; // ArrowLeft
 var DELETE_ELEMENT          = 46; // Del
 
-var OPEN_REFORMAT_WINDOW_MESSAGE = 'open_reformat_window';
-var CLOSE_REFORMAT_WINDOW_MESSAGE = 'close_reformat_window';
-var CHANGE_ELEMENT_TYPE_MESSAGE = 'change_element_type';
-var SELECT_NEXT_ELEMENT_MESSAGE = 'select_next_element';
-var SELECT_PREVIOUS_ELEMENT_MESSAGE = 'select_previous_element';
-var DELETE_ELEMENT_MESSAGE = 'delete_element';
-var HANDLE_SHORTCUT_EVENT = 'handle_shortcut_event';
-
-// send message to reformatEventListener
-var triggerReformatEvent = function(data) {
-  var $innerDoc = utils.getPadInner().find('#innerdocbody');
-  $innerDoc.trigger(HANDLE_SHORTCUT_EVENT, data);
-}
-
 var SHORTCUT_HANDLERS = {};
 
+// NOTE: the functions below receive the "context" object as an argument.
+
 SHORTCUT_HANDLERS[OPEN_REFORMAT_WINDOW] = function() {
-  api.triggerEvent({ type: OPEN_REFORMAT_WINDOW_MESSAGE });
-  /*
-   * [1] by returning false, we tell the shortcutsAndMergeLinesHandler that
-   * the pressed key should NOT be canceled (preventDefault).
-   */
-  return false;
-};
-
+  var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
+  return reformatShortcutHandler.handleOpenReformatWindow();
+}
 SHORTCUT_HANDLERS[CLOSE_REFORMAT_WINDOW] = function() {
-  api.triggerEvent({ type: CLOSE_REFORMAT_WINDOW_MESSAGE });
-  return false; // [1]
-};
-
+  var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
+  return reformatShortcutHandler.handleCloseReformatWindow();
+}
 SHORTCUT_HANDLERS[SELECT_NEXT_ELEMENT] = function() {
-  triggerReformatEvent({ type: SELECT_NEXT_ELEMENT_MESSAGE });
-  /*
-   * [2] by returning true, we tell the shortcutsAndMergeLinesHandler that
-   * the pressed key MUST be canceled (preventDefault). Otherwise, the default
-   * behavior of that key will take effect.
-   */
-  return true;
+  var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
+  return reformatShortcutHandler.handleSelectNextElement();
 }
-
 SHORTCUT_HANDLERS[SELECT_PREVIOUS_ELEMENT] = function() {
-  triggerReformatEvent({ type: SELECT_PREVIOUS_ELEMENT_MESSAGE });
-  return true; // [2]
+  var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
+  return reformatShortcutHandler.handleSelectPreviousElement();
 }
-
 SHORTCUT_HANDLERS[DELETE_ELEMENT] = function() {
-  triggerReformatEvent({ type: DELETE_ELEMENT_MESSAGE });
-  return false; // [1]
+  var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
+  return reformatShortcutHandler.handleDeleteElement();
 }
 
 var convertNumpadToDigitIfNecessary = function(keyCode) {
@@ -72,9 +47,9 @@ var convertNumpadToDigitIfNecessary = function(keyCode) {
 }
 
 var createFunctionToChangeElementType = function(newElementType) {
-  return function() {
-    triggerReformatEvent({ type: CHANGE_ELEMENT_TYPE_MESSAGE, element: newElementType });
-    return true; // [2]
+  return function(context) {
+    var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
+    return reformatShortcutHandler.handleChangeElementType(newElementType, context);
   }
 }
 

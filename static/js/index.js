@@ -23,7 +23,7 @@ var elementContentSelector        = require('./elementContentSelector');
 var elementContentCleaner         = require('./elementContentCleaner');
 var shortcutsAndMergeLinesHandler = require('./shortcutsAndMergeLinesHandler');
 var reformatWindowState           = require('./reformatWindowState');
-var reformatEventListener         = require('./reformatEventListener');
+var reformatShortcutHandler       = require('./reformatShortcutHandler');
 
 var tags = shared.tags;
 var sceneTag = shared.sceneTag;
@@ -97,12 +97,12 @@ exports.postAceInit = function(hook, context) {
   thisPlugin.scenesLength = scenesLength.init();
   thisPlugin.sceneUniqueIdTagging = ace_sceneUniqueIdTagging();
   thisPlugin.calculateSceneLength = ace_calculateSceneLength();
+  thisPlugin.reformatShortcutHandler = reformatShortcutHandler.init(ace);
 
   thisPlugin.calculateSceneLength.run(true);
   scriptActivatedState.init();
   preventMultilineDeletion.init();
   api.init(ace);
-  reformatEventListener.init(ace);
 
   var caretElementChangeSendMessageBound = function() {
     ace.callWithAce(function(ace) {
