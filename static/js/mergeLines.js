@@ -2,6 +2,7 @@ var sceneMarkUtils                   = require("ep_script_scene_marks/static/js/
 var sceneMarkHandleMultiLineDeletion = require("ep_script_scene_marks/static/js/handleMultiLineDeletion");
 var utils                            = require("./utils");
 var removeLines                      = require("./removeLines");
+var shared                           = require('./shared');
 var _                                = require('ep_etherpad-lite/static/js/underscore');
 
 exports.findHandlerFor = function(context) {
@@ -127,7 +128,7 @@ var linesWillBeMerged = function(lineToBeMerged, context) {
   // Reflect the element removal on the edit event associated with this change,
   // so that other plugins know that this change happened
   if (context.callstack) {
-    context.callstack.editEvent.eventType = 'scriptElementRemoved';
+    context.callstack.editEvent.eventType = shared.SCRIPT_ELEMENT_REMOVED;
     context.callstack.editEvent.data = { lineNumbers: [lineToBeMerged] };
   }
 }

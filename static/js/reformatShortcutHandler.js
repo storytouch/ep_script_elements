@@ -1,5 +1,6 @@
 var utils = require('./utils');
 var api = require('./api');
+var shared = require('./shared');
 
 var OPEN_REFORMAT_WINDOW_MESSAGE = 'open_reformat_window';
 var CLOSE_REFORMAT_WINDOW_MESSAGE = 'close_reformat_window';
@@ -20,7 +21,7 @@ reformatShortcutHandler.prototype.handleChangeElementType = function(newElementT
     });
   });
   if (context.callstack) {
-    context.callstack.editEvent.eventType = 'scriptElementRemoved';
+    context.callstack.editEvent.eventType = shared.SCRIPT_ELEMENT_REMOVED;
     context.callstack.editEvent.data = { lineNumbers: [currentLine] };
   }
   return true;

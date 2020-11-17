@@ -182,6 +182,40 @@ describe('ep_script_elements - API - element type changed', function(){
       }, 4000).done(done);
     });
   });
+
+  // special case
+  context('when the user tries to change a heading to another type', function() {
+    before(function(done) {
+      this.timeout(6000);
+      utils.cleanPad(function() {
+        var sceneText = 'scene';
+        var headingText = 'heading';
+        var lastLineText = 'heading';
+        var synopsis1 = utils.synopsis(sceneText);
+        var synopsis2 = utils.synopsis(sceneText);
+        var heading1 = utils.heading(headingText);
+        var heading2 = utils.heading(lastLineText);
+
+      // 1 scene name + 1 scene summary + 1 heading + 1 scene name + 1 scene summary + 1 heading
+        var script = synopsis1 + heading1 + synopsis2 + heading2;
+        utils.createScriptWith(script, lastLineText, function() {
+          apiUtils.simulateTriggerOfReformatWindowOpened();
+          setTimeout(function() {
+            pressShortcutToChangeElementType(48); // change to general
+            done();
+          }, 1000); // wait some time to process the request
+        });
+      });
+    });
+
+    it('removes the SM elements related to the removed heading', function(done) {
+      // 1 general + 1 scene name + 1 scene summary + 1 heading
+      var expectedNumberOfElements = 4;
+      helper.waitFor(function(){
+        return helper.padInner$('div').length === expectedNumberOfElements;
+      }, 4000).done(done);
+    })
+  });
 });
 
 var ep_script_elements_test_helper = ep_script_elements_test_helper || {};

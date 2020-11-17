@@ -1,6 +1,7 @@
 var _ = require('ep_etherpad-lite/static/js/underscore');
 
 var SCRIPT_ELEMENTS_ATTRIBUTE_NAME = 'script_element';
+var SCRIPT_ELEMENT_REMOVED = 'scriptElementRemoved';
 
 // pad types
 var BACKUP_DOCUMENT_TYPE = 'BackupDocument';
@@ -91,3 +92,4 @@ exports.SCENE_DURATION_CLASS_PREFIX  = SCENE_DURATION_CLASS_PREFIX;
 exports.SCENE_ID_KEY_ATTRIB = SCENE_ID_KEY_ATTRIB;
 exports.SCENE_ID_PREFIX = SCENE_ID_PREFIX;
 exports.SCENE_ID_REGEXP = SCENE_ID_REGEXP;
+exports.SCRIPT_ELEMENT_REMOVED = SCRIPT_ELEMENT_REMOVED;
