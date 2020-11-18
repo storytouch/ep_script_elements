@@ -75,7 +75,15 @@ exports.findHandlerFor = function(context) {
     return SHORTCUT_HANDLERS[keyCode];
   } else {
     // Cmd+Ctrl (mac) or Ctrl+Alt (windows)
-    if ((evt.metaKey && evt.ctrlKey) || (evt.ctrlKey && evt.altKey)) {
+    var isCmdCtrlPressed = (evt.metaKey && evt.ctrlKey) || (evt.ctrlKey && evt.altKey);
+
+    // check if "R" key is pressed
+    var isShortcutToOpenReformatWindow = evt.keyCode === OPEN_REFORMAT_WINDOW;
+
+    // if "Cmd+Ctrl" are pressed, we must check if the key "R" is also pressed.
+    // this avoids returning the openReformatWindow handler for the "Cmd+Ctrl+2"
+    // (add scene) shortcut, for example.
+    if (isCmdCtrlPressed && isShortcutToOpenReformatWindow) {
       return SHORTCUT_HANDLERS[evt.keyCode];
     }
   }
