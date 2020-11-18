@@ -45,7 +45,7 @@ reformatShortcutHandler.prototype.handleSelectPreviousElement = function() {
 reformatShortcutHandler.prototype.handleDeleteElement = function() {
   var lineToSelect = this.plugin.elementContentCleaner.deleteElement();
   this.plugin.elementContentSelector.selectElement(lineToSelect);
-  return false; // [1]
+  return true; // [2]
 }
 
 reformatShortcutHandler.prototype.handleOpenReformatWindow = function() {
