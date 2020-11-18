@@ -201,7 +201,8 @@ describe('ep_script_elements - API - element type changed', function(){
         utils.createScriptWith(script, lastLineText, function() {
           apiUtils.simulateTriggerOfReformatWindowOpened();
           setTimeout(function() {
-            pressShortcutToChangeElementType(48); // change to general
+            var digit0 = 48; // 48 is the code for digit 0, which is the shortcut for general
+            pressShortcutToChangeElementType(digit0); // change to general
             done();
           }, 1000); // wait some time to process the request
         });
