@@ -30,7 +30,7 @@ reformatShortcutHandler.prototype.handleChangeElementType = function(newElementT
 reformatShortcutHandler.prototype.handleSelectNextElement = function() {
   this.plugin.elementContentSelector.selectNextElement();
   /*
-   * [2] by returning true, we tell the shortcutsAndMergeLinesHandler that
+   * [1] by returning true, we tell the shortcutsAndMergeLinesHandler that
    * the pressed key MUST be canceled (preventDefault). Otherwise, the default
    * behavior of that key will take effect.
    */
@@ -39,27 +39,23 @@ reformatShortcutHandler.prototype.handleSelectNextElement = function() {
 
 reformatShortcutHandler.prototype.handleSelectPreviousElement = function() {
   this.plugin.elementContentSelector.selectPreviousElement();
-  return true; // [2]
+  return true; // [1]
 }
 
 reformatShortcutHandler.prototype.handleDeleteElement = function() {
   var lineToSelect = this.plugin.elementContentCleaner.deleteElement();
   this.plugin.elementContentSelector.selectElement(lineToSelect);
-  return true; // [2]
+  return true; // [1]
 }
 
 reformatShortcutHandler.prototype.handleOpenReformatWindow = function() {
   api.triggerEvent({ type: OPEN_REFORMAT_WINDOW_MESSAGE });
-  /*
-   * [1] by returning false, we tell the shortcutsAndMergeLinesHandler that
-   * the pressed key should NOT be canceled (preventDefault).
-   */
-  return false;
+  return true; // [1]
 }
 
 reformatShortcutHandler.prototype.handleCloseReformatWindow = function() {
   api.triggerEvent({ type: CLOSE_REFORMAT_WINDOW_MESSAGE });
-  return false; // [1]
+  return true; // [1]
 }
 
 exports.init = function(ace) {

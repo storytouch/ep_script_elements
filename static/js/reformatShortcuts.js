@@ -2,19 +2,40 @@ var _ = require('ep_etherpad-lite/static/js/underscore');
 var utils = require('./utils');
 var api   = require('./api');
 
-var OPEN_REFORMAT_WINDOW    = 82; // R
-var CLOSE_REFORMAT_WINDOW   = 27; // Esc
-var CHANGE_TO_GENERAL       = 48; // Digit0
-var CHANGE_TO_HEADING       = 49; // Digit1
-var CHANGE_TO_ACTION        = 50; // Digit2
-var CHANGE_TO_CHARACTER     = 51; // Digit3
-var CHANGE_TO_PARENTHETICAL = 52; // Digit4
-var CHANGE_TO_DIALOGUE      = 53; // Digit5
-var CHANGE_TO_TRANSITION    = 54; // Digit6
-var CHANGE_TO_SHOT          = 55; // Digit7
-var SELECT_NEXT_ELEMENT     = 39; // ArrowRight
-var SELECT_PREVIOUS_ELEMENT = 37; // ArrowLeft
-var DELETE_ELEMENT          = 46; // Del
+var KEYS = {
+  R: 82,
+  ESC: 27,
+  DIGIT0: 48,
+  DIGIT1: 49,
+  DIGIT2: 50,
+  DIGIT3: 51,
+  DIGIT4: 52,
+  DIGIT5: 53,
+  DIGIT6: 54,
+  DIGIT7: 55,
+  ARROW_UP: 38,
+  ARROW_DOWN: 40,
+  DELETE: 46,
+  BACKSPACE: 8,
+}
+
+var OPEN_REFORMAT_WINDOW    = KEYS.R;
+var CLOSE_REFORMAT_WINDOW   = KEYS.ESC;
+var CHANGE_TO_GENERAL       = KEYS.DIGIT0;
+var CHANGE_TO_HEADING       = KEYS.DIGIT1;
+var CHANGE_TO_ACTION        = KEYS.DIGIT2;
+var CHANGE_TO_CHARACTER     = KEYS.DIGIT3;
+var CHANGE_TO_PARENTHETICAL = KEYS.DIGIT4;
+var CHANGE_TO_DIALOGUE      = KEYS.DIGIT5;
+var CHANGE_TO_TRANSITION    = KEYS.DIGIT6;
+var CHANGE_TO_SHOT          = KEYS.DIGIT7;
+var SELECT_NEXT_ELEMENT     = KEYS.ARROW_DOWN;
+var SELECT_PREVIOUS_ELEMENT = KEYS.ARROW_UP;
+var DELETE_ELEMENT          = KEYS.DELETE;
+
+var MAC_SHORTCUTS_TRANSLATOR = {
+  [KEYS.BACKSPACE]: KEYS.DELETE,
+};
 
 var SHORTCUT_HANDLERS = {};
 
@@ -23,71 +44,36 @@ var SHORTCUT_HANDLERS = {};
 SHORTCUT_HANDLERS[OPEN_REFORMAT_WINDOW] = function() {
   var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
   return reformatShortcutHandler.handleOpenReformatWindow();
-}
+};
 SHORTCUT_HANDLERS[CLOSE_REFORMAT_WINDOW] = function() {
   var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
   return reformatShortcutHandler.handleCloseReformatWindow();
-}
+};
 SHORTCUT_HANDLERS[SELECT_NEXT_ELEMENT] = function() {
   var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
   return reformatShortcutHandler.handleSelectNextElement();
-}
+};
 SHORTCUT_HANDLERS[SELECT_PREVIOUS_ELEMENT] = function() {
   var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
   return reformatShortcutHandler.handleSelectPreviousElement();
-}
+};
 SHORTCUT_HANDLERS[DELETE_ELEMENT] = function() {
   var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
   return reformatShortcutHandler.handleDeleteElement();
-}
+};
 
-var convertNumpadToDigit = function(keyCode) {
+var convertNumpadToDigitIfNecessary = function(keyCode) {
   var isNumpad = (keyCode >= 96 && keyCode <= 103) // 0 to 7 (Numpad keys)
   // does not return the numpad key but its number key relative
-  return isNumpad ? keyCode - 48 : undefined;
-}
-
-var convertVerticalArrowsToHorizontal = function(keyCode) {
-  if (keyCode === 38) return 37; // converts ArrowUp to ArrowLeft
-  if (keyCode === 40) return 39; // converts ArrowDown to ArrowRight
-  return undefined;
-}
-
-var convertMacKeys = function(keyCode) {
-  var isMac = browser.mac;
-  if (!isMac) return undefined;
-
-  var macKeyMappings = {
-    8: DELETE_ELEMENT, // BACKSPACE = DELETE_ELEMENT
-  };
-}
-
-var keyConverter = function(keyCode) {
-  var converters = [
-    convertNumpadToDigit,
-    convertVerticalArrowsToHorizontal,
-    convertMacKeys,
-  ];
-
-  _.some(converters, function(converter) {
-    var convertedKeyCode = converter(keyCode);
-    var successfulyConverted = convertedKeyCode !== undefined;
-    if (successfulyConverted) {
-      keyCode = convertedKeyCode;
-      return true; // stops the loop
-    }
-    return false;
-  });
-
-  return keyCode;
-}
+  return isNumpad ? keyCode - 48 : keyCode;
+};
 
 var createFunctionToChangeElementType = function(newElementType) {
   return function(context) {
     var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
     return reformatShortcutHandler.handleChangeElementType(newElementType, context);
   }
-}
+};
 
 SHORTCUT_HANDLERS[CHANGE_TO_GENERAL]       = createFunctionToChangeElementType('general');
 SHORTCUT_HANDLERS[CHANGE_TO_HEADING]       = createFunctionToChangeElementType('heading');
@@ -107,7 +93,9 @@ exports.findHandlerFor = function(context) {
   if (!isTypeForCmdKey) return undefined;
 
   if (reformatWindowState.isOpened()) {
-    var keyCode = keyConverter(evt.keyCode);
+    var isMac = browser.mac;
+    var keyCode = convertNumpadToDigitIfNecessary(evt.keyCode);
+    keyCode = isMac ? MAC_SHORTCUTS_TRANSLATOR[evt.keyCode] : keyCode;
 
     return SHORTCUT_HANDLERS[keyCode];
   } else {
