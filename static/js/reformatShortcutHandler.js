@@ -17,6 +17,11 @@ reformatShortcutHandler.prototype.handleChangeElementType = function(newElementT
   this.ace.callWithAce(function(innerAce) {
     innerAce.ace_inCallStackIfNecessary(utils.CHANGE_ELEMENT_EVENT, function() {
       innerAce.ace_doInsertScriptElement(newElementType);
+
+      // hack: before get the line number from rep we have to update it,
+      // otherwise it will keep the values outdated
+      innerAce.ace_fastIncorp();
+
       self.plugin.elementContentSelector.selectNextElement();
     });
   });

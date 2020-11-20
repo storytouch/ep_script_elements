@@ -5,6 +5,7 @@ describe('ep_script_elements - API - element type changed', function(){
   var pressShortcutToChangeElementType;
   var CLOSE_REFORMAT_WINDOW_MESSAGE = 'close_reformat_window';
   var CHANGE_ELEMENT_TYPE_MESSAGE = 'change_element_type';
+  var textOfSecondLine = 'line 2';
 
   before(function(cb){
     utils = ep_script_elements_test_helper.utils;
@@ -22,13 +23,10 @@ describe('ep_script_elements - API - element type changed', function(){
   });
 
   context('when API receives a message that line was reformatted', function() {
-    var inner$;
     var $firstTextElement;
-    var textOfSecondLine = 'line 2';
 
     before(function(done) {
       this.timeout(6000);
-      inner$ = helper.padInner$;
 
       var lastLineText = textOfSecondLine;
       var general1 = utils.general('line 1');
@@ -52,7 +50,7 @@ describe('ep_script_elements - API - element type changed', function(){
     it('changes the line type', function(done) {
       helper.waitFor(function(){
         // wait for element to be processed and changed
-        $firstTextElement = inner$('div').first(); // need to get it again because line is changed by Content Collector
+        $firstTextElement = helper.padInner$('div').first(); // need to get it again because line is changed by Content Collector
         return $firstTextElement.find('action').length === 1;
       }, 4000).done(done);
     });
@@ -60,7 +58,7 @@ describe('ep_script_elements - API - element type changed', function(){
     // test text selection
     it('selects the text of next visible element', function(done) {
       helper.waitFor(function() {
-        var selectedText = inner$.document.getSelection().toString();
+        var selectedText = helper.padInner$.document.getSelection().toString();
         return selectedText === textOfSecondLine;
       }, 4000).done(done);
     });
@@ -153,6 +151,7 @@ describe('ep_script_elements - API - element type changed', function(){
       });
 
       context('when it receives a message that reformat window was opened', function() {
+
         before(function(done) {
           apiUtils.simulateTriggerOfReformatWindowOpened();
           setTimeout(done, 1000); // wait some time to process the request
@@ -168,6 +167,13 @@ describe('ep_script_elements - API - element type changed', function(){
           it('changes the type of element', function(done) {
             pressShortcutToChangeElementType(changeElementTest.shortcut);
             helper.waitFor(changeElementTest.elementExists, 4000).done(done);
+          });
+
+          it('selects the text of next visible element', function(done) {
+            helper.waitFor(function() {
+              var selectedText = helper.padInner$.document.getSelection().toString();
+              return selectedText === textOfSecondLine;
+            }, 4000).done(done);
           });
         });
       });

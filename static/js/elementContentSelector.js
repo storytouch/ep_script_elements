@@ -56,6 +56,7 @@ elementContentSelector.prototype._getNonSceneMarkLineNumber = function($line, it
   if ($targetLine.hasClass('sceneMark')) {
     return this._getNonSceneMarkLineNumber($targetLine, iterator);
   }
+
   var targetLineNumber = this.rep.lines.indexOfKey($targetLine.attr('id'));
   return targetLineNumber;
 }
