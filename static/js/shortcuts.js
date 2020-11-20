@@ -11,22 +11,21 @@ var SHORTCUT_HANDLERS = {};
 SHORTCUT_HANDLERS[TO_NEXT_SCENE] = function(context) {
   moveCaretToAdjacentScene(context, forward);
   /*
-   * by returning false, we tell the shortcutsAndMergeLinesHandler that
-   * this function does NOT interrupt the key handling, as this function
-   * does not change the document content. It changes only the sytle.
-   * See "mergeLines" for an example where the execution must be interrupted.
+   * [1] by returning true, we tell the shortcutsAndMergeLinesHandler that
+   * the pressed key MUST be canceled (preventDefault). Otherwise, the default
+   * behavior of that key will take effect.
    */
-  return false;
+  return true;
 };
 // Cmd+Shift+,
 SHORTCUT_HANDLERS[TO_PREVIOUS_SCENE] = function(context) {
   moveCaretToAdjacentScene(context, backward);
-  return false;
+  return true; // [1]
 };
 // Cmd+k
 SHORTCUT_HANDLERS[STRIKETHROUGH] = function(context) {
   formattingStyleOfSelection.applyStrikethrough(context);
-  return false;
+  return true; // [1]
 }
 
 exports.findHandlerFor = function(context) {
