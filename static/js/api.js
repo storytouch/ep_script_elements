@@ -14,6 +14,7 @@ var SELECT_PREVIOUS_ELEMENT           = 'select_previous_element';
 var DELETE_ELEMENT                    = 'delete_element';
 var REFORMAT_WINDOW_CLOSED            = 'reformat_window_closed';
 var REFORMAT_WINDOW_OPENED            = 'reformat_window_opened';
+var ACTIVATE_EASC_BUTTON              = 'activate_easc_button';
 
 exports.init = function(ace) {
   // listen to outbound calls of this API
@@ -88,6 +89,7 @@ var _handleOutboundCalls = function _handleOutboundCalls(e, ace) {
       var thisPlugin = utils.getThisPluginProps();
       thisPlugin.reformatWindowState.setToOpened();
       thisPlugin.elementContentSelector.selectCurrentElement();
+      triggerEvent({ type: ACTIVATE_EASC_BUTTON, coreButton: 'script' })
       break;
     }
     case REFORMAT_WINDOW_CLOSED: {
