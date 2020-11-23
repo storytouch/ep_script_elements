@@ -181,6 +181,16 @@ describe('ep_script_elements - API - element type changed', function(){
   });
 
   context('when the user presses the shortcut to change the element type to general', function() {
+    before(function(done) {
+      apiUtils.simulateTriggerOfReformatWindowOpened();
+      setTimeout(done, 1000); // wait some time to process the request
+    });
+
+    after(function(done) {
+      apiUtils.simulateTriggerOfReformatWindowClosed();
+      setTimeout(done, 1000); // wait some time to process the request
+    });
+
     it('does not change the element to another type', function(done) {
       pressShortcutToChangeElementType(48);
       helper.waitFor(function(){
@@ -215,12 +225,25 @@ describe('ep_script_elements - API - element type changed', function(){
       });
     });
 
+    after(function(done) {
+      apiUtils.simulateTriggerOfReformatWindowClosed();
+      setTimeout(done, 1000); // wait some time to process the request
+    });
+
     it('removes the SM elements related to the removed heading', function(done) {
       // 1 general + 1 scene name + 1 scene summary + 1 heading
       var expectedNumberOfElements = 4;
       helper.waitFor(function(){
         return helper.padInner$('div').length === expectedNumberOfElements;
       }, 4000).done(done);
+    })
+  });
+
+  context.skip('when the user tries to type any key while reformatting', function() {
+    it('does not process the key', function(done) {
+      // we cannot simulate the event of a user pressing a key that should be blocked.
+      // we are testing this feature on integration tests of teksto.
+      done();
     })
   });
 });

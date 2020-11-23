@@ -4,6 +4,7 @@ var api   = require('./api');
 
 var KEYS = {
   R: 82,
+  Z: 90,
   ESC: 27,
   DIGIT0: 48,
   DIGIT1: 49,
@@ -32,6 +33,7 @@ var CHANGE_TO_SHOT          = KEYS.DIGIT7;
 var SELECT_NEXT_ELEMENT     = KEYS.ARROW_DOWN;
 var SELECT_PREVIOUS_ELEMENT = KEYS.ARROW_UP;
 var DELETE_ELEMENT          = KEYS.DELETE;
+var UNDO                    = KEYS.Z;
 
 var MAC_SHORTCUTS_TRANSLATOR = {
   [KEYS.BACKSPACE]: KEYS.DELETE,
@@ -61,6 +63,9 @@ SHORTCUT_HANDLERS[DELETE_ELEMENT] = function() {
   var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
   return reformatShortcutHandler.handleDeleteElement();
 };
+// for UNDO, we define a function that does nothing but does return "false",
+// so that the event is not prevented.
+SHORTCUT_HANDLERS[UNDO] = function() { return false; };
 
 var convertNumpadToDigitIfNecessary = function(keyCode) {
   var isNumpad = (keyCode >= 96 && keyCode <= 103) // 0 to 7 (Numpad keys)
@@ -96,6 +101,13 @@ exports.findHandlerFor = function(context) {
     var isMac = browser.mac;
     var keyCode = convertNumpadToDigitIfNecessary(evt.keyCode);
     keyCode = isMac ? MAC_SHORTCUTS_TRANSLATOR[evt.keyCode] : keyCode;
+
+    if (keyCode === KEYS.Z) {
+      if (evt.metaKey || evt.ctrlKey) {
+        return SHORTCUT_HANDLERS[keyCode];
+      }
+      return undefined;
+    }
 
     return SHORTCUT_HANDLERS[keyCode];
   } else {
