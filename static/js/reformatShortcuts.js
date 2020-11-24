@@ -73,6 +73,11 @@ var convertNumpadToDigitIfNecessary = function(keyCode) {
   return isNumpad ? keyCode - 48 : keyCode;
 };
 
+var getRelatedKeyOnMac = function(keyCode) {
+  var hasADifferentKeyOnMac = MAC_SHORTCUTS_TRANSLATOR[keyCode] !== undefined;
+  return hasADifferentKeyOnMac ? MAC_SHORTCUTS_TRANSLATOR[keyCode] : keyCode;
+}
+
 var createFunctionToChangeElementType = function(newElementType) {
   return function(context) {
     var reformatShortcutHandler = utils.getThisPluginProps().reformatShortcutHandler;
@@ -98,9 +103,9 @@ exports.findHandlerFor = function(context) {
   if (!isTypeForCmdKey) return undefined;
 
   if (reformatWindowState.isOpened()) {
-    var isMac = browser.mac;
     var keyCode = convertNumpadToDigitIfNecessary(evt.keyCode);
-    keyCode = isMac ? MAC_SHORTCUTS_TRANSLATOR[evt.keyCode] : keyCode;
+    var isMac = browser.mac;
+    keyCode = isMac ? getRelatedKeyOnMac(keyCode) : keyCode;
 
     if (keyCode === KEYS.Z) {
       if (evt.metaKey || evt.ctrlKey) {
