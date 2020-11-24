@@ -5,6 +5,7 @@ describe('ep_script_elements - API - element type changed', function(){
   var pressShortcutToChangeElementType;
   var CLOSE_REFORMAT_WINDOW_MESSAGE = 'close_reformat_window';
   var CHANGE_ELEMENT_TYPE_MESSAGE = 'change_element_type';
+  var ACTIVATE_EASC_BUTTON_MESSAGE = 'activate_easc_button';
   var textOfSecondLine = 'line 2';
 
   before(function(cb){
@@ -16,10 +17,6 @@ describe('ep_script_elements - API - element type changed', function(){
     pressShortcutToChangeElementType = testHelper.pressShortcutToChangeElementType;
     utils.newPad(cb);
     this.timeout(60000);
-  });
-
-  beforeEach(function() {
-    apiUtils.resetLastDataSent();
   });
 
   context('when API receives a message that line was reformatted', function() {
@@ -34,8 +31,6 @@ describe('ep_script_elements - API - element type changed', function(){
 
       var script = general1 + general2;
       utils.createScriptWith(script, lastLineText, function() {
-        apiUtils.resetLastDataSent();
-
         // sets first line to action
         apiUtils.simulateTriggerOfChangeElementType(utils.ACTION);
         done();
@@ -67,9 +62,31 @@ describe('ep_script_elements - API - element type changed', function(){
   context('when the user presses the shortcut to open the reformat window', function() {
     var OPEN_REFORMAT_WINDOW_MESSAGE = 'open_reformat_window';
 
+    before(function(done) {
+      apiUtils.resetLastDataSent();
+      done();
+    })
+
     it('sends a message to open the reformat window', function(done) {
       pressShortcutToOpenReformatWindow();
       apiUtils.waitForDataToBeSent(OPEN_REFORMAT_WINDOW_MESSAGE, done);
+    });
+  });
+
+  context('when it receives a message that reformat window was opened', function() {
+    before(function(done) {
+      apiUtils.resetLastDataSent();
+      apiUtils.simulateTriggerOfReformatWindowOpened();
+      setTimeout(done, 500); // wait some time to process the request
+    });
+
+    after(function(cb) {
+      apiUtils.simulateTriggerOfReformatWindowClosed();
+      setTimeout(cb, 500); // wait some time to process the request
+    });
+
+    it('sends a message to activate script on easc', function(done) {
+      apiUtils.waitForDataToBeSent(ACTIVATE_EASC_BUTTON_MESSAGE, done);
     });
   });
 
@@ -81,6 +98,7 @@ describe('ep_script_elements - API - element type changed', function(){
 
     context('when it receives a message that reformat window was opened', function() {
       before(function(done) {
+        apiUtils.resetLastDataSent();
         apiUtils.simulateTriggerOfReformatWindowOpened();
         setTimeout(done, 500); // wait some time to process the request
       });
@@ -151,7 +169,6 @@ describe('ep_script_elements - API - element type changed', function(){
       });
 
       context('when it receives a message that reformat window was opened', function() {
-
         before(function(done) {
           apiUtils.simulateTriggerOfReformatWindowOpened();
           setTimeout(done, 1000); // wait some time to process the request
