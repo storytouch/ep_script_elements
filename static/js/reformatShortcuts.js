@@ -74,8 +74,7 @@ var convertNumpadToDigitIfNecessary = function(keyCode) {
 };
 
 var getRelatedKeyOnMac = function(keyCode) {
-  var hasADifferentKeyOnMac = MAC_SHORTCUTS_TRANSLATOR[keyCode] !== undefined;
-  return hasADifferentKeyOnMac ? MAC_SHORTCUTS_TRANSLATOR[keyCode] : keyCode;
+  return MAC_SHORTCUTS_TRANSLATOR[keyCode] || keyCode;
 }
 
 var createFunctionToChangeElementType = function(newElementType) {
