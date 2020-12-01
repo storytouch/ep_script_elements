@@ -377,6 +377,7 @@ ep_script_elements_test_helper.utils = {
   // padTypes
   BACKUP_DOCUMENT_TYPE: 'BackupDocument',
   SCRIPT_DOCUMENT_TYPE: 'ScriptDocument',
+  TEXT_DOCUMENT_TYPE: 'TextDocument',
   TITLE_PAGE_DOCUMENT_TYPE: 'TitlePageDocument',
 
   newPadWithType: function(cb, type) {
