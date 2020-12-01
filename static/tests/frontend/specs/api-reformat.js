@@ -216,7 +216,7 @@ describe('ep_script_elements - API - element type changed', function(){
     });
   });
 
-  // special case
+  // special case: https://trello.com/c/k8Gs8fH8/1202-p3-reformatar-cmdctrlr-abre-janela-para-reformatar-elementos
   context('when the user tries to change a heading to another type', function() {
     before(function(done) {
       this.timeout(6000);
@@ -254,6 +254,52 @@ describe('ep_script_elements - API - element type changed', function(){
         return helper.padInner$('div').length === expectedNumberOfElements;
       }, 4000).done(done);
     })
+  });
+
+  // special case: https://trello.com/c/6blUwmJA/2514-reformat-pula-elementos
+  context('when the user tries to change an empty line to another type', function() {
+    var firstLine = '';
+    var secondLine = 'line 2';
+    var thirdLine = 'line 3';
+
+    before(function(done) {
+      this.timeout(6000);
+      utils.cleanPad(function() {
+        var general1 = utils.general(firstLine); // empty line
+        var general2 = utils.general(secondLine);
+        var general3 = utils.general(thirdLine);
+
+        var script = general1 + general2 + general3;
+        utils.createScriptWith(script, thirdLine, function() {
+          apiUtils.simulateTriggerOfReformatWindowOpened();
+          setTimeout(function() {
+            var digit1 = 49; // 49 is the code for digit 1, which is the shortcut for heading
+            pressShortcutToChangeElementType(digit1); // change to heading
+            done();
+          }, 1000); // wait some time to process the request
+        });
+      });
+    });
+
+    after(function(done) {
+      apiUtils.simulateTriggerOfReformatWindowClosed();
+      setTimeout(done, 1000); // wait some time to process the request
+    });
+
+    it('changes the line type', function(done) {
+      helper.waitFor(function(){
+        return helper.padInner$('heading').length === 1;
+      }, 4000).done(done);
+    });
+
+    // test text selection
+    it('selects the text of next visible element', function(done) {
+      helper.waitFor(function() {
+        var selectedText = helper.padInner$.document.getSelection().toString().replace('\n', '');
+        console.log(selectedText)
+        return selectedText === secondLine;
+      }, 4000).done(done);
+    });
   });
 
   context.skip('when the user tries to type any key while reformatting', function() {

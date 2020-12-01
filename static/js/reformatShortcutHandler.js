@@ -13,23 +13,74 @@ var reformatShortcutHandler = function(ace) {
 reformatShortcutHandler.prototype.handleChangeElementType = function(newElementType, context) {
   var self = this;
   var editorInfo = context.editorInfo;
+  var rep = context.rep;
+  var attributeManager = context.documentAttributeManager;
+
   var currentLine = editorInfo.ace_caretLine();
+  var lineType = utils.getLineType(currentLine, attributeManager);
+
+  if (lineType === 'heading' || newElementType === 'heading') {
+    this._handleChangeWithHeading(currentLine, newElementType, context);
+  } else {
+    this._handleChangeWithoutHeading(newElementType);
+  }
+
+  return true;
+}
+
+reformatShortcutHandler.prototype._handleChangeWithHeading = function(currentLine, newElementType, context) {
+  var rep = context.rep;
+  var editorInfo = context.editorInfo;
+  var self = this;
   this.ace.callWithAce(function(innerAce) {
     innerAce.ace_inCallStackIfNecessary(utils.CHANGE_ELEMENT_EVENT, function() {
+      /*
+       * when the element changing involves a heading, we have to follow
+       * some steps:
+       *   [1] - change the element type
+       *   [2] - synchronize the rep with the new lines
+       *   [3] - select the next element
+       */
+
+      // [1] simply change the element from heading to another type,
+      // or vice versa
       innerAce.ace_doInsertScriptElement(newElementType);
 
-      // hack: before get the line number from rep we have to update it,
-      // otherwise it will keep the values outdated
+      // [2] before get the line number from rep we have to update it,
+      // otherwise it will keep the values outdated. This is necessary
+      // to select the content of the next line.
       innerAce.ace_fastIncorp();
 
-      self.plugin.elementContentSelector.selectNextElement();
+      // [3] this step involes two scenarios:
+      //   [3.1] while changing from script element to heading: at this moment,
+      //   the document doesn't have yet the new lines (title and summary).
+      //   So we can set the next line to currentLine + 1.
+      //
+      //   [3.2] while changing from heading to script element: at this moment,
+      //   the document still have the scene mark lines, but those lines are
+      //   above the line we want to select. So we can calculate the next line
+      //   the same way we do in [3.1].
+      var nextLine = currentLine + 1;
+      self.plugin.elementContentSelector.selectElement(nextLine);
     });
   });
+
+  // Reflect the element removal on the edit event associated with this change,
+  // so that other plugins know that this change happened
   if (context.callstack) {
     context.callstack.editEvent.eventType = shared.SCRIPT_ELEMENT_REMOVED;
     context.callstack.editEvent.data = { lineNumbers: [currentLine] };
   }
-  return true;
+}
+
+reformatShortcutHandler.prototype._handleChangeWithoutHeading = function(newElementType) {
+  var self = this;
+  this.ace.callWithAce(function(innerAce) {
+    innerAce.ace_inCallStackIfNecessary(utils.CHANGE_ELEMENT_EVENT, function() {
+      innerAce.ace_doInsertScriptElement(newElementType);
+      self.plugin.elementContentSelector.selectNextElement();
+    });
+  });
 }
 
 reformatShortcutHandler.prototype.handleSelectNextElement = function() {
