@@ -182,7 +182,7 @@ describe('ep_script_elements - API - delete element', function() {
   });
 
   // special case: https://trello.com/c/6blUwmJA/2514-reformat-pula-elementos
-  context('when the user tries to change an empty line to another type', function() {
+  context('when the current line is a heading and next lines are script elements', function() {
     var firstGeneral = 'general 1';
     var secondGeneral = 'general 2';
     var thirdGeneral = 'general 3';

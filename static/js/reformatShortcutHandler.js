@@ -13,7 +13,6 @@ var reformatShortcutHandler = function(ace) {
 reformatShortcutHandler.prototype.handleChangeElementType = function(newElementType, context) {
   var self = this;
   var editorInfo = context.editorInfo;
-  var rep = context.rep;
   var attributeManager = context.documentAttributeManager;
 
   var currentLine = editorInfo.ace_caretLine();
@@ -29,8 +28,6 @@ reformatShortcutHandler.prototype.handleChangeElementType = function(newElementT
 }
 
 reformatShortcutHandler.prototype._handleChangeWithHeading = function(currentLine, newElementType, context) {
-  var rep = context.rep;
-  var editorInfo = context.editorInfo;
   var self = this;
   this.ace.callWithAce(function(innerAce) {
     innerAce.ace_inCallStackIfNecessary(utils.CHANGE_ELEMENT_EVENT, function() {
