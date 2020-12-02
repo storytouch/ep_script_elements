@@ -14,17 +14,22 @@ elementContentCleaner.prototype.deleteElement = function() {
   var lineIsSceneMark = !utils.lineIsScriptElement(currentLine);
   if (lineIsSceneMark) return;
 
+  var lineToSelect;
   var lineIsHeading = utils.lineIsHeading(currentLine, this.attributeManager);
   if (lineIsHeading) {
     var $lineToDelete = this._getParentSMOfHeading(currentLine);
     var sceneMarkLineId = $lineToDelete.attr('id');
     removeSceneMark(sceneMarkLineId);
+    var titleAndSummaryLines = 2; // 2 lines
+    // currentLine now is the number of the line after the deleted HEADING
+    lineToSelect = currentLine - titleAndSummaryLines;
   } else {
     this._removeScriptElement(currentLine);
+    // currentLine now is the number of the line after the deleted ELEMENT
+    lineToSelect = currentLine;
   }
 
-  // currentLine now is the number the line after the deleted element
-  return currentLine;
+  return lineToSelect;
 }
 
 elementContentCleaner.prototype._removeScriptElement = function (lineNumberOfSE) {
