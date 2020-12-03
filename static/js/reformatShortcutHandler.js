@@ -48,15 +48,17 @@ reformatShortcutHandler.prototype._handleChangeWithHeading = function(currentLin
       // to select the content of the next line.
       innerAce.ace_fastIncorp();
 
-      // [3] this step involes two scenarios:
-      //   [3.1] while changing from script element to heading: at this moment,
-      //   the document doesn't have yet the new lines (title and summary).
-      //   So we can set the next line to currentLine + 1.
-      //
-      //   [3.2] while changing from heading to script element: at this moment,
-      //   the document still have the scene mark lines, but those lines are
-      //   above the line we want to select. So we can calculate the next line
-      //   the same way we do in [3.1].
+      /*
+       * [3] this step involes two scenarios:
+       *   [3.1] while changing from script element to heading: at this moment,
+       *   the document doesn't have yet the new lines (title and summary).
+       *   So we can set the next line to currentLine + 1.
+       *
+       *   [3.2] while changing from heading to script element: at this moment,
+       *   the document still have the scene mark lines, but those lines are
+       *   above the line we want to select. So we can calculate the next line
+       *   the same way we do in [3.1].
+      */
       var nextLine = currentLine + 1;
       self.plugin.elementContentSelector.selectElement(nextLine);
     });

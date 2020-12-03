@@ -93,7 +93,6 @@ describe('ep_script_elements - API - delete element', function() {
     it('selects the text of next visible element', function(done) {
       helper.waitFor(function() {
         var selectedText = inner$.document.getSelection().toString().replace('\n', '');
-        console.log(selectedText)
         return selectedText === 'action 2';
       }, 4000).done(done);
     });
@@ -232,6 +231,198 @@ describe('ep_script_elements - API - delete element', function() {
       it('restores the deleted element', (done) => {
         helper.waitFor(function() {
           var currentNumberOfElements = inner$('div').length;
+          return currentNumberOfElements === initialNumberOfElements;
+        }).done(done);
+      });
+    });
+  });
+
+  context('when the current line is a heading with a sequence', function() {
+    var firstGeneral = 'general 1';
+    var secondGeneral = 'general 2';
+    var headingLineNumber = 4;
+
+    before(function(done) {
+      this.timeout(6000);
+      utils.cleanPad(function() {
+        var sequence = smUtils.createSeq('first heading')
+        var general1 = utils.general(firstGeneral);
+        var general2 = utils.general(secondGeneral);
+
+        var script = sequence + general1 + general2;
+        utils.createScriptWith(script, secondGeneral, function() {
+          initialNumberOfElements = inner$('div').length;
+          utils.placeCaretInTheBeginningOfLine(headingLineNumber, function() {
+            setTimeout(function() {
+              apiUtils.simulateTriggerOfDeleteElement();
+              done();
+            }, 2000);
+          });
+        });
+      });
+    });
+
+    it('deletes the current element', (done) => {
+      helper.waitFor(function() {
+        var currentNumberOfElements = inner$('div').length;
+        /*
+         * it deletes:
+         *   sequence_name
+         *   sequence_summary
+         *   scene_name
+         *   scene_summary
+         *   heading
+         */
+        return currentNumberOfElements === initialNumberOfElements - 5;
+      }, 4000).done(done);
+    });
+
+    it('selects the text of next visible element', function(done) {
+      helper.waitFor(function() {
+        var selectedText = inner$.document.getSelection().toString().replace('\n', '');
+        return selectedText === firstGeneral;
+      }, 4000).done(done);
+    });
+
+    context('when the user performs undo', function() {
+      before(function() {
+        utils.undo();
+      });
+
+      it('restores the deleted element', (done) => {
+        helper.waitFor(function() {
+          var currentNumberOfElements = inner$('div').length;
+          console.log(currentNumberOfElements, initialNumberOfElements);
+          return currentNumberOfElements === initialNumberOfElements;
+        }).done(done);
+      });
+    });
+  });
+
+  context('when the current line is a heading with an act', function() {
+    var firstGeneral = 'general 1';
+    var secondGeneral = 'general 2';
+    var headingLineNumber = 6;
+
+    before(function(done) {
+      this.timeout(6000);
+      utils.cleanPad(function() {
+        var act = smUtils.createAct('first heading')
+        var general1 = utils.general(firstGeneral);
+        var general2 = utils.general(secondGeneral);
+
+        var script = act + general1 + general2;
+        utils.createScriptWith(script, secondGeneral, function() {
+          initialNumberOfElements = inner$('div').length;
+          utils.placeCaretInTheBeginningOfLine(headingLineNumber, function() {
+            setTimeout(function() {
+              apiUtils.simulateTriggerOfDeleteElement();
+              done();
+            }, 2000);
+          });
+        });
+      });
+    });
+
+    it('deletes the current element', (done) => {
+      helper.waitFor(function() {
+        var currentNumberOfElements = inner$('div').length;
+        /*
+         * it deletes:
+         *   act_name
+         *   act_summary
+         *   sequence_name
+         *   sequence_summary
+         *   scene_name
+         *   scene_summary
+         *   heading
+         */
+        return currentNumberOfElements === initialNumberOfElements - 7;
+      }, 4000).done(done);
+    });
+
+    it('selects the text of next visible element', function(done) {
+      helper.waitFor(function() {
+        var selectedText = inner$.document.getSelection().toString().replace('\n', '');
+        return selectedText === firstGeneral;
+      }, 4000).done(done);
+    });
+
+    context('when the user performs undo', function() {
+      before(function() {
+        utils.undo();
+      });
+
+      it('restores the deleted element', (done) => {
+        helper.waitFor(function() {
+          var currentNumberOfElements = inner$('div').length;
+          console.log(currentNumberOfElements, initialNumberOfElements);
+          return currentNumberOfElements === initialNumberOfElements;
+        }).done(done);
+      });
+    });
+  });
+
+  context('when the current line is a heading with an episode', function() {
+    var firstGeneral = 'general 1';
+    var secondGeneral = 'general 2';
+    var headingLineNumber = 8;
+
+    before(function(done) {
+      this.timeout(6000);
+      utils.cleanPad(function() {
+        var episode = smUtils.createEpi('first heading')
+        var general1 = utils.general(firstGeneral);
+        var general2 = utils.general(secondGeneral);
+
+        var script = episode + general1 + general2;
+        utils.createScriptWith(script, secondGeneral, function() {
+          initialNumberOfElements = inner$('div').length;
+          utils.placeCaretInTheBeginningOfLine(headingLineNumber, function() {
+            setTimeout(function() {
+              apiUtils.simulateTriggerOfDeleteElement();
+              done();
+            }, 2000);
+          });
+        });
+      });
+    });
+
+    it('deletes the current element', (done) => {
+      helper.waitFor(function() {
+        var currentNumberOfElements = inner$('div').length;
+        /*
+         * it deletes:
+         *   episode_name
+         *   episode_summary
+         *   act_name
+         *   act_summary
+         *   sequence_name
+         *   sequence_summary
+         *   scene_name
+         *   scene_summary
+         *   heading
+         */
+        return currentNumberOfElements === initialNumberOfElements - 9;
+      }, 4000).done(done);
+    });
+
+    it('selects the text of next visible element', function(done) {
+      helper.waitFor(function() {
+        var selectedText = inner$.document.getSelection().toString().replace('\n', '');
+        return selectedText === firstGeneral;
+      }, 4000).done(done);
+    });
+
+    context('when the user performs undo', function() {
+      before(function() {
+        utils.undo();
+      });
+
+      it('restores the deleted element', (done) => {
+        helper.waitFor(function() {
+          var currentNumberOfElements = inner$('div').length;
+          console.log(currentNumberOfElements, initialNumberOfElements);
           return currentNumberOfElements === initialNumberOfElements;
         }).done(done);
       });

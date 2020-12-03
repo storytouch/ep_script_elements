@@ -1,4 +1,4 @@
-var removeSceneMark = require('ep_script_scene_marks/static/js/removeSceneMark').removeSceneMark;
+var triggerEventRemoveSceneMark = require('ep_script_scene_marks/static/js/removeSceneMark').triggerEventRemoveSceneMark;
 var utils = require('./utils');
 
 var elementContentCleaner = function(editorInfo, rep, documentAttributeManager) {
@@ -16,15 +16,22 @@ elementContentCleaner.prototype.deleteElement = function() {
 
   var lineToSelect;
   var lineIsHeading = utils.lineIsHeading(currentLine, this.attributeManager);
+
   if (lineIsHeading) {
-    var $lineToDelete = this._getParentSMOfHeading(currentLine);
-    var sceneMarkLineId = $lineToDelete.attr('id');
-    removeSceneMark(sceneMarkLineId);
-    var titleAndSummaryLines = 2; // 2 lines
-    // currentLine now is the number of the line after the deleted HEADING
-    lineToSelect = currentLine - titleAndSummaryLines;
+    // calculate the number of scene mark lines that will be deleted
+    var titleAndSummaryLinesToDelete = this._calculateLinesToDelete(currentLine);
+
+    // calculate the line number to select
+    lineToSelect = currentLine - titleAndSummaryLinesToDelete;
+
+    // delete the heading
+    this._removeElement(currentLine);
+
+    // delete the related scene marks
+    triggerEventRemoveSceneMark([currentLine], true);
   } else {
-    this._removeScriptElement(currentLine);
+    this._removeElement(currentLine);
+
     // currentLine now is the number of the line after the deleted ELEMENT
     lineToSelect = currentLine;
   }
@@ -32,7 +39,7 @@ elementContentCleaner.prototype.deleteElement = function() {
   return lineToSelect;
 }
 
-elementContentCleaner.prototype._removeScriptElement = function (lineNumberOfSE) {
+elementContentCleaner.prototype._removeElement = function (lineNumberOfSE) {
   var self = this;
   var intervalToRemove = this._getIntervalToRemove(lineNumberOfSE);
   this.editorInfo.ace_inCallStackIfNecessary('remove_element', function(){
@@ -40,23 +47,20 @@ elementContentCleaner.prototype._removeScriptElement = function (lineNumberOfSE)
   });
 }
 
-elementContentCleaner.prototype._getParentSMOfHeading = function(headingLineNumber) {
+elementContentCleaner.prototype._calculateLinesToDelete = function(headingLineNumber) {
   var $heading = utils.getPadInner().find('div').eq(headingLineNumber);
-  var $lastSceneMarkAboveHeading = $heading.prev();
-  var keepLookingUpward = true;
+  var linesToDelete = 0;
+  var $line = $heading.prev();
 
-  while (keepLookingUpward) {
-    var thereIsLineAbove = $lastSceneMarkAboveHeading.prev();
-    var lineAboveIsSM = $lastSceneMarkAboveHeading.prev().hasClass('sceneMark');
-
-    if (thereIsLineAbove && lineAboveIsSM) {
-      $lastSceneMarkAboveHeading = $lastSceneMarkAboveHeading.prev();
-    } else {
-      keepLookingUpward = false;
-    }
+  while (true) {
+    var lineIsSceneMark = $line.length && $line.hasClass('sceneMark');
+    if (lineIsSceneMark) {
+      linesToDelete++;
+      $line = $line.prev();
+    } else break;
   }
 
-  return $lastSceneMarkAboveHeading;
+  return linesToDelete;
 }
 
 elementContentCleaner.prototype._isLastLine = function(lineNumber) {

@@ -216,7 +216,7 @@ describe('ep_script_elements - API - element type changed', function(){
     });
   });
 
-  // special case: https://trello.com/c/k8Gs8fH8/1202-p3-reformatar-cmdctrlr-abre-janela-para-reformatar-elementos
+  // special case: https://trello.com/c/k8Gs8fH8/1202
   context('when the user tries to change a heading to another type', function() {
     before(function(done) {
       this.timeout(6000);
@@ -256,7 +256,7 @@ describe('ep_script_elements - API - element type changed', function(){
     })
   });
 
-  // special case: https://trello.com/c/6blUwmJA/2514-reformat-pula-elementos
+  // special case: https://trello.com/c/6blUwmJA/2514
   context('when the user tries to change an empty line to another type', function() {
     var firstLine = '';
     var secondLine = 'line 2';
