@@ -1,4 +1,3 @@
-var triggerEventRemoveSceneMark = require('ep_script_scene_marks/static/js/removeSceneMark').triggerEventRemoveSceneMark;
 var utils = require('./utils');
 
 var elementContentCleaner = function(editorInfo, rep, documentAttributeManager) {
@@ -23,25 +22,19 @@ elementContentCleaner.prototype.deleteElement = function() {
 
     // calculate the line number to select
     lineToSelect = currentLine - titleAndSummaryLinesToDelete;
-
-    // delete the heading
-    this._removeElement(currentLine);
-
-    // delete the related scene marks
-    triggerEventRemoveSceneMark([currentLine], true);
   } else {
-    this._removeElement(currentLine);
-
-    // currentLine now is the number of the line after the deleted ELEMENT
+    // currentLine will be the number of the line after the deleted element
     lineToSelect = currentLine;
   }
+
+  this._removeElement(currentLine, lineIsHeading);
 
   return lineToSelect;
 }
 
-elementContentCleaner.prototype._removeElement = function (lineNumberOfSE) {
+elementContentCleaner.prototype._removeElement = function (lineToRemove, lineIsHeading) {
   var self = this;
-  var intervalToRemove = this._getIntervalToRemove(lineNumberOfSE);
+  var intervalToRemove = this._getIntervalToRemove(lineToRemove, lineIsHeading);
   this.editorInfo.ace_inCallStackIfNecessary('remove_element', function(){
     self.editorInfo.ace_performDocumentReplaceRange(intervalToRemove.start, intervalToRemove.end, '');
   });
@@ -68,17 +61,45 @@ elementContentCleaner.prototype._isLastLine = function(lineNumber) {
   return lineNumber === lastLine;
 }
 
-elementContentCleaner.prototype._getIntervalToRemove = function(firstLineToRemove) {
-  var nextLine = firstLineToRemove + 1;
-  var currentLineIsLastLine = this._isLastLine(firstLineToRemove);
+elementContentCleaner.prototype._getIntervalToRemove = function(lineToRemove, lineIsHeading) {
+  var firstLineToRemove, lastLineToRemove;
+  if (lineIsHeading) {
+    /*
+     * in this scenario, the interval to remove starts at the position
+     * zero of the top scene mark line, and ends at the position zero
+     * of the line after the heading.
+     *
+     *   [START]scene_name
+     *   scene_summary
+     *   heading
+     *   [END]general
+     */
+    lastLineToRemove = lineToRemove + 1;
+    var $heading = utils.getPadInner().find('div').eq(lineToRemove);
+    var $topSM = $heading.prevUntil('div:not(.sceneMark)').last();
+    firstLineToRemove = this.rep.lines.indexOfKey($topSM.attr('id'));
+  } else {
+    /*
+     * in this sceneario, the interval to remove starts at the position
+     * zero of the current line, and ends at the position zero of the
+     * next line.
+     *
+     *   [START]general 1
+     *   [END]general 2
+     */
+    firstLineToRemove = lineToRemove;
+    lastLineToRemove = lineToRemove + 1;
+  }
+
   var intervalToRemove = {
     start: [firstLineToRemove, 0],
-    end: [nextLine, 0],
+    end: [lastLineToRemove, 0],
   };
 
+  var currentLineIsLastLine = this._isLastLine(lineToRemove);
   if (currentLineIsLastLine) {
-    var lastLineLength = this.rep.lines.atIndex(firstLineToRemove).width - 1;
-    intervalToRemove.end = [firstLineToRemove, lastLineLength];
+    var lastLineLength = this.rep.lines.atIndex(lineToRemove).width - 1;
+    intervalToRemove.end = [lineToRemove, lastLineLength];
   }
 
   return intervalToRemove;
