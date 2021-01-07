@@ -9,7 +9,7 @@ var padType = function() {
   this._cachedPadTypeParam = null;
 };
 
-padType.prototype._getPadTypeParam = function() {
+padType.prototype.getPadTypeParam = function() {
   if (!this._cachedPadTypeParam) {
     // caches the pad type to avoid over-processing
     var params = new URL(window.location.href).searchParams;
@@ -20,7 +20,7 @@ padType.prototype._getPadTypeParam = function() {
 };
 
 padType.prototype.isScriptDocumentPad = function() {
-  var padTypeParam = this._getPadTypeParam();
+  var padTypeParam = this.getPadTypeParam();
 
   // considering null types like ScriptDocument
   // for backward compatibility
@@ -33,7 +33,7 @@ padType.prototype.isScriptDocumentPad = function() {
 };
 
 padType.prototype.isTextDocumentPad = function() {
-  var padTypeParam = this._getPadTypeParam();
+  var padTypeParam = this.getPadTypeParam();
   return padTypeParam === TEXT_DOCUMENT_TYPE;
 };
 
