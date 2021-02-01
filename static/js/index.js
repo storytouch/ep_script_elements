@@ -267,6 +267,12 @@ exports.aceInitialized = function(hook, context) {
   thisPlugin.reformatWindowState = reformatWindowState.init();
 
   pasteUtils.markStylesToBeDisabledOnPaste(CSS_TO_BE_DISABLED_ON_PASTE);
+
+  // adds a class on the inner iframe with the pad type
+  var padTypeParam = thisPlugin.padType.getPadTypeParam();
+  if (padTypeParam) {
+    utils.getPadInner().find('#innerdocbody').addClass(padTypeParam);
+  }
 }
 
 // Find out which lines are selected and remove scenetag from them

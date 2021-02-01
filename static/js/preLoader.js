@@ -1,5 +1,5 @@
-var utils                         = require('./utils');
-var padType                       = require('./padType');
+var utils   = require('./utils');
+var padType = require('./padType');
 
 // this hook proxies the functionality of jQuery's $(document).ready event
 exports.documentReady = function() {

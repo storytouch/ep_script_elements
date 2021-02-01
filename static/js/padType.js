@@ -3,12 +3,13 @@ var shared = require('./shared');
 var PAD_TYPE_URL_PARAM = 'padType';
 var BACKUP_DOCUMENT_TYPE = shared.BACKUP_DOCUMENT_TYPE;
 var SCRIPT_DOCUMENT_TYPE = shared.SCRIPT_DOCUMENT_TYPE;
+var TEXT_DOCUMENT_TYPE = shared.TEXT_DOCUMENT_TYPE;
 
 var padType = function() {
   this._cachedPadTypeParam = null;
 };
 
-padType.prototype._getPadTypeParam = function() {
+padType.prototype.getPadTypeParam = function() {
   if (!this._cachedPadTypeParam) {
     // caches the pad type to avoid over-processing
     var params = new URL(window.location.href).searchParams;
@@ -19,7 +20,7 @@ padType.prototype._getPadTypeParam = function() {
 };
 
 padType.prototype.isScriptDocumentPad = function() {
-  var padTypeParam = this._getPadTypeParam();
+  var padTypeParam = this.getPadTypeParam();
 
   // considering null types like ScriptDocument
   // for backward compatibility
@@ -29,6 +30,11 @@ padType.prototype.isScriptDocumentPad = function() {
     padTypeParam === BACKUP_DOCUMENT_TYPE;
 
   return padTypeIsScriptDocument;
+};
+
+padType.prototype.isTextDocumentPad = function() {
+  var padTypeParam = this.getPadTypeParam();
+  return padTypeParam === TEXT_DOCUMENT_TYPE;
 };
 
 exports.init = function() {
