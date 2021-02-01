@@ -60,7 +60,6 @@ heading, action, character, parenthetical, dialogue, transition, shot {
   font-size: 12pt;
 }
 
-
 /*
  *  ===================================================================================
  *                        DIMENSIONS OF SCRIPT ELEMENTS
@@ -112,6 +111,12 @@ heading, action, character, parenthetical, dialogue, transition, shot {
  *  Any changes on font-style, such as font-size, font-family, etc, may change the
  *  width of these elements.
  */
+
+ /* styles applied to GENERAL element */
+#innerdocbody div > span {
+  width: 586px;
+  display: block;
+}
 
 action {
   margin-top: 20px;
