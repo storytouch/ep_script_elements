@@ -58,6 +58,7 @@ heading, action, character, parenthetical, dialogue, transition, shot {
 #innerdocbody div {
   font-family: 'Courier Prime', monospace;
   font-size: 12pt;
+  width: 705px;
 }
 
 /*
@@ -111,12 +112,6 @@ heading, action, character, parenthetical, dialogue, transition, shot {
  *  Any changes on font-style, such as font-size, font-family, etc, may change the
  *  width of these elements.
  */
-
- /* styles applied to GENERAL element */
-#innerdocbody div > span {
-  width: 586px;
-  display: block;
-}
 
 action {
   margin-top: 20px;
