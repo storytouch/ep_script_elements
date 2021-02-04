@@ -13,7 +13,7 @@ heading:before {
   float: left;
   text-align: left;
   display: block;
-  margin-left: -81px; /*aligned with scene mark vertical bottom border*/
+  margin-left: -75px; /* aligned with scene mark vertical bottom border */
 
   /*make the number below the act/seq icon*/
   position: relative;
@@ -58,8 +58,8 @@ heading, action, character, parenthetical, dialogue, transition, shot {
 #innerdocbody div {
   font-family: 'Courier Prime', monospace;
   font-size: 12pt;
+  width: 705px;
 }
-
 
 /*
  *  ===================================================================================
