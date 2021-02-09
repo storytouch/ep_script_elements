@@ -13,7 +13,7 @@ heading:before {
   float: left;
   text-align: left;
   display: block;
-  margin-left: -81px; /*aligned with scene mark vertical bottom border*/
+  margin-left: -75px; /* aligned with scene mark vertical bottom border */
 
   /*make the number below the act/seq icon*/
   position: relative;
@@ -56,9 +56,10 @@ heading, action, character, parenthetical, dialogue, transition, shot {
 /* hack to force display the element without losing the default font
    when it is pasted with ctrl+shift+v */
 #innerdocbody div {
-  font-family: courier, monospace;
+  font-family: 'Courier Prime', monospace;
+  font-size: 12pt;
+  width: 705px;
 }
-
 
 /*
  *  ===================================================================================
@@ -88,21 +89,21 @@ heading, action, character, parenthetical, dialogue, transition, shot {
  *    WIDTH ON CHROME:
  *      widthInPixels = width("0") * numberOfCharactersPerLine
  *
- *  The `width("0")` using `font-size: 15px; font-family: courier, monospace;"`
- *  is 9.00146484375px.
+ *  The `width("0")` using `font-size: 12pt; font-family: 'Courier Prime', monospace;"`
+ *  is 9.59375px.
  *
  *  We round the width value with Math.ceil().
  *
  *  TYPE          | WIDTH ON CHROME (px)
  *  -------------------------------------------------
- *  action        | 550
- *  character     | 343
- *  dialogue      | 316
- *  general       | 550
- *  heading       | 550
- *  parenthetical | 235
- *  shot          | 550
- *  transition    | 145
+ *  action        | 586
+ *  character     | 365
+ *  dialogue      | 336
+ *  general       | 586
+ *  heading       | 586
+ *  parenthetical | 250
+ *  shot          | 586
+ *  transition    | 154
  *
  *  ===================================================================================
  *                                WARNING
@@ -114,37 +115,37 @@ heading, action, character, parenthetical, dialogue, transition, shot {
 
 action {
   margin-top: 20px;
-  width: 550px;
+  width: 586px;
 }
 
 character {
-  width: 343px;
+  width: 365px;
   margin-top: 20px;
   margin-left: 185px;
   text-align: left;
 }
 
 dialogue {
-  width: 316px;
+  width: 336px;
   margin-left: 94px;
 }
 
 heading {
-  width: 550px;
+  width: 586px;
 }
 
 parenthetical {
-  width: 235px;
+  width: 250px;
   margin-left: 137px;
 }
 
 shot {
   margin-top: 40px;
-  width: 550px;
+  width: 586px;
 }
 
 transition {
-  width: 145px;
+  width: 154px;
   margin-left: 375px;
   margin-top: 20px;
 }
