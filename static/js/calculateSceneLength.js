@@ -46,7 +46,7 @@ calculateSceneLength.prototype._listenToUserLinesChanged = function() {
 // get all user lines of a scene
 calculateSceneLength.prototype._getScenesUserLines = function() {
   var scenes = [];
-  var sceneLinesBuffer = [];
+  var sceneLinesBuffer = null; // initialize as null to avoid elements before first heading (Scene 0)
   var lastHeadingParentIndex = -1;
 
   this.userLines.forEach(function(userLine) {
@@ -57,16 +57,24 @@ calculateSceneLength.prototype._getScenesUserLines = function() {
     var isNewHeading = isHeading && userLine.parentIndex !== lastHeadingParentIndex;
 
     if (isNewHeading) {
-      if (sceneLinesBuffer.length) scenes.push(sceneLinesBuffer);
+      // appends the previous scene if necessary
+      if (sceneLinesBuffer && sceneLinesBuffer.length) {
+        scenes.push(sceneLinesBuffer);
+      }
+
+      // starts a new scene
       sceneLinesBuffer = [];
       lastHeadingParentIndex = userLine.parentIndex;
     }
 
-    sceneLinesBuffer.push(userLine);
+    // appends this line to the current scene
+    if (sceneLinesBuffer) {
+      sceneLinesBuffer.push(userLine);
+    }
   });
 
   // last iteration
-  if (sceneLinesBuffer.length) {
+  if (sceneLinesBuffer && sceneLinesBuffer.length) {
     scenes.push(sceneLinesBuffer);
   }
 
