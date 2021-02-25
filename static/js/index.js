@@ -272,6 +272,7 @@ exports.aceInitialized = function(hook, context) {
   var padTypeParam = thisPlugin.padType.getPadTypeParam();
   if (padTypeParam) {
     utils.getPadInner().find('#innerdocbody').addClass(padTypeParam);
+    utils.getPadOuter().find('#outerdocbody').addClass(padTypeParam);
   }
 }
 
